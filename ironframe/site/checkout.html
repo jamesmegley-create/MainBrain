@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout — Ironframe</title>
+  <meta name="description" content="Secure Stripe test-mode checkout for Ironframe service tiers." />
+  <meta name="robots" content="noindex" />
+  <link rel="canonical" href="https://ironframe.ai/checkout.html" />
+  <!-- PLACEHOLDER: Plausible analytics one-line swap:
+  <script defer data-domain="ironframe.ai" src="https://plausible.io/js/script.js"></script>
+  -->
+  <link rel="icon" href="favicon.ico" sizes="any" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="favicon-32x32.png" type="image/png" sizes="32x32" />
+  <link rel="icon" href="favicon-16x16.png" type="image/png" sizes="16x16" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <link rel="manifest" href="site.webmanifest" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Top Bar (same pattern as resume.html) -->
+  <nav class="topbar">
+    <div class="topbar-left">
+      <a href="index.html" class="topbar-brand">ironframe.ai</a>
+      <span class="topbar-label">/ checkout</span>
+    </div>
+    <a class="btn-print" href="index.html#services">← Back to services</a>
+  </nav>
+
+  <main class="co-page">
+
+    <!-- Order summary -->
+    <aside class="co-summary">
+      <span class="mono-label">Order Summary</span>
+      <h1 class="co-tier-name" id="co-name">—</h1>
+      <div class="co-tier-price" id="co-price">—</div>
+      <p class="co-tier-desc" id="co-desc"></p>
+      <ul class="gold-list" id="co-includes"></ul>
+      <div class="co-note">
+        Secured by Stripe. Card details never touch ironframe servers.
+        Questions first? <a href="mailto:james@ironframe.ai">james@ironframe.ai</a>
+      </div>
+    </aside>
+
+    <!-- Stripe embedded checkout mounts here -->
+    <section class="co-checkout">
+      <div id="checkout"><!-- Stripe embedded Checkout renders in this div --></div>
+
+      <!-- Shown instead when keys are still placeholders / API unreachable -->
+      <div class="co-fallback" id="co-fallback" hidden>
+        <h2>Checkout isn't wired up yet</h2>
+        <p id="co-fallback-msg">
+          Online payment is being connected. In the meantime, email
+          <a href="mailto:james@ironframe.ai">james@ironframe.ai</a> and I'll
+          send you a payment link directly — or book a call from the
+          <a href="index.html#contact">contact section</a>.
+        </p>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="config.js"></script>
+  <script src="https://js.stripe.com/v3/"></script>
+  <script>
+  (function () {
+    'use strict';
+
+    // Mirror of the server-side tier map — display only. The server in
+    // /api/create-checkout-session.js is the source of truth for amounts.
+    var TIERS = {
+      personal: {
+        name: 'Personal Brain Build',
+        price: '$1,497',
+        desc: 'Custom AI-integrated knowledge OS, built from your actual data. 10–14 days.',
+        includes: [
+          'Custom vault architecture',
+          '8 seeded wiki pages (your real content)',
+          '3 AI skill workflows',
+          '60-min handoff session',
+          '30-day async support'
+        ]
+      },
+      deposit: {
+        name: 'Personal Brain — 50% Deposit',
+        price: '$748',
+        desc: 'Reserves your build slot. Remaining $749 due at handoff.',
+        includes: [
+          'Locks your start date',
+          'Full Personal Brain Build scope',
+          'Balance invoiced at handoff'
+        ]
+      },
+      strategy: {
+        name: 'Strategy Session',
+        price: '$250',
+        desc: '90-minute deep-dive on your knowledge systems and AI workflows.',
+        includes: [
+          '90-min call (recorded)',
+          'Written recommendations doc',
+          'Credited toward a full build if you upgrade within 30 days'
+        ]
+      }
+    };
+
+    var params = new URLSearchParams(window.location.search);
+    var tierId = params.get('tier') || 'personal';
+    var tier = TIERS[tierId] || TIERS.personal;
+    if (!TIERS[params.get('tier')]) tierId = 'personal';
+
+    // Render summary
+    document.getElementById('co-name').textContent = tier.name;
+    document.getElementById('co-price').textContent = tier.price;
+    document.getElementById('co-desc').textContent = tier.desc;
+    var ul = document.getElementById('co-includes');
+    tier.includes.forEach(function (item) {
+      var li = document.createElement('li');
+      li.textContent = item;
+      ul.appendChild(li);
+    });
+
+    function showFallback(msg) {
+      document.getElementById('co-fallback').hidden = false;
+      if (msg) document.getElementById('co-fallback-msg').innerHTML = msg;
+    }
+
+    var pk = (window.IRONFRAME_CONFIG || {}).stripePublishableKey || '';
+    if (!pk || pk.indexOf('PLACEHOLDER') !== -1) {
+      // Keys not pasted yet — show the graceful fallback, skip Stripe entirely.
+      showFallback();
+      return;
+    }
+
+    // Live path: fetch a client secret, mount embedded checkout.
+    var stripe = Stripe(pk);
+    var fetchClientSecret = function () {
+      return fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tier: tierId })
+      })
+        .then(function (r) {
+          return r.json().then(function (d) {
+            if (!r.ok || !d.clientSecret) {
+              throw new Error(d.message || 'Checkout is not configured yet.');
+            }
+            return d.clientSecret;
+          });
+        });
+    };
+
+    stripe
+      .initEmbeddedCheckout({ fetchClientSecret: fetchClientSecret })
+      .then(function (checkout) { checkout.mount('#checkout'); })
+      .catch(function () { showFallback(); });
+  })();
+  </script>
+</body>
+</html>

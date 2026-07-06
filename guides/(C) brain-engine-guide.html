@@ -1,0 +1,1124 @@
+<title>Brain Engine — Command Guide & Control Panel</title>
+<style>
+/* ── DESIGN TOKENS (mirrors widget design system) ── */
+:root {
+  --bg:        #0f0f0f;
+  --surf:      #1a1a1a;
+  --surf2:     #222222;
+  --border:    #2a2a2a;
+  --border-h:  #3a3a3a;
+
+  --gold:    #c8a96e;
+  --blue:    #4a9eff;
+  --green:   #4caf50;
+  --orange:  #ff9800;
+  --red:     #f44336;
+  --purple:  #9c7de8;
+
+  --text:    #f0f0f0;
+  --text2:   #aaaaaa;
+  --muted:   #666666;
+
+  --r:       8px;
+  --font:    -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+  --mono:    'JetBrains Mono', 'Courier New', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 0 0 80px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* ── NAV ── */
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 28px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surf);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.nav-left { display: flex; align-items: center; gap: 16px; }
+.nav-back {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 13px; color: var(--text2);
+  text-decoration: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 5px 12px;
+  transition: color .15s, border-color .15s;
+}
+.nav-back:hover { color: var(--gold); border-color: var(--gold); }
+.nav-title {
+  font-size: 15px; font-weight: 600;
+  color: var(--text);
+  letter-spacing: -.01em;
+}
+.nav-sub { font-size: 12px; color: var(--muted); margin-top: 1px; }
+.nav-right { display: flex; align-items: center; gap: 10px; }
+.status-pill {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 600;
+  font-family: var(--mono);
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid;
+  letter-spacing: .04em;
+}
+.status-pill.green { border-color: rgba(76,175,80,.4); color: var(--green); background: rgba(76,175,80,.08); }
+.status-pill.gold  { border-color: rgba(200,169,110,.4); color: var(--gold); background: rgba(200,169,110,.08); }
+.dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.dot.pulse { animation: pulse 2.4s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 currentColor; opacity: 1; } 50% { box-shadow: 0 0 0 4px transparent; opacity: .7; } }
+
+/* ── MAIN LAYOUT ── */
+.main { max-width: 1100px; margin: 0 auto; padding: 0 28px; }
+
+/* ── BOOT BUTTON ── */
+.boot-wrap {
+  padding: 20px 0 4px;
+  margin-bottom: 24px;
+}
+.boot-card {
+  border: 1px solid rgba(200,169,110,.35);
+  border-radius: var(--r);
+  background: rgba(200,169,110,.06);
+  padding: 20px 24px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+  align-items: center;
+  transition: background .15s, border-color .15s;
+}
+.boot-card:hover { background: rgba(200,169,110,.1); border-color: rgba(200,169,110,.55); }
+.boot-left { display: flex; flex-direction: column; gap: 6px; }
+.boot-eyebrow {
+  font-size: 10px; font-weight: 700; letter-spacing: .18em;
+  text-transform: uppercase; color: var(--gold); opacity: .7;
+}
+.boot-title {
+  font-size: 17px; font-weight: 700; color: var(--gold);
+  letter-spacing: -.01em; line-height: 1.2;
+}
+.boot-cmd {
+  font-family: var(--mono); font-size: 11px;
+  color: var(--text2);
+  background: rgba(0,0,0,.3);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 7px 12px;
+  margin-top: 4px;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.boot-desc { font-size: 12px; color: var(--text2); }
+.boot-btn {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 6px;
+  background: var(--gold);
+  color: #0a0a0a;
+  border: none;
+  border-radius: var(--r);
+  padding: 16px 28px;
+  font-family: var(--font);
+  font-size: 13px; font-weight: 800;
+  letter-spacing: .03em;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .15s, transform .1s, box-shadow .15s;
+  min-width: 160px;
+  text-align: center;
+}
+.boot-btn:hover {
+  background: #d9bc80;
+  box-shadow: 0 0 24px rgba(200,169,110,.3);
+  transform: translateY(-1px);
+}
+.boot-btn:active { transform: translateY(0); }
+.boot-btn.copied {
+  background: var(--green);
+  box-shadow: 0 0 24px rgba(76,175,80,.3);
+}
+.boot-btn-sub {
+  font-size: 10px; font-weight: 600; letter-spacing: .06em;
+  opacity: .65; text-transform: uppercase;
+}
+
+/* ── STATUS STRIP ── */
+.status-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  padding: 20px 0 0;
+  margin-bottom: 32px;
+}
+.ss-card {
+  background: var(--surf);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 14px 18px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.ss-val {
+  font-family: var(--mono);
+  font-size: 28px; font-weight: 700;
+  letter-spacing: -.03em;
+  line-height: 1;
+}
+.ss-val.green  { color: var(--green); }
+.ss-val.gold   { color: var(--gold); }
+.ss-val.blue   { color: var(--blue); }
+.ss-val.purple { color: var(--purple); }
+.ss-val.orange { color: var(--orange); }
+.ss-label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.ss-detail { font-size: 11px; color: var(--text2); margin-top: 2px; }
+
+/* ── SECTION HEADER ── */
+.sec-hd {
+  display: flex; align-items: baseline; justify-content: space-between;
+  padding-bottom: 10px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.sec-title { font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.sec-note  { font-size: 12px; color: var(--muted); font-weight: 400; }
+
+/* ── SKILL CARDS ── */
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 36px;
+}
+.skill-card {
+  background: var(--surf);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 18px 20px;
+  display: flex; flex-direction: column; gap: 8px;
+  transition: border-color .15s, background .15s;
+}
+.skill-card:hover { border-color: var(--border-h); background: var(--surf2); }
+.skill-top { display: flex; align-items: center; justify-content: space-between; }
+.skill-icon { font-size: 22px; }
+.skill-badge {
+  font-size: 9px; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase;
+  border: 1px solid; border-radius: 4px; padding: 2px 6px;
+}
+.badge-auto   { border-color: rgba(76,175,80,.4);  color: var(--green); }
+.badge-demand { border-color: rgba(200,169,110,.4); color: var(--gold); }
+.badge-cron   { border-color: rgba(74,158,255,.4);  color: var(--blue); }
+.badge-live   { border-color: rgba(76,175,80,.4);   color: var(--green); background: rgba(76,175,80,.06); }
+
+.skill-name { font-size: 14px; font-weight: 700; color: var(--text); }
+.skill-desc { font-size: 12px; color: var(--text2); line-height: 1.55; flex: 1; }
+.skill-trigger {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--gold);
+  background: rgba(200,169,110,.08);
+  border: 1px solid rgba(200,169,110,.2);
+  border-radius: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px;
+  transition: background .15s, border-color .15s;
+  user-select: none;
+}
+.skill-trigger:hover { background: rgba(200,169,110,.16); border-color: rgba(200,169,110,.4); }
+.skill-trigger-text { flex: 1; }
+.skill-trigger-copy { font-size: 10px; color: var(--muted); flex-shrink: 0; transition: color .15s; }
+.skill-trigger:hover .skill-trigger-copy { color: var(--gold); }
+.skill-trigger.copied { background: rgba(76,175,80,.1); border-color: rgba(76,175,80,.3); color: var(--green); }
+
+/* ── AGENTS ── */
+.agents-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 36px;
+}
+.agent-card {
+  background: var(--surf);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 18px 20px;
+  display: flex; flex-direction: column; gap: 10px;
+  transition: border-color .15s;
+}
+.agent-card:hover { border-color: var(--border-h); }
+.agent-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.agent-name { font-size: 15px; font-weight: 700; color: var(--text); }
+.agent-row { display: grid; grid-template-columns: 80px 1fr; gap: 6px; font-size: 12px; }
+.agent-row-label { color: var(--muted); font-weight: 600; padding-top: 1px; }
+.agent-row-val   { color: var(--text2); line-height: 1.5; }
+.agent-invoke {
+  font-family: var(--mono); font-size: 11px;
+  color: var(--green); background: rgba(76,175,80,.08);
+  border: 1px solid rgba(76,175,80,.2);
+  border-radius: 5px; padding: 6px 10px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: space-between;
+  transition: background .15s; user-select: none;
+}
+.agent-invoke:hover { background: rgba(76,175,80,.16); }
+.agent-invoke.copied { background: rgba(74,158,255,.1); border-color: rgba(74,158,255,.3); color: var(--blue); }
+
+/* ── CRON SCHEDULE ── */
+.cron-wrap { margin-bottom: 36px; }
+.cron-table { width: 100%; border-collapse: collapse; }
+.cron-table th {
+  font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--muted); padding: 8px 14px; text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+.cron-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  vertical-align: top;
+}
+.cron-table tr:last-child td { border-bottom: none; }
+.cron-table tr:hover td { background: var(--surf2); }
+.ct-time  { font-family: var(--mono); font-size: 12px; color: var(--blue); white-space: nowrap; width: 140px; }
+.ct-sched { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.ct-name  { font-weight: 600; color: var(--text); }
+.ct-desc  { font-size: 12px; color: var(--text2); margin-top: 2px; line-height: 1.5; }
+.ct-id    { font-family: var(--mono); font-size: 9px; color: var(--muted); margin-top: 4px; }
+.ct-status {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 10px; font-weight: 700; letter-spacing: .06em;
+  border: 1px solid; border-radius: 4px; padding: 2px 7px;
+  white-space: nowrap;
+}
+.ct-status.live { border-color: rgba(76,175,80,.4); color: var(--green); background: rgba(76,175,80,.06); }
+.ct-status.note { border-color: rgba(255,152,0,.4); color: var(--orange); background: rgba(255,152,0,.06); }
+.cron-note {
+  margin-top: 12px; padding: 12px 16px;
+  background: rgba(255,152,0,.06); border: 1px solid rgba(255,152,0,.2);
+  border-radius: var(--r); font-size: 12px; color: var(--text2); line-height: 1.6;
+}
+.cron-note strong { color: var(--orange); }
+
+/* ── SHORTHANDS ── */
+.shorthands-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 36px;
+}
+.sh-card {
+  background: var(--surf);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 16px 18px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.sh-key {
+  font-family: var(--mono); font-size: 22px; font-weight: 700;
+  color: var(--blue);
+  letter-spacing: -.02em;
+}
+.sh-name { font-size: 14px; font-weight: 600; color: var(--text); }
+.sh-desc { font-size: 12px; color: var(--text2); line-height: 1.55; }
+
+/* ── SETUP GUIDE ── */
+.setup-steps {
+  display: flex; flex-direction: column; gap: 0;
+  margin-bottom: 36px;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+.setup-step {
+  display: grid; grid-template-columns: 64px 1fr;
+  border-bottom: 1px solid var(--border);
+}
+.setup-step:last-child { border-bottom: none; }
+.step-num {
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 20px 0 0;
+  font-family: var(--mono); font-size: 28px; font-weight: 800;
+  color: var(--border);
+  line-height: 1;
+  background: var(--surf);
+  border-right: 1px solid var(--border);
+  letter-spacing: -.04em;
+}
+.step-body { padding: 18px 22px; }
+.step-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.step-desc  { font-size: 13px; color: var(--text2); line-height: 1.6; margin-bottom: 12px; }
+.step-code  {
+  font-family: var(--mono); font-size: 12px; color: var(--gold);
+  background: rgba(200,169,110,.07); border: 1px solid rgba(200,169,110,.18);
+  border-radius: 6px; padding: 10px 14px; line-height: 1.8;
+  display: flex; flex-direction: column; gap: 0;
+}
+.step-code .comment { color: var(--muted); font-style: italic; }
+.step-bullets { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+.step-bullets li { font-size: 12px; color: var(--text2); padding-left: 16px; position: relative; line-height: 1.5; }
+.step-bullets li::before { content: '→'; position: absolute; left: 0; color: var(--blue); }
+
+/* ── LOOP PATTERNS ── */
+.loop-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: 12px; margin-bottom: 36px;
+}
+.loop-card {
+  background: var(--surf); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 18px 20px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.loop-card-name { font-size: 13px; font-weight: 700; color: var(--text); }
+.loop-card-desc { font-size: 12px; color: var(--text2); line-height: 1.5; }
+.loop-cmd {
+  font-family: var(--mono); font-size: 11px; color: var(--blue);
+  background: rgba(74,158,255,.07); border: 1px solid rgba(74,158,255,.2);
+  border-radius: 5px; padding: 8px 12px; line-height: 1.7;
+  cursor: pointer; transition: background .15s;
+  display: flex; align-items: flex-start; gap: 8px;
+}
+.loop-cmd:hover { background: rgba(74,158,255,.14); }
+.loop-cmd-text { flex: 1; }
+.loop-cmd-copy { font-size: 10px; color: var(--muted); flex-shrink: 0; margin-top: 1px; }
+.loop-cmd:hover .loop-cmd-copy { color: var(--blue); }
+.loop-cmd.copied { background: rgba(76,175,80,.1); border-color: rgba(76,175,80,.3); color: var(--green); }
+
+/* ── FOOTER ── */
+.guide-footer {
+  border-top: 1px solid var(--border);
+  padding: 20px 0 0;
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 11px; color: var(--muted);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 840px) {
+  .skills-grid { grid-template-columns: repeat(2, 1fr); }
+  .agents-grid { grid-template-columns: 1fr; }
+  .status-strip { grid-template-columns: repeat(2, 1fr); }
+  .shorthands-grid { grid-template-columns: 1fr; }
+  .loop-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .skills-grid { grid-template-columns: 1fr; }
+  .nav { padding: 12px 16px; }
+  .main { padding: 0 16px; }
+}
+</style>
+
+<!-- NAV -->
+<div class="nav">
+  <div class="nav-left">
+    <a class="nav-back" href="../Home Widget.html">← Home</a>
+    <div>
+      <div class="nav-title">Brain Engine Guide</div>
+      <div class="nav-sub">Skills · Agents · Crons · Setup · Server</div>
+    </div>
+  </div>
+  <div class="nav-right">
+    <div class="status-pill green"><span class="dot pulse"></span>2 CRONS LIVE</div>
+    <div class="status-pill gold">4 AGENTS · 8 SKILLS</div>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- BOOT BUTTON -->
+  <div class="boot-wrap">
+    <div class="boot-card">
+      <div class="boot-left">
+        <div class="boot-eyebrow">Boot Sequence · Run this every session with new files</div>
+        <div class="boot-title">⚡ Start Vault Loop</div>
+        <div class="boot-desc">Triage everything in 00 Raw Inputs/ and 00 Notes/ → update wiki pages → find and fix orphaned links.</div>
+        <div class="boot-cmd">/loop triage all new files in 00 Raw Inputs/ and 00 Notes/, update the relevant wiki pages, then run find orphans to create backlinks</div>
+      </div>
+      <button class="boot-btn" id="boot-btn" onclick="bootCopy()" type="button">
+        <span id="boot-btn-label">START LOOP →</span>
+        <span class="boot-btn-sub" id="boot-btn-sub">copy · paste into Claude</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- STATUS STRIP -->
+  <div class="status-strip">
+    <div class="ss-card">
+      <div class="ss-val green">8</div>
+      <div class="ss-label">Skills Registered</div>
+      <div class="ss-detail">6 on-demand · 2 vault-level</div>
+    </div>
+    <div class="ss-card">
+      <div class="ss-val blue">4</div>
+      <div class="ss-label">Agents Active</div>
+      <div class="ss-detail">triage · research · linker · synthesis</div>
+    </div>
+    <div class="ss-card">
+      <div class="ss-val gold">2</div>
+      <div class="ss-label">Crons Scheduled</div>
+      <div class="ss-detail">6:03am daily · 8:47am Sunday</div>
+    </div>
+    <div class="ss-card">
+      <div class="ss-val purple">16</div>
+      <div class="ss-label">Wiki Pages</div>
+      <div class="ss-detail">Active · grows every triage run</div>
+    </div>
+  </div>
+
+  <!-- SKILLS -->
+  <div class="sec-hd">
+    <div class="sec-title">On-Demand Skills</div>
+    <div class="sec-note">Click any trigger phrase to copy → paste into Claude</div>
+  </div>
+  <div class="skills-grid">
+
+    <div class="skill-card">
+      <div class="skill-top">
+        <span class="skill-icon">🌅</span>
+        <span class="skill-badge badge-cron">CRON · 6:03am</span>
+      </div>
+      <div class="skill-name">Daily Briefing</div>
+      <div class="skill-desc">Pulls Calendar, top queue items, and trade system rules → writes a focused morning note to 00 Notes/.</div>
+      <div class="skill-trigger" onclick="copyTrigger(this, 'morning briefing')">
+        <span class="skill-trigger-text">"morning briefing"</span>
+        <span class="skill-trigger-copy">copy ↗</span>
+      </div>
+    </div>
+
+    <div class="skill-card">
+      <div class="skill-top">
+        <span class="skill-icon">📊</span>
+        <span class="skill-badge badge-demand">ON-DEMAND</span>
+      </div>
+      <div class="skill-name">Trade Review</div>
+      <div class="skill-desc">Post-trade interview — entry/exit quality, lesson captured, appends to Trading wiki, flags system rule updates.</div>
+      <div class="skill-trigger" onclick="copyTrigger(this, 'trade review')">
+        <span class="skill-trigger-text">"trade review"</span>
+        <span class="skill-trigger-copy">copy ↗</span>
+      </div>
+    </div>
+
+    <div class="skill-card">
+      <div class="skill-top">
+        <span class="skill-icon">💼</span>
+        <span class="skill-badge badge-demand">ON-DEMAND</span>
+      </div>
+      <div class="skill-name">Sales Prep</div>
+      <div class="skill-desc">Pre-call Playwright research + full MEDDICC fill-in for government accounts. Saves call plan to Work Product.</div>
+      <div class="skill-trigger" onclick="copyTrigger(this, 'sales prep')">
+        <span class="skill-trigger-text">"sales prep"</span>
+        <span class="skill-trigger-copy">copy ↗</span>
+      </div>
+    </div>
+
+    <div class="skill-card">
+      <div class="skill-top">
+        <span class="skill-icon">✏️</span>
+        <span class="skill-badge badge-demand">ON-DEMAND</span>
+      </div>
+      <div class="skill-name">Content Draft</div>
+      <div class="skill-desc">Raw idea → classified post type → LinkedIn draft in your voice. Approval required before anything publishes.</div>
+      <div class="skill-trigger" onclick="copyTrigger(this, 'draft a post')">
+        <span class="skill-trigger-text">"draft a post"</span>
+        <span class="skill-trigger-copy">copy ↗</span>
+      </div>
+    </div>
+
+    <div class="skill-card">
+      <div class="skill-top">
+        <span class="skill-icon">🎯</span>
+        <span class="skill-badge badge-demand">ON-DEMAND</span>
+      </div>
+      <div class="skill-name">Goal Check</div>
+      <div class="skill-desc">Goals vs. calendar vs. queue gap analysis. Produces a resequencing plan and one specific calendar event to make.</div>
+      <div class="skill-trigger" onclick="copyTrigger(this, 'goal check')">
+        <span class="skill-trigger-text">"goal check"</span>
+        <span class="skill-trigger-copy">copy ↗</span>
+      </div>
+    </div>
+
+    <div class="skill-card">
+      <div class="skill-top">
+        <span class="skill-icon">📅</span>
+        <span class="skill-badge badge-cron">CRON · SUNDAY</span>
+      </div>
+      <div class="skill-name">Weekly Update</div>
+      <div class="skill-desc">Interviews you on each domain, then updates root CLAUDE.md, GOALS.md, and all project CLAUDE.md files.</div>
+      <div class="skill-trigger" onclick="copyTrigger(this, 'weekly update')">
+        <span class="skill-trigger-text">"weekly update"</span>
+        <span class="skill-trigger-copy">copy ↗</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- AGENTS -->
+  <div class="sec-hd">
+    <div class="sec-title">Autonomous Agents</div>
+    <div class="sec-note">Run without you — invoke via loop or manual phrase</div>
+  </div>
+  <div class="agents-grid">
+
+    <div class="agent-card">
+      <div class="agent-top">
+        <div>
+          <div class="agent-name">Triage</div>
+        </div>
+        <span class="skill-badge badge-auto">AUTONOMOUS</span>
+      </div>
+      <div class="agent-row"><div class="agent-row-label">Reads</div><div class="agent-row-val">Every new file in 00 Raw Inputs/ — CSVs, screenshots, paste-dumps, PDFs, notes</div></div>
+      <div class="agent-row"><div class="agent-row-label">Outputs</div><div class="agent-row-val">Distills content into the right wiki page. Marks QUEUE item done.</div></div>
+      <div class="agent-row"><div class="agent-row-label">Fires</div><div class="agent-row-val">New file detected · Fable loop · Manual invocation</div></div>
+      <div class="agent-invoke" onclick="copyTrigger(this, 'triage all new files in 00 Raw Inputs/')">
+        <span class="skill-trigger-text">triage all new files in 00 Raw Inputs/</span>
+        <span class="skill-trigger-copy">copy ↗</span>
+      </div>
+    </div>
+
+    <div class="agent-card">
+      <div class="agent-top">
+        <div><div class="agent-name">Research</div></div>
+        <span class="skill-badge badge-auto">AUTONOMOUS</span>
+      </div>
+      <div class="agent-row"><div class="agent-row-label">Reads</div><div class="agent-row-val">Vault first for existing notes, then web via WebSearch + WebFetch</div></div>
+      <div class="agent-row"><div class="agent-row-label">Outputs</div><div class="agent-row-val">New sourced wiki note drafted for your review. Never overwrites existing notes.</div></div>
+      <div class="agent-row"><div class="agent-row-label">Fires</div><div class="agent-row-val">"research X" phrase · Topics in QUEUE marked for research</div></div>
+      <div class="agent-invoke" onclick="copyTrigger(this, 'research [topic]')">
+        <span class="skill-trigger-text">research [topic]</span>
+        <span class="skill-trigger-copy">copy ↗</span>
+      </div>
+    </div>
+
+    <div class="agent-card">
+      <div class="agent-top">
+        <div><div class="agent-name">Linker</div></div>
+        <span class="skill-badge badge-auto">AUTONOMOUS</span>
+      </div>
+      <div class="agent-row"><div class="agent-row-label">Reads</div><div class="agent-row-val">All wiki pages — scans for orphaned notes (zero incoming wikilinks) and broken links</div></div>
+      <div class="agent-row"><div class="agent-row-label">Outputs</div><div class="agent-row-val">Proposes or creates backlinks based on content relatedness. Flags broken refs.</div></div>
+      <div class="agent-row"><div class="agent-row-label">Fires</div><div class="agent-row-val">"find orphans" phrase · After triage runs · Sunday synthesis run</div></div>
+      <div class="agent-invoke" onclick="copyTrigger(this, 'find orphans')">
+        <span class="skill-trigger-text">find orphans</span>
+        <span class="skill-trigger-copy">copy ↗</span>
+      </div>
+    </div>
+
+    <div class="agent-card">
+      <div class="agent-top">
+        <div><div class="agent-name">Weekly Synthesis</div></div>
+        <span class="skill-badge badge-cron">CRON · SUNDAY</span>
+      </div>
+      <div class="agent-row"><div class="agent-row-label">Reads</div><div class="agent-row-val">Every file modified in the last 7 days across the vault</div></div>
+      <div class="agent-row"><div class="agent-row-label">Outputs</div><div class="agent-row-val">Synthesis note: themes, decisions made, open loops, one cross-domain insight. Saved to 04 Reviews/.</div></div>
+      <div class="agent-row"><div class="agent-row-label">Fires</div><div class="agent-row-val">Every Sunday at 8:47am · "synthesize this week" phrase</div></div>
+      <div class="agent-invoke" onclick="copyTrigger(this, 'synthesize this week')">
+        <span class="skill-trigger-text">synthesize this week</span>
+        <span class="skill-trigger-copy">copy ↗</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CRON SCHEDULE -->
+  <div class="sec-hd">
+    <div class="sec-title">Automation Schedule</div>
+    <div class="sec-note">Session-only · re-register each session or use /schedule for persistent crons</div>
+  </div>
+  <div class="cron-wrap">
+    <table class="cron-table">
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Schedule</th>
+          <th>Job</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="ct-time">6:03 AM</td>
+          <td><div class="ct-sched">Every day</div></td>
+          <td>
+            <div class="ct-name">Daily Briefing</div>
+            <div class="ct-desc">Calendar + queue + trade signals → dated note written to 00 Notes/(C) Daily Briefing YYYY-MM-DD.md</div>
+            <div class="ct-id">Job ID: a5bfdf9f</div>
+          </td>
+          <td><span class="ct-status live">● LIVE</span></td>
+        </tr>
+        <tr>
+          <td class="ct-time">8:47 AM</td>
+          <td><div class="ct-sched">Every Sunday</div></td>
+          <td>
+            <div class="ct-name">Weekly Synthesis + Linker</div>
+            <div class="ct-desc">All files modified this week → synthesis note in 04 Reviews/ → orphan scan on all 16 wiki pages</div>
+            <div class="ct-id">Job ID: 2bd17798</div>
+          </td>
+          <td><span class="ct-status live">● LIVE</span></td>
+        </tr>
+        <tr>
+          <td class="ct-time">On demand</td>
+          <td><div class="ct-sched">Fable loop</div></td>
+          <td>
+            <div class="ct-name">Vault Processing Loop</div>
+            <div class="ct-desc">Triage → Research → Linker pipeline. Self-pacing via ScheduleWakeup. Runs until queue is clear.</div>
+          </td>
+          <td><span class="ct-status note">MANUAL START</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="cron-note">
+      <strong>Session-only:</strong> Crons live in the active Claude session — they stop when you close Claude. To restart: open a new session and type <strong>"register my crons"</strong> or paste the job IDs above. For persistent scheduled runs that survive session close, use the <strong>/schedule</strong> skill to create cloud-based routines.
+    </div>
+  </div>
+
+  <!-- INPUT SHORTHANDS -->
+  <div class="sec-hd">
+    <div class="sec-title">Input Shorthands</div>
+    <div class="sec-note">Type alone — Claude executes immediately, no clarification needed</div>
+  </div>
+  <div class="shorthands-grid">
+    <div class="sh-card">
+      <div class="sh-key">v</div>
+      <div class="sh-name">Verify</div>
+      <div class="sh-desc">Confirms the last change landed. Claude reads the file or runs the check. Reports pass / fail. No arguments needed.</div>
+    </div>
+    <div class="sh-card">
+      <div class="sh-key">ss</div>
+      <div class="sh-name">Save State</div>
+      <div class="sh-desc">Full end-of-session save: flushes raw inputs, updates wiki, writes memory files, regenerates STATE.md, writes session log.</div>
+    </div>
+    <div class="sh-card">
+      <div class="sh-key">/cache</div>
+      <div class="sh-name">Working Memory</div>
+      <div class="sh-desc">View or edit the active cache at 08 Cache/(C) Working Memory.md. Sub-commands: <code style="font-size:11px;color:var(--blue);">add</code> · <code style="font-size:11px;color:var(--blue);">clear</code> · <code style="font-size:11px;color:var(--blue);">promote</code></div>
+    </div>
+  </div>
+
+  <!-- SETUP GUIDE -->
+  <div class="sec-hd">
+    <div class="sec-title">Activation Guide</div>
+    <div class="sec-note">Three steps to run the brain hands-off all day</div>
+  </div>
+  <div class="setup-steps">
+
+    <div class="setup-step">
+      <div class="step-num">01</div>
+      <div class="step-body">
+        <div class="step-title">Seed the inputs</div>
+        <div class="step-desc">Drop any content into the vault. Doesn't need to be clean or organized — that's the triage agent's job.</div>
+        <ul class="step-bullets">
+          <li>Raw data exports (CSV, JSON) → <code style="font-size:11px;color:var(--gold);">00 Raw Inputs/</code></li>
+          <li>Half-formed ideas, URLs, voice note transcripts → <code style="font-size:11px;color:var(--gold);">00 Notes/</code></li>
+          <li>Screenshots, PDFs, anything → anywhere in the vault, triage will find it</li>
+          <li>Type research requests directly into QUEUE.md — the loop picks them up</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="setup-step">
+      <div class="step-num">02</div>
+      <div class="step-body">
+        <div class="step-title">Start the Fable loop</div>
+        <div class="step-desc">Paste this into Claude and walk away. The loop self-paces using ScheduleWakeup — it processes, sleeps, wakes, repeats until the queue is clear.</div>
+        <div class="step-code">
+          <span>/loop process all new vault content</span>
+          <span class="comment"># Claude runs: triage → research → linker in sequence</span>
+          <span class="comment"># Self-paces every ~4 min · notifies when done</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="setup-step">
+      <div class="step-num">03</div>
+      <div class="step-body">
+        <div class="step-title">Crons handle the schedule</div>
+        <div class="step-desc">Daily briefing and Sunday synthesis are already running this session. For the next session, Claude re-registers them on startup — or you type "register my crons."</div>
+        <div class="step-code">
+          <span>register my crons</span>
+          <span class="comment"># Re-activates daily briefing (6:03am) + weekly synthesis (Sun 8:47am)</span>
+          <span class="comment"># Add this to session startup if you want auto-registration</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- LOOP PATTERNS -->
+  <div class="sec-hd">
+    <div class="sec-title">Loop Patterns</div>
+    <div class="sec-note">Click any command to copy → paste into Claude to start a background run</div>
+  </div>
+  <div class="loop-grid">
+
+    <div class="loop-card">
+      <div class="loop-card-name">Full Vault Processing</div>
+      <div class="loop-card-desc">Process everything in Raw Inputs and Notes. Triage → wiki updates → link audit. Leave running while you work.</div>
+      <div class="loop-cmd" onclick="copyCmd(this, '/loop triage all new files in 00 Raw Inputs/ and 00 Notes/, update the relevant wiki pages, then run find orphans to create backlinks')">
+        <span class="loop-cmd-text">/loop triage all new files in 00 Raw Inputs/ and 00 Notes/, update the relevant wiki pages, then run find orphans to create backlinks</span>
+        <span class="loop-cmd-copy">copy</span>
+      </div>
+    </div>
+
+    <div class="loop-card">
+      <div class="loop-card-name">Research Queue Drain</div>
+      <div class="loop-card-desc">Work through every item tagged [research] in the QUEUE. Vault-first, web if needed. Draft notes for review.</div>
+      <div class="loop-cmd" onclick="copyCmd(this, '/loop read QUEUE.md, find all items marked for research, research each one using the vault first then the web, draft a new wiki note for each, and mark the queue item done')">
+        <span class="loop-cmd-text">/loop read QUEUE.md, find all items marked for research, research each one using the vault first then the web, draft a new wiki note for each, and mark the queue item done</span>
+        <span class="loop-cmd-copy">copy</span>
+      </div>
+    </div>
+
+    <div class="loop-card">
+      <div class="loop-card-name">Wiki Expansion Run</div>
+      <div class="loop-card-desc">Deepen existing wiki pages with richer content, better structure, and cross-links between related pages.</div>
+      <div class="loop-cmd" onclick="copyCmd(this, '/loop read each wiki page in 01 Wiki/, identify the 3 thinnest pages, expand each with deeper content sourced from the vault and web, then add wikilinks between related pages')">
+        <span class="loop-cmd-text">/loop read each wiki page in 01 Wiki/, identify the 3 thinnest pages, expand each with deeper content sourced from the vault and web, then add wikilinks between related pages</span>
+        <span class="loop-cmd-copy">copy</span>
+      </div>
+    </div>
+
+    <div class="loop-card">
+      <div class="loop-card-name">Morning Autonomous Start</div>
+      <div class="loop-card-desc">Full morning pipeline in one command. Briefing → triage anything new → goal check. Runs while coffee brews.</div>
+      <div class="loop-cmd" onclick="copyCmd(this, '/loop run morning briefing, then triage any new files added since last session, then run goal check and report what the week looks like')">
+        <span class="loop-cmd-text">/loop run morning briefing, then triage any new files added since last session, then run goal check and report what the week looks like</span>
+        <span class="loop-cmd-copy">copy</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SERVER & REMOTE ACCESS -->
+  <div class="sec-hd">
+    <div class="sec-title">Server &amp; Remote Access</div>
+    <div class="sec-note">Reach the widget stack from Mac + iPhone — no terminal window required</div>
+  </div>
+
+  <div class="status-strip">
+    <div class="ss-card">
+      <div class="ss-val green">✓</div>
+      <div class="ss-label">Server Built</div>
+      <div class="ss-detail">brain-server.js · Node http · tested 2026-07-03</div>
+    </div>
+    <div class="ss-card">
+      <div class="ss-val green">✓</div>
+      <div class="ss-label">LAN Reachable</div>
+      <div class="ss-detail">http://10.0.0.25:8080 · verified 200 OK</div>
+    </div>
+    <div class="ss-card">
+      <div class="ss-val orange">—</div>
+      <div class="ss-label">Tailscale Mesh</div>
+      <div class="ss-detail">Not installed yet · Step 02–04 below</div>
+    </div>
+    <div class="ss-card">
+      <div class="ss-val orange">—</div>
+      <div class="ss-label">Auto-Start Task</div>
+      <div class="ss-detail">Script ready, not registered · Step 07</div>
+    </div>
+  </div>
+
+  <div class="cron-note">
+    <strong>Why Tailscale, not port-forwarding:</strong> Tailscale builds a private WireGuard mesh between only your own devices — no router config, no public IP exposure, works through any network including cellular. Port 8080 is never open to the public internet, only to devices logged into your tailnet.
+  </div>
+
+  <div class="setup-steps" style="margin-top:16px;">
+
+    <div class="setup-step">
+      <div class="step-num">01</div>
+      <div class="step-body">
+        <div class="step-title">Confirm the server runs locally</div>
+        <div class="step-desc">brain-server.js already exists at the MainBrain root. Start it and confirm it serves the widget stack before wiring up remote access.</div>
+        <div class="step-code">
+          <span>cd "C:\Users\james\OneDrive\Desktop\MainBrain"</span>
+          <span>node brain-server.js</span>
+          <span class="comment"># Look for "🧠 James Brain Server — running", then open http://localhost:8080</span>
+        </div>
+        <ul class="step-bullets">
+          <li>Verified 2026-07-03 — responds 200 OK on localhost and on the LAN IP it prints</li>
+          <li>Ctrl+C stops it. This manual start does NOT survive reboot — Step 07 fixes that</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="setup-step">
+      <div class="step-num">02</div>
+      <div class="step-body">
+        <div class="step-title">Install Tailscale on Windows</div>
+        <div class="step-desc">This machine is the server, so it joins the tailnet first.</div>
+        <div class="step-code">
+          <span>winget install tailscale.tailscale</span>
+          <span>tailscale up</span>
+          <span>tailscale ip -4</span>
+          <span class="comment"># `tailscale up` opens a browser — log in with whichever account (Google/Microsoft/GitHub)</span>
+          <span class="comment"># you'll use on every device. The ip -4 output is this PC's permanent tailnet address, e.g. 100.x.x.x</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="setup-step">
+      <div class="step-num">03</div>
+      <div class="step-body">
+        <div class="step-title">Install Tailscale on Mac</div>
+        <div class="step-desc">Same tailnet account as Windows.</div>
+        <div class="step-code">
+          <span>brew install --cask tailscale</span>
+          <span class="comment"># no Homebrew? download the .pkg from tailscale.com/download/mac instead</span>
+          <span class="comment"># open Tailscale from Applications → Sign in → same account used on Windows</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="setup-step">
+      <div class="step-num">04</div>
+      <div class="step-body">
+        <div class="step-title">Install Tailscale on iPhone</div>
+        <div class="step-desc">Same tailnet account again — this is what lets the phone reach the brain with no VPN app open in the background.</div>
+        <div class="step-code">
+          <span>App Store → search "Tailscale" → Install</span>
+          <span class="comment"># Open app → Sign in with same account → tap Connect</span>
+          <span class="comment"># Allow the VPN configuration prompt — this is a private tunnel, not a public VPN</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="setup-step">
+      <div class="step-num">05</div>
+      <div class="step-body">
+        <div class="step-title">Enable OpenSSH Server on Windows</div>
+        <div class="step-desc">Needed so VS Code on the Mac can open a full remote coding session on this PC — same as sitting at the machine.</div>
+        <div class="step-code">
+          <span class="comment"># Run PowerShell AS ADMINISTRATOR</span>
+          <span>Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0</span>
+          <span>Start-Service sshd</span>
+          <span>Set-Service -Name sshd -StartupType Automatic</span>
+          <span>New-NetFirewallRule -Name sshd -DisplayName "OpenSSH Server (sshd)" -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22</span>
+        </div>
+        <ul class="step-bullets">
+          <li>Note your Windows username: <code style="font-size:11px;color:var(--gold);">whoami</code></li>
+          <li>Re-confirm the tailnet IP if needed: <code style="font-size:11px;color:var(--gold);">tailscale ip -4</code></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="setup-step">
+      <div class="step-num">06</div>
+      <div class="step-body">
+        <div class="step-title">Connect VS Code Remote-SSH from Mac</div>
+        <div class="step-desc">One-time config, then it's a dropdown in VS Code from then on.</div>
+        <div class="step-code">
+          <span class="comment"># On the Mac, in Terminal — append a host entry:</span>
+          <span>cat >> ~/.ssh/config << 'EOF'</span>
+          <span>Host mainbrain</span>
+          <span>&nbsp;&nbsp;HostName &lt;windows-tailscale-ip&gt;</span>
+          <span>&nbsp;&nbsp;User &lt;windows-username&gt;</span>
+          <span>EOF</span>
+        </div>
+        <ul class="step-bullets">
+          <li>Install the "Remote - SSH" extension in VS Code on the Mac</li>
+          <li>Cmd+Shift+P → "Remote-SSH: Connect to Host" → mainbrain</li>
+          <li>First connection prompts for the Windows password — VS Code then opens a remote window rooted on this machine's filesystem</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="setup-step">
+      <div class="step-num">07</div>
+      <div class="step-body">
+        <div class="step-title">Make brain-server.js persistent</div>
+        <div class="step-desc">Right now the server only runs while its terminal window stays open. This registers it as a Windows Scheduled Task that starts automatically at login and keeps serving in the background — no window, survives reboot.</div>
+        <div class="step-code">
+          <span class="comment"># Run PowerShell AS ADMINISTRATOR</span>
+          <span>cd "C:\Users\james\OneDrive\Desktop\MainBrain"</span>
+          <span>.\setup-auto-start.ps1</span>
+          <span class="comment"># Registers scheduled task "JamesBrainServer" → runs node brain-server.js at every Windows logon</span>
+          <span>powercfg /change standby-timeout-ac 0</span>
+          <span class="comment"># Stops the PC sleeping while plugged in, so it's reachable any time, not just right after login</span>
+        </div>
+        <ul class="step-bullets">
+          <li>Test immediately without rebooting: <code style="font-size:11px;color:var(--gold);">Start-ScheduledTask -TaskName "JamesBrainServer"</code></li>
+          <li>Confirm it's live: <code style="font-size:11px;color:var(--gold);">Get-NetTCPConnection -LocalPort 8080</code></li>
+          <li>For it to survive a full cold reboot (not just screen lock), set Windows to auto-login via <code style="font-size:11px;color:var(--gold);">netplwiz</code></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="setup-step">
+      <div class="step-num">08</div>
+      <div class="step-body">
+        <div class="step-title">Verify end-to-end from Mac + iPhone</div>
+        <div class="step-desc">With Tailscale connected on both devices, the widget stack is one URL away.</div>
+        <div class="step-code">
+          <span>http://&lt;windows-tailscale-ip&gt;:8080</span>
+          <span class="comment"># iPhone Safari: open the URL → Share → Add to Home Screen for an app-like icon</span>
+        </div>
+        <ul class="step-bullets">
+          <li>Doesn't load? Allow the port through Windows Firewall: <code style="font-size:11px;color:var(--gold);">New-NetFirewallRule -DisplayName "Brain Server 8080" -Direction Inbound -Protocol TCP -LocalPort 8080 -Action Allow</code></li>
+          <li>Tailscale IPs are stable per-device — bookmark it once, it won't change</li>
+          <li>Optional: enable MagicDNS in the Tailscale admin console to use a name instead of an IP</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="setup-step">
+      <div class="step-num">09</div>
+      <div class="step-body">
+        <div class="step-title">Edit live via Claude Code / Codex through Remote-SSH</div>
+        <div class="step-desc">Step 06 doesn't just give the Mac a file browser — it opens a real terminal running ON the Windows machine. That terminal is where you run Claude Code or Codex, exactly like sitting at the PC. One file, edited there, is the same file brain-server.js is already serving.</div>
+        <div class="step-code">
+          <span class="comment"># In the Remote-SSH VS Code window (connected to "mainbrain"):</span>
+          <span>File → Open Folder → C:\Users\james\OneDrive\Desktop\MainBrain</span>
+          <span>Ctrl+` </span>
+          <span class="comment"># opens the integrated terminal — it runs on Windows, not the Mac</span>
+          <span>claude</span>
+          <span class="comment"># same Claude Code session as sitting at the PC — same memory, skills, agents, MCP connectors</span>
+        </div>
+        <div class="step-code" style="margin-top:10px;">
+          <span class="comment"># Codex (OpenAI's CLI agent) — install once on Windows if you want a second agent:</span>
+          <span>npm install -g @openai/codex</span>
+          <span>codex</span>
+          <span class="comment"># separate auth (ChatGPT/OpenAI login) — check `npm view @openai/codex` if this has moved</span>
+        </div>
+        <ul class="step-bullets">
+          <li>No server restart needed for HTML/CSS/JS edits — <code style="font-size:11px;color:var(--gold);">Cache-Control: no-cache</code> means the next refresh on Mac or iPhone shows the change instantly</li>
+          <li>Only editing <code style="font-size:11px;color:var(--gold);">brain-server.js</code> itself needs a restart: <code style="font-size:11px;color:var(--gold);">Stop-ScheduledTask -TaskName "JamesBrainServer"; Start-ScheduledTask -TaskName "JamesBrainServer"</code></li>
+          <li>This works from anywhere the Mac has Tailscale — same coffee shop, same edit-and-refresh loop as sitting at the Windows desk</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- EDITING LAYER / CAPABILITIES -->
+  <div class="sec-hd">
+    <div class="sec-title">Editing Layer — Capabilities Breakdown</div>
+    <div class="sec-note">Same underlying files, four different doors in — pick based on what you're doing</div>
+  </div>
+  <div class="agents-grid">
+
+    <div class="agent-card">
+      <div class="agent-top">
+        <div><div class="agent-name">Brain Server</div></div>
+        <span class="skill-badge badge-live">VIEW ONLY</span>
+      </div>
+      <div class="agent-row"><div class="agent-row-label">Access</div><div class="agent-row-val">HTTP :8080 over Tailscale or LAN — a browser, nothing else</div></div>
+      <div class="agent-row"><div class="agent-row-label">Runs on</div><div class="agent-row-val">brain-server.js, on the Windows machine</div></div>
+      <div class="agent-row"><div class="agent-row-label">Best for</div><div class="agent-row-val">Checking the live widget stack from phone or Mac. Nothing to install, can't edit anything from here.</div></div>
+      <div class="agent-invoke" onclick="copyTrigger(this, 'http://&lt;windows-tailscale-ip&gt;:8080')">
+        <span class="skill-trigger-text">http://&lt;windows-tailscale-ip&gt;:8080</span>
+        <span class="skill-trigger-copy">copy ↗</span>
+      </div>
+    </div>
+
+    <div class="agent-card">
+      <div class="agent-top">
+        <div><div class="agent-name">VS Code Remote-SSH</div></div>
+        <span class="skill-badge badge-demand">FULL ACCESS</span>
+      </div>
+      <div class="agent-row"><div class="agent-row-label">Access</div><div class="agent-row-val">SSH :22 over Tailscale — full filesystem read/write + a real terminal</div></div>
+      <div class="agent-row"><div class="agent-row-label">Runs on</div><div class="agent-row-val">Windows — the Mac is just the display, all compute happens on the PC</div></div>
+      <div class="agent-row"><div class="agent-row-label">Best for</div><div class="agent-row-val">The door both agents below walk through. Anything past "just looking" starts here.</div></div>
+      <div class="agent-invoke" onclick="copyTrigger(this, 'ssh mainbrain')">
+        <span class="skill-trigger-text">ssh mainbrain</span>
+        <span class="skill-trigger-copy">copy ↗</span>
+      </div>
+    </div>
+
+    <div class="agent-card">
+      <div class="agent-top">
+        <div><div class="agent-name">Claude Code</div></div>
+        <span class="skill-badge badge-auto">PRIMARY AGENT</span>
+      </div>
+      <div class="agent-row"><div class="agent-row-label">Access</div><div class="agent-row-val">Terminal inside the Remote-SSH window</div></div>
+      <div class="agent-row"><div class="agent-row-label">Runs on</div><div class="agent-row-val">Windows — same memory, skills, agents, and MCP connectors (Calendar, Drive, Playwright) as this session</div></div>
+      <div class="agent-row"><div class="agent-row-label">Best for</div><div class="agent-row-val">Main driver. Editing from the Mac is identical to editing at the PC — no capability lost.</div></div>
+      <div class="agent-invoke" onclick="copyTrigger(this, 'claude')">
+        <span class="skill-trigger-text">claude</span>
+        <span class="skill-trigger-copy">copy ↗</span>
+      </div>
+    </div>
+
+    <div class="agent-card">
+      <div class="agent-top">
+        <div><div class="agent-name">Codex (OpenAI)</div></div>
+        <span class="skill-badge badge-cron">SECONDARY AGENT</span>
+      </div>
+      <div class="agent-row"><div class="agent-row-label">Access</div><div class="agent-row-val">Terminal inside the Remote-SSH window, same as Claude Code</div></div>
+      <div class="agent-row"><div class="agent-row-label">Runs on</div><div class="agent-row-val">Windows — separate auth (ChatGPT/OpenAI login), no shared memory or MCP connectors with Claude Code</div></div>
+      <div class="agent-row"><div class="agent-row-label">Best for</div><div class="agent-row-val">Second opinion, fallback if Claude Code is unavailable, or comparing how two agents approach the same edit.</div></div>
+      <div class="agent-invoke" onclick="copyTrigger(this, 'codex')">
+        <span class="skill-trigger-text">codex</span>
+        <span class="skill-trigger-copy">copy ↗</span>
+      </div>
+    </div>
+
+  </div>
+  <div class="cron-note">
+    <strong>Mental model:</strong> there's one copy of every file, sitting on the Windows disk. Port 8080 (Brain Server) only ever reads it for display. Port 22 (SSH) is the only door that writes to it — Claude Code and Codex both walk through that same door, they just bring different judgment to what they write.
+  </div>
+
+  <!-- FOOTER -->
+  <div class="guide-footer">
+    <span>James SecondBrain · Brain Engine Guide · Updated 2026-07-03</span>
+    <span>Crons expire after 7 days — re-register each session</span>
+  </div>
+
+</div>
+
+<script>
+const BOOT_CMD = '/loop triage all new files in 00 Raw Inputs/ and 00 Notes/, update the relevant wiki pages, then run find orphans to create backlinks';
+
+function bootCopy() {
+  const btn   = document.getElementById('boot-btn');
+  const label = document.getElementById('boot-btn-label');
+  const sub   = document.getElementById('boot-btn-sub');
+  const write = t => navigator.clipboard?.writeText(t).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = t; ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); } catch {}
+    document.body.removeChild(ta);
+  });
+  write(BOOT_CMD);
+  btn.classList.add('copied');
+  label.textContent = '✓ COPIED';
+  sub.textContent   = 'paste into Claude now';
+  setTimeout(() => {
+    btn.classList.remove('copied');
+    label.textContent = 'START LOOP →';
+    sub.textContent   = 'copy · paste into Claude';
+  }, 3000);
+}
+
+function copyTrigger(el, text) {
+  navigator.clipboard?.writeText(text).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); } catch {}
+    document.body.removeChild(ta);
+  });
+  const orig = el.querySelector('.skill-trigger-copy, .loop-cmd-copy');
+  if (orig) { orig.textContent = '✓ copied'; }
+  el.classList.add('copied');
+  setTimeout(() => {
+    el.classList.remove('copied');
+    if (orig) { orig.textContent = orig.classList.contains('loop-cmd-copy') ? 'copy' : 'copy ↗'; }
+  }, 2200);
+}
+
+function copyCmd(el, text) { copyTrigger(el, text); }
+</script>

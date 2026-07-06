@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daily Briefing — James</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../_shared/style.css">
+  <style>
+    /* ── Hero date ────────────────────────────────────────── */
+    .hero {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px 28px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .hero-date {
+      font-family: var(--font-mono);
+      font-size: 28px;
+      font-weight: 500;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
+    .hero-weekday {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+    .hero-right { text-align: right; }
+    .hero-clock {
+      font-family: var(--font-mono);
+      font-size: 22px;
+      color: var(--gold);
+    }
+    .hero-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    /* ── Fasting badge ────────────────────────────────────── */
+    .fasting-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 20px;
+      margin-top: 6px;
+    }
+    .fasting-badge.fast-day { background: rgba(156,111,228,0.15); color: #9c6fe4; border: 1px solid rgba(156,111,228,0.3); }
+    .fasting-badge.feast-day { background: rgba(212,175,106,0.15); color: var(--gold); border: 1px solid rgba(212,175,106,0.3); }
+    .fasting-badge.normal-day { background: var(--bg-elevated); color: var(--text-muted); border: 1px solid var(--border); }
+
+    /* ── Three-col layout ─────────────────────────────────── */
+    .tri-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+    @media (max-width: 800px) { .tri-col { grid-template-columns: 1fr; } }
+
+    /* ── Task list ────────────────────────────────────────── */
+    .task-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .task-item:last-child { border-bottom: none; }
+    .task-num {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--red);
+      font-weight: 600;
+      min-width: 18px;
+    }
+    .task-text { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+    .task-text strong { color: var(--text-primary); }
+
+    /* ── Signal items ─────────────────────────────────────── */
+    .signal-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    .signal-item:last-child { border-bottom: none; }
+    .signal-icon { font-size: 14px; min-width: 20px; }
+
+    /* ── Affirmation block ────────────────────────────────── */
+    .affirmation {
+      background: linear-gradient(135deg, rgba(212,175,106,0.08), rgba(212,175,106,0.02));
+      border: 1px solid rgba(212,175,106,0.2);
+      border-radius: var(--radius-md);
+      padding: 18px 22px;
+      margin-bottom: 14px;
+    }
+    .affirmation-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: rgba(212,175,106,0.6);
+      margin-bottom: 8px;
+    }
+    .affirmation-text {
+      font-size: 14px;
+      color: var(--gold);
+      line-height: 1.6;
+      font-style: italic;
+    }
+
+    /* ── Markets mini strip ───────────────────────────────── */
+    .markets-mini {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    @media (max-width: 700px) { .markets-mini { grid-template-columns: repeat(3, 1fr); } }
+
+    .mkt-mini {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+    }
+    .mkt-mini-sym {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 3px;
+    }
+    .mkt-mini-val {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+    .mkt-mini-chg { font-size: 10px; margin-top: 2px; }
+    .mkt-mini-chg.up   { color: var(--green); }
+    .mkt-mini-chg.down { color: var(--red);   }
+
+    /* ── Back link ────────────────────────────────────────── */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-muted);
+      text-decoration: none;
+      margin-bottom: 16px;
+    }
+    .back-link:hover { color: var(--gold); }
+  </style>
+</head>
+<body>
+  <div class="app">
+
+    <header class="app-header">
+      <div class="app-title">☀️ Daily Briefing</div>
+      <div class="app-date" id="headerDate">Loading...</div>
+    </header>
+
+    <div class="app-body" style="max-width:900px;margin:0 auto;">
+
+      <!-- Hero date + fasting status -->
+      <div class="hero">
+        <div>
+          <div class="hero-date" id="heroDate">—</div>
+          <div class="hero-weekday" id="heroWeekday">—</div>
+          <div id="fastingBadge"></div>
+        </div>
+        <div class="hero-right">
+          <div class="hero-clock" id="heroClock">—</div>
+          <div class="hero-sub">Salt Lake City</div>
+          <div class="hero-sub" id="hero-sub-pay" style="margin-top:4px;color:var(--gold);font-weight:600;">—</div>
+        </div>
+      </div>
+
+      <!-- Affirmation -->
+      <div class="affirmation">
+        <div class="affirmation-label">✝️ Today's Anchor</div>
+        <div class="affirmation-text" id="affirmation">—</div>
+      </div>
+
+      <!-- Three cols: Priorities · Health · Trade -->
+      <div class="tri-col">
+
+        <!-- Top Priorities -->
+        <div class="card">
+          <div class="card-title" style="margin-bottom:12px;">🔴 Today's Top 3</div>
+          <div id="tasks"></div>
+        </div>
+
+        <!-- Health Signals -->
+        <div class="card">
+          <div class="card-title" style="margin-bottom:12px;">💪 Physical Checks</div>
+          <div id="healthSignals"></div>
+        </div>
+
+        <!-- Sales Signals -->
+        <div class="card">
+          <div class="card-title" style="margin-bottom:12px;">💼 Sales Signals</div>
+          <div id="salesSignals"></div>
+        </div>
+
+      </div>
+
+      <!-- Markets -->
+      <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-muted);margin-bottom:8px;">
+        📊 Markets — Prior Close
+        <span style="font-weight:400;text-transform:none;letter-spacing:0;" id="mktDate"></span>
+      </div>
+      <div class="markets-mini" id="marketsMini"></div>
+
+      <!-- Footer quick links -->
+      <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px 20px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
+        <span style="font-size:11px;color:var(--text-muted);font-weight:600;">OPEN:</span>
+        <a href="../life-dashboard/index.html" style="text-decoration:none;font-size:12px;color:var(--text-secondary);background:var(--bg-elevated);border:1px solid var(--border);border-radius:6px;padding:5px 10px;">🧬 Life Dashboard</a>
+        <a href="../trading/index.html" style="text-decoration:none;font-size:12px;color:var(--text-secondary);background:var(--bg-elevated);border:1px solid var(--border);border-radius:6px;padding:5px 10px;">📈 Trading</a>
+        <a href="obsidian://open?vault=MainBrain&file=02%20Active%20Tasks%2F(C)%20QUEUE" style="text-decoration:none;font-size:12px;color:var(--text-secondary);background:var(--bg-elevated);border:1px solid var(--border);border-radius:6px;padding:5px 10px;">🔴 Queue</a>
+        <a href="obsidian://open?vault=MainBrain&file=GOALS" style="text-decoration:none;font-size:12px;color:var(--text-secondary);background:var(--bg-elevated);border:1px solid var(--border);border-radius:6px;padding:5px 10px;">🎯 Goals</a>
+        <a href="https://www.tradingview.com/chart/" target="_blank" style="text-decoration:none;font-size:12px;color:var(--text-secondary);background:var(--bg-elevated);border:1px solid var(--border);border-radius:6px;padding:5px 10px;">📊 TradingView ↗</a>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="../_shared/utils.js"></script>
+  <script>
+    /* ── Affirmations (30 — rotates daily, never repeats for a month) ── */
+    const affirmations = [
+      // Faith
+      "God became man so that man might become God. The goal is transformation — not comfort.",
+      "Theosis is not a destination — it is the direction. Walk toward God, however imperfectly.",
+      "The body is the temple. What you eat, lift, and sleep are liturgical acts.",
+      "Prayer is the only activity that improves every other activity.",
+      "Orthodoxy isn't a belief system to hold — it's a way of being to inhabit.",
+      // Systems & discipline
+      "Systems beat streaks. If a streak breaks, restart the system immediately.",
+      "Compounding is boring until it isn't. The boring years are the real work.",
+      "Every habit has a price. Pay it consistently or don't be surprised by the output.",
+      "The gap between who you are and who you want to be narrows only through daily action.",
+      "Trust the process more than the result. The result is downstream of the process.",
+      "First principles: strip the problem to its core. Most solutions already exist.",
+      "Discipline is remembering what you want. Write it down. Read it daily.",
+      // Trading & finance
+      "Stop exiting winners early. In trading, in conversations, in every domain.",
+      "The competitor in government sales is never another vendor — it's inertia.",
+      "Negative EV per trade means the edge needs to flip before size increases. Fix the system.",
+      "A deal with no champion is a proposal. A deal with a champion is a pipeline.",
+      "Net worth is a lagging indicator of daily decisions. Win the day, the number follows.",
+      // Mental & ADHD
+      "Anxious thoughts are information, not commands. Name them. Don't act on them.",
+      "ADHD is not a deficit of attention — it's inconsistent regulation of it. Build the systems.",
+      "Context-switching is expensive. Block, execute, close. Repeat.",
+      "The prefrontal cortex works when it's not overwhelmed. Fewer inputs, deeper outputs.",
+      "Write everything down. The brain is for thinking, not storing.",
+      // Relationships
+      "Secure attachment begins with secure self-concept. Build yourself, attract accordingly.",
+      "Healing is not linear. Progress is still progress even when it curves back.",
+      "Non-negotiables are not preferences. Hold them clearly or they disappear.",
+      // Physical
+      "The body is the first domain. Without it, nothing else runs well.",
+      "Prayer, gym, one big sales move. The whole game in three steps.",
+      "Enzymes don't care about your excuses. Take the stack. Eat clean. Lift heavy.",
+      // Mission
+      "Build the system that builds you. Then build the one that builds others.",
+      "28, SLC, government sales, Eastern Orthodox, ADHD. The intersection is the advantage.",
+    ];
+
+    /* ── Orthodox calendar: feasts + multi-day fasting periods ── */
+    const feasts = {
+      "1-6":  "Theophany — Great Blessing of Waters",
+      "1-7":  "Synaxis of St. John the Baptist",
+      "2-2":  "Presentation of Christ in the Temple",
+      "3-25": "Annunciation to the Theotokos",
+      "6-24": "Nativity of St. John the Baptist",
+      "6-29": "Ss. Peter & Paul — Apostles' Fast ends today ✨",
+      "8-6":  "Transfiguration of Christ",
+      "8-15": "Dormition of the Theotokos",
+      "9-8":  "Nativity of the Theotokos",
+      "9-14": "Exaltation of the Holy Cross",
+      "11-21":"Entry of the Theotokos into the Temple",
+      "12-6": "St. Nicholas the Wonderworker",
+      "12-25":"Nativity of Christ",
+    };
+
+    // Fasting periods: [start MM-DD, end MM-DD inclusive, name]
+    // All 2026 approximations (moveable feasts like Great Lent shift yearly)
+    const fastingPeriods = [
+      { start: [2,23], end: [4,11],  name: "Great Lent",        color: "var(--purple)" },
+      { start: [6,16], end: [6,28],  name: "Apostles' Fast",    color: "var(--blue)"   },
+      { start: [8,1],  end: [8,14],  name: "Dormition Fast",    color: "var(--gold)"   },
+      { start: [11,15],end: [12,24], name: "Nativity Fast",     color: "var(--green)"  },
+    ];
+
+    function getFastingStatus(now) {
+      const m = now.getMonth() + 1, d = now.getDate();
+      const key = `${m}-${d}`;
+      // Feast day overrides everything
+      if (feasts[key]) return { type: 'feast', label: feasts[key], color: 'var(--gold)' };
+
+      // Check fasting periods
+      for (const fp of fastingPeriods) {
+        const [sm, sd] = fp.start, [em, ed] = fp.end;
+        const inPeriod = (m > sm || (m === sm && d >= sd)) && (m < em || (m === em && d <= ed));
+        if (inPeriod) {
+          const dow = now.getDay();
+          const isWedFri = dow === 3 || dow === 5;
+          return { type: 'fast-period', label: `${fp.name}${isWedFri ? ' · strict fast today' : ''}`, color: fp.color };
+        }
+      }
+
+      // Wed/Fri outside major fasts
+      const dow = now.getDay();
+      if (dow === 3 || dow === 5) return { type: 'fast-day', label: 'Wed/Fri fast — no meat', color: 'var(--purple)' };
+
+      return { type: 'normal', label: 'Free day', color: 'var(--text-muted)' };
+    }
+
+    /* ── Payday logic (mirrors home widget) ──────────────────── */
+    const LAST_PAYDAY = new Date('2026-06-30');
+    const PAY_FREQ    = 14;
+
+    function getPaydayInfo() {
+      const today = new Date(); today.setHours(0,0,0,0);
+      const daysSince = Math.floor((today - LAST_PAYDAY) / 86400000);
+      const cyclePos  = daysSince % PAY_FREQ;
+      const daysUntil = cyclePos === 0 ? 0 : PAY_FREQ - cyclePos;
+      const nextPay   = new Date(today); nextPay.setDate(nextPay.getDate() + daysUntil);
+      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      return { daysUntil, label: `${months[nextPay.getMonth()]} ${nextPay.getDate()}` };
+    }
+
+    /* ── Top priorities (Claude updates during ss) ─────────── */
+    const tasks = [
+      { text: "<strong>Robinhood CSV export</strong> — robinhood.com → Statements & History → drop in <code style='font-size:11px;color:var(--text-muted);'>00 Raw Inputs/</code>" },
+      { text: "<strong>Supplement photo</strong> — open Health widget → 📷 button → drag your Enzyme Nutrition stack photo" },
+      { text: "<strong>Filevine pipeline</strong> — MEDDICC on top 2 deals · identify economic buyer + champion today" },
+    ];
+
+    /* ── Health checks (Enzyme Nutrition protocol) ──────────── */
+    const healthChecks = [
+      { icon: "🏋️", text: "Gym today? (PPL split — target 4–5×/week)" },
+      { icon: "💊", text: "Morning stack: Creatine 5g · D3+K2 · Proteolytic enzymes (fasted)" },
+      { icon: "🍽️", text: "Meal stack: Digestive enzymes with first meal · Omega-3 2g" },
+      { icon: "😴", text: "Sleep last night: 7.5h target · Magnesium + Ashwagandha taken at PM?" },
+      { icon: "💧", text: "16oz water before coffee? Electrolytes before training?" },
+    ];
+
+    /* ── Sales signals ──────────────────────────────────────── */
+    const salesSignals = [
+      { icon: "📞", text: "Callbacks or demos on the calendar today?" },
+      { icon: "🎯", text: "Champion check — does your top deal have an internal advocate who can sell without you in the room?" },
+      { icon: "🏛️", text: "LOIS territory: any DA or GC office activity to follow up on this week?" },
+      { icon: "📋", text: "Pipeline hygiene — every deal updated in Filevine this week?" },
+    ];
+
+    /* ── Markets (static, Claude updates during ss) ─────────── */
+    const markets = [
+      { sym: "SPX",  val: "7,370",  chg: "+0.22%", dir: "up"   },
+      { sym: "NDQ",  val: "29,245", chg: "+0.44%", dir: "up"   },
+      { sym: "VIX",  val: "17.86",  chg: "-2.99%", dir: "down" },
+      { sym: "DXY",  val: "100.92", chg: "-0.44%", dir: "down" },
+      { sym: "GOLD", val: "$4,115", chg: "+0.64%", dir: "up"   },
+      { sym: "OIL",  val: "$71.40", chg: "+1.64%", dir: "up"   },
+    ];
+    const mktDate = "Jun 27 close";
+
+    /* ── Runtime ─────────────────────────────────────────────── */
+    function tick() {
+      const now = new Date();
+
+      document.getElementById('heroDate').textContent =
+        now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      document.getElementById('heroWeekday').textContent =
+        now.toLocaleDateString('en-US', { weekday: 'long' });
+      document.getElementById('headerDate').textContent =
+        now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+      document.getElementById('heroClock').textContent =
+        now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+      // Fasting badge
+      const fs = getFastingStatus(now);
+      const badgeEl = document.getElementById('fastingBadge');
+      const badgeClass = fs.type === 'feast' ? 'feast-day' : fs.type === 'normal' ? 'normal-day' : 'fast-day';
+      const badgeIcon  = fs.type === 'feast' ? '✨' : fs.type === 'normal' ? '☀️' : '✝️';
+      badgeEl.innerHTML = `<span class="fasting-badge ${badgeClass}" style="border-color:${fs.color};color:${fs.color};">${badgeIcon} ${fs.label}</span>`;
+
+      // Payday ticker in hero-sub
+      const pay = getPaydayInfo();
+      const payText = pay.daysUntil === 0 ? '💰 Payday TODAY' : pay.daysUntil === 1 ? '💰 Payday TOMORROW' : `💰 ${pay.daysUntil}d to payday (${pay.label})`;
+      const subEl = document.getElementById('hero-sub-pay');
+      if (subEl) subEl.textContent = payText;
+    }
+
+    function renderAll() {
+      // Affirmation (rotates daily — never same day twice)
+      const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+      document.getElementById('affirmation').textContent = affirmations[dayOfYear % affirmations.length];
+
+      // Tasks
+      document.getElementById('tasks').innerHTML = tasks.map((t, i) => `
+        <div class="task-item">
+          <span class="task-num">${i+1}.</span>
+          <span class="task-text">${t.text}</span>
+        </div>`).join('');
+
+      // Health
+      document.getElementById('healthSignals').innerHTML = healthChecks.map(h => `
+        <div class="signal-item">
+          <span class="signal-icon">${h.icon}</span>
+          <span>${h.text}</span>
+        </div>`).join('');
+
+      // Sales
+      document.getElementById('salesSignals').innerHTML = salesSignals.map(s => `
+        <div class="signal-item">
+          <span class="signal-icon">${s.icon}</span>
+          <span>${s.text}</span>
+        </div>`).join('');
+
+      // Markets
+      document.getElementById('mktDate').textContent = `· ${mktDate}`;
+      document.getElementById('marketsMini').innerHTML = markets.map(m => `
+        <div class="mkt-mini">
+          <div class="mkt-mini-sym">${m.sym}</div>
+          <div class="mkt-mini-val">${m.val}</div>
+          <div class="mkt-mini-chg ${m.dir}">${m.chg}</div>
+        </div>`).join('');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      Brain.renderNav('briefing');
+      tick();
+      renderAll();
+      setInterval(tick, 30000);
+    });
+  </script>
+</body>
+</html>

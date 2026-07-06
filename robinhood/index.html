@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Robinhood Account — James</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../_shared/style.css">
+  <style>
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 900px) { .metric-grid { grid-template-columns: repeat(2, 1fr); } }
+
+    .metric-tile {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+    }
+    .metric-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .metric-value {
+      font-family: var(--font-mono);
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+    .metric-value.red   { color: var(--red); }
+    .metric-value.green { color: var(--green); }
+    .metric-value.gold  { color: var(--gold); }
+    .metric-sub { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+
+    .chart-wrap {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px 24px;
+      margin-bottom: 20px;
+    }
+    .chart-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+    canvas { width: 100%; }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
+
+    .legend-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .legend-row:last-child { border-bottom: none; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+    .legend-val { margin-left: auto; font-family: var(--font-mono); font-size: 12px; }
+
+    .note-banner {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--gold);
+      border-radius: var(--radius-md);
+      padding: 14px 18px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+    .note-banner strong { color: var(--text-primary); }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-muted);
+      text-decoration: none;
+      margin-bottom: 20px;
+    }
+    .back-link:hover { color: var(--gold); }
+  </style>
+</head>
+<body>
+  <div class="app">
+
+    <header class="app-header">
+      <div>
+        <div class="app-title">💰 Robinhood Account</div>
+        <div class="app-date">CSV export · Jul 2023 – Jun 2026 · 5,680 transaction rows</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-family:var(--font-mono);font-size:13px;color:var(--red);">-$9,314.19</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Net Account P&L · All Activity</div>
+      </div>
+    </header>
+
+    <div class="app-body">
+
+      <a class="back-link" href="../index.html">← Home</a>
+
+      <!-- Scope note -->
+      <div class="note-banner">
+        <strong>What this widget shows:</strong> account-level cash flow derived directly from the Robinhood
+        transaction export — funding, realized trading P&L, dividends, interest, fees, and activity volume.
+        <strong>What it doesn't show:</strong> current portfolio value, holdings, or sector allocation. The export
+        shows net equity shares held at $0 as of the last transaction (Jun 26, 2026) — every stock position was
+        closed out — and this is a heavily options-driven account, so there's no "sector allocation" to display.
+        For trade quality (win rate, profit factor, structural diagnosis), see the <a href="../trading/index.html" style="color:var(--gold);">Trading Dashboard</a>.
+      </div>
+
+      <!-- Key Metrics -->
+      <div class="metric-grid" id="metrics"></div>
+
+      <div class="two-col">
+        <!-- Monthly trade volume -->
+        <div class="chart-wrap" style="margin-bottom:0;">
+          <div class="chart-title">Trade Volume by Month (Buy/Sell + Options Legs)</div>
+          <canvas id="volumeCanvas" height="150"></canvas>
+        </div>
+
+        <!-- Options vs Equity split -->
+        <div class="chart-wrap" style="margin-bottom:0; display:flex; flex-direction:column;">
+          <div class="chart-title">Options vs. Equity — Net P&L Split</div>
+          <canvas id="splitCanvas" height="150"></canvas>
+          <div id="splitLegend" style="margin-top:10px;"></div>
+        </div>
+      </div>
+
+      <!-- Top traded instruments -->
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-title" style="margin-bottom:14px;">Most-Traded Instruments (by trade count, all trans types)</div>
+        <table class="data-table">
+          <thead>
+            <tr><th>Ticker</th><th>Trades</th><th>Net P&L</th></tr>
+          </thead>
+          <tbody id="instrumentRows"></tbody>
+        </table>
+      </div>
+
+      <!-- Cash flow breakdown -->
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-title" style="margin-bottom:14px;">Non-Trading Cash Flow</div>
+        <div id="cashFlowRows"></div>
+      </div>
+
+      <!-- Footer -->
+      <div style="text-align:center;padding:20px 0;font-size:11px;color:var(--text-muted);">
+        Source: Robinhood transaction history export ·
+        <code style="color:var(--gold);">00 Raw Inputs/financial raw data/</code> ·
+        Processed 2026-07-02 · Position math uses Buy/Sell codes only (options contracts under BTO/STO/BTC/STC excluded from share counts to avoid double-counting).
+      </div>
+
+    </div>
+  </div>
+
+  <script src="../_shared/utils.js"></script>
+  <script src="../_shared/components.js"></script>
+  <script>
+    /* ── Data (computed from Robinhood CSV export, 5,680 rows, 2023-07-14 to 2026-06-26) ── */
+    const metrics = [
+      { label: "Total Funded",   value: "$9,863.29",  sub: "debit card deposits",        cls: "gold"  },
+      { label: "Net Trading P&L",value: "-$9,265.66",  sub: "equity + options, all-time", cls: "red"   },
+      { label: "Options Net",    value: "-$8,917.68",  sub: "3,564 legs",                 cls: "red"   },
+      { label: "Equity Net",     value: "-$347.98",    sub: "1,684 legs, flat now",        cls: "red"   },
+      { label: "Dividends",      value: "+$25.24",     sub: "all-time",                    cls: "green" },
+      { label: "Interest Earned",value: "+$49.89",     sub: "idle cash, all-time",          cls: "green" },
+      { label: "Robinhood Gold", value: "-$115.00",    sub: "subscription fees",            cls: "red"   },
+      { label: "Total Trades",   value: "5,248",       sub: "Jul 2023 – Jun 2026",          cls: "gold"  },
+    ];
+
+    const volumeByMonth = [
+      { date: "Jul 23", value: 53 },  { date: "Aug 23", value: 65 },
+      { date: "Mar 24", value: 65 },  { date: "Apr 24", value: 91 },
+      { date: "May 24", value: 173 }, { date: "Jun 24", value: 202 },
+      { date: "Jul 24", value: 244 }, { date: "Aug 24", value: 714 },
+      { date: "Sep 24", value: 625 }, { date: "Oct 24", value: 277 },
+      { date: "Nov 24", value: 36 },  { date: "Dec 24", value: 21 },
+      { date: "Jan 25", value: 37 },  { date: "Feb 25", value: 1 },
+      { date: "Mar 25", value: 63 },  { date: "Apr 25", value: 137 },
+      { date: "May 25", value: 119 }, { date: "Jun 25", value: 152 },
+      { date: "Jul 25", value: 217 }, { date: "Aug 25", value: 438 },
+      { date: "Sep 25", value: 273 }, { date: "Oct 25", value: 386 },
+      { date: "Nov 25", value: 267 }, { date: "Dec 25", value: 112 },
+      { date: "Jan 26", value: 79 },  { date: "Feb 26", value: 15 },
+      { date: "Mar 26", value: 38 },  { date: "Apr 26", value: 118 },
+      { date: "May 26", value: 142 }, { date: "Jun 26", value: 88 },
+    ];
+
+    const instruments = [
+      { sym: "SPY",  trades: 1992, pnl: -4296.53 },
+      { sym: "NVDA", trades: 502,  pnl: -2095.71 },
+      { sym: "UPRO", trades: 498,  pnl: 930.43 },
+      { sym: "QQQ",  trades: 354,  pnl: 120.76 },
+      { sym: "TQQQ", trades: 248,  pnl: 210.70 },
+      { sym: "IWM",  trades: 229,  pnl: -594.26 },
+      { sym: "NVDL", trades: 225,  pnl: -432.30 },
+      { sym: "SOXL", trades: 175,  pnl: -884.59 },
+      { sym: "VIXW", trades: 95,   pnl: -420.99 },
+      { sym: "AAPL", trades: 70,   pnl: 373.65 },
+    ];
+
+    const cashFlowItems = [
+      { label: "Dividends received (CDIV)", value: "+$25.24", cls: "green" },
+      { label: "Interest earned on idle cash (INT)", value: "+$49.89", cls: "green" },
+      { label: "Robinhood Gold subscription (GOLD)", value: "-$115.00", cls: "red" },
+      { label: "Net non-trading cash flow", value: "-$39.87", cls: "red" },
+    ];
+
+    function renderMetrics() {
+      const grid = document.getElementById('metrics');
+      metrics.forEach(m => {
+        const div = document.createElement('div');
+        div.className = 'metric-tile';
+        div.innerHTML = `
+          <div class="metric-label">${m.label}</div>
+          <div class="metric-value ${m.cls}">${m.value}</div>
+          <div class="metric-sub">${m.sub}</div>
+        `;
+        grid.appendChild(div);
+      });
+    }
+
+    function renderVolume() {
+      Charts.bar(document.getElementById('volumeCanvas'), volumeByMonth, { height: 150 });
+    }
+
+    function renderSplit() {
+      const optionsAbs = 8917.68;
+      const equityAbs = 347.98;
+      const red = getComputedStyle(document.documentElement).getPropertyValue('--red').trim();
+      const orange = getComputedStyle(document.documentElement).getPropertyValue('--orange').trim();
+      Charts.donut(document.getElementById('splitCanvas'), [
+        { label: 'Options', value: optionsAbs, color: red },
+        { label: 'Equity', value: equityAbs, color: orange },
+      ], { height: 150, centerLabel: '-$9,266', centerSub: 'net loss' });
+
+      const legend = document.getElementById('splitLegend');
+      legend.innerHTML = `
+        <div class="legend-row"><span class="legend-dot" style="background:${red};"></span> Options (3,564 legs) <span class="legend-val" style="color:var(--red);">-$8,917.68</span></div>
+        <div class="legend-row"><span class="legend-dot" style="background:${orange};"></span> Equity (1,684 legs) <span class="legend-val" style="color:var(--red);">-$347.98</span></div>
+      `;
+    }
+
+    function renderInstruments() {
+      const tbody = document.getElementById('instrumentRows');
+      instruments.forEach(i => {
+        const tr = document.createElement('tr');
+        const color = i.pnl >= 0 ? 'var(--green)' : 'var(--red)';
+        const sign = i.pnl >= 0 ? '+' : '';
+        tr.innerHTML = `<td>${i.sym}</td><td>${i.trades}</td><td style="color:${color};">${sign}$${Math.abs(i.pnl).toFixed(2)}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderCashFlow() {
+      const el = document.getElementById('cashFlowRows');
+      cashFlowItems.forEach(c => {
+        const div = document.createElement('div');
+        div.className = 'legend-row';
+        div.innerHTML = `<span>${c.label}</span><span class="legend-val" style="color:var(--${c.cls});">${c.value}</span>`;
+        el.appendChild(div);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      Brain.renderNav('robinhood');
+      renderMetrics();
+      renderVolume();
+      renderSplit();
+      renderInstruments();
+      renderCashFlow();
+    });
+
+    window.addEventListener('resize', () => {
+      renderVolume();
+      renderSplit();
+    });
+  </script>
+</body>
+</html>

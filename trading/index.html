@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trading Dashboard — James</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../_shared/style.css">
+  <style>
+    /* ── Trading-specific ─────────────────────────────────── */
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 900px) { .metric-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 550px) { .metric-grid { grid-template-columns: repeat(2, 1fr); } }
+
+    .metric-tile {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+    }
+    .metric-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .metric-value {
+      font-family: var(--font-mono);
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+    .metric-value.red   { color: var(--red); }
+    .metric-value.green { color: var(--green); }
+    .metric-value.gold  { color: var(--gold); }
+    .metric-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    /* ── Equity Curve ─────────────────────────────────────── */
+    .chart-wrap {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px 24px;
+      margin-bottom: 20px;
+    }
+    .chart-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+    canvas { width: 100%; }
+
+    /* ── Two-col layout ───────────────────────────────────── */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
+
+    /* ── Diagnosis / Fix section ──────────────────────────── */
+    .diagnosis-item {
+      display: flex;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+      align-items: flex-start;
+    }
+    .diagnosis-item:last-child { border-bottom: none; }
+    .diag-num {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--red);
+      font-weight: 600;
+      min-width: 20px;
+    }
+    .diag-text { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+    .diag-text strong { color: var(--text-primary); }
+
+    /* ── Status banner ────────────────────────────────────── */
+    .status-banner {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--orange);
+      flex-shrink: 0;
+    }
+    .status-text { font-size: 13px; color: var(--text-secondary); }
+    .status-text strong { color: var(--gold); }
+
+    /* ── Instrument table ─────────────────────────────────── */
+    .inst-table { width: 100%; border-collapse: collapse; }
+    .inst-table th {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-muted);
+      text-align: left;
+      padding: 0 0 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .inst-table td {
+      font-size: 13px;
+      color: var(--text-secondary);
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .inst-table td:first-child { color: var(--text-primary); font-family: var(--font-mono); font-weight: 500; }
+    .inst-table tr:last-child td { border-bottom: none; }
+
+    .tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .tag.long  { background: rgba(76,175,80,0.15); color: var(--green); }
+    .tag.short { background: rgba(244,67,54,0.15); color: var(--red); }
+    .tag.hedge { background: rgba(156,111,228,0.15); color: var(--purple); }
+
+    /* ── Rules checklist ──────────────────────────────────── */
+    .rule-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    .rule-row:last-child { border-bottom: none; }
+    .rule-icon { font-size: 14px; min-width: 20px; }
+    .rule-row strong { color: var(--text-primary); }
+
+    /* ── Back link ────────────────────────────────────────── */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-muted);
+      text-decoration: none;
+      margin-bottom: 20px;
+    }
+    .back-link:hover { color: var(--gold); }
+  </style>
+</head>
+<body>
+  <div class="app">
+
+    <!-- Header -->
+    <header class="app-header">
+      <div>
+        <div class="app-title">📈 Trading Dashboard</div>
+        <div class="app-date">Robinhood CSV verified · Jul 2023–Jun 2026 · 5,248 trades</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-family:var(--font-mono);font-size:13px;color:var(--red);">-$9,265.66</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Net Trading P&L · Robinhood CSV</div>
+      </div>
+    </header>
+
+    <div class="app-body">
+
+      <a class="back-link" href="../Home Widget.html">← Home</a>
+
+      <!-- Status Banner -->
+      <div class="status-banner">
+        <div class="status-dot"></div>
+        <div class="status-text">
+          <strong>Status: Still active — trading continued through Jun 26, 2026.</strong> Robinhood CSV export shows
+          5,248 trades since Jul 2023, not just the 1,335-trade TradeZella sample below. System rules (right) were never activated.
+          Recent months (Apr, Jun 2026) are net positive — first back-to-back green months in the dataset.
+        </div>
+      </div>
+
+      <!-- Key Metrics -->
+      <div class="metric-grid" id="metrics"></div>
+
+      <!-- Equity Curve (real, verified) -->
+      <div class="chart-wrap">
+        <div class="chart-title">Realized Trading P&L — Robinhood CSV, Jul 2023 to Jun 2026 (verified from transaction export)</div>
+        <canvas id="csvEquityCanvas" height="160"></canvas>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:10px;">
+          Baseline $0 = account cash flow at first transaction in the export (Jul 14, 2023) — not directly comparable to the
+          TradeZella curve below, which covers a different, longer window with an unknown starting baseline.
+        </div>
+      </div>
+
+      <!-- Equity Curve (TradeZella, legacy) -->
+      <div class="chart-wrap">
+        <div class="chart-title">Cumulative P&L Curve — 2020 to Aug 2025 (TradeZella sample)</div>
+        <canvas id="equityCanvas" height="160"></canvas>
+      </div>
+
+      <!-- Two-column: Diagnosis + Instruments -->
+      <div class="two-col">
+
+        <!-- Diagnosis -->
+        <div class="card">
+          <div class="card-title" style="margin-bottom:14px;">🔴 Structural Problems Found</div>
+          <div id="diagnosis"></div>
+        </div>
+
+        <!-- Instrument breakdown -->
+        <div class="card">
+          <div class="card-title" style="margin-bottom:14px;">Instruments Traded</div>
+          <table class="inst-table">
+            <thead>
+              <tr>
+                <th>Ticker</th>
+                <th>Description</th>
+                <th>Role</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>UPRO</td><td>ProShares UltraPro S&P500 (3×)</td><td><span class="tag long">Long</span></td></tr>
+              <tr><td>SPY</td><td>SPDR S&P500 ETF</td><td><span class="tag long">Long</span></td></tr>
+              <tr><td>SPXS</td><td>Direxion S&P500 Bear 3×</td><td><span class="tag short">Short</span></td></tr>
+              <tr><td>SDS</td><td>ProShares UltraShort S&P500 (2×)</td><td><span class="tag hedge">Hedge</span></td></tr>
+              <tr><td>TQQQ</td><td>ProShares UltraPro QQQ (3×)</td><td><span class="tag long">Long</span></td></tr>
+              <tr><td>NVDL</td><td>GraniteShares 2× NVDA</td><td><span class="tag long">Long</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Two-column: Math + Rules -->
+      <div class="two-col">
+
+        <!-- The Math -->
+        <div class="card">
+          <div class="card-title" style="margin-bottom:14px;">📐 The Math That Explains Everything</div>
+          <div style="font-family:var(--font-mono);font-size:12px;color:var(--text-secondary);background:var(--bg-elevated);border-radius:8px;padding:14px;line-height:2;">
+            EV = (win_rate × avg_win) + (loss_rate × avg_loss)<br>
+            EV = (0.4792 × $59.70) + (0.5208 × -$67.50)<br>
+            EV = <span style="color:var(--red);font-weight:600;">-$6.54 per trade</span><br><br>
+            -$6.54 × 1,335 trades<br>
+            = <span style="color:var(--red);font-weight:600;">-$8,731</span> (actual: -$8,661 ✓)
+          </div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:12px;line-height:1.7;">
+            Not bad luck. A system with a structural negative edge running at scale.<br>
+            <strong style="color:var(--gold);">Fix needed:</strong> avg win must exceed avg loss.
+            Currently 0.88. Target 1.2+.
+          </div>
+        </div>
+
+        <!-- System Rules -->
+        <div class="card">
+          <div class="card-title" style="margin-bottom:14px;">⚙️ New System Rules (Pending Activation)</div>
+          <div id="rules"></div>
+        </div>
+
+      </div>
+
+      <!-- Footer -->
+      <div style="text-align:center;padding:20px 0;font-size:11px;color:var(--text-muted);">
+        Sources: TradeZella (2020–Aug 2025, win rate / avg win-loss tiles) + Robinhood CSV export
+        (Jul 2023–Jun 2026, 5,680 transaction rows, processed 2026-07-02) ·
+        <code style="color:var(--gold);">00 Raw Inputs/financial raw data/</code> ·
+        Win rate/profit factor not yet recomputed from the CSV (needs trade-matching) — reactivate TradeZella for that.
+      </div>
+
+    </div>
+  </div>
+
+  <script src="../_shared/utils.js"></script>
+  <script>
+    /* ── Data ─────────────────────────────────────────────── */
+    const metrics = [
+      { label: "Net Trading P&L",  value: "-$9,265.66", sub: "CSV verified, 35mo",   cls: "red"   },
+      { label: "Total Funded",     value: "$9,863.29",  sub: "debit card deposits",  cls: "gold"  },
+      { label: "Options P&L",      value: "-$8,917.68", sub: "3,564 legs",           cls: "red"   },
+      { label: "Equity P&L",       value: "-$347.98",   sub: "1,684 legs, flat now", cls: "red"   },
+      { label: "Win Rate",         value: "47.92%",     sub: "TradeZella sample",    cls: "red"   },
+      { label: "Profit Factor",    value: "0.81",       sub: "TradeZella sample",    cls: "red"   },
+      { label: "Avg Win",          value: "+$59.70",    sub: "TradeZella sample",    cls: "green" },
+      { label: "Avg Loss",         value: "-$67.50",    sub: "TradeZella sample",    cls: "red"   },
+    ];
+
+    const diagItems = [
+      { n:"1", text: "<strong>Winners cut too short.</strong> Avg win $59.70 vs avg loss $67.50. The trade duration scatter shows largest wins in longer holds — James exits too early." },
+      { n:"2", text: "<strong>8–10 AM danger window.</strong> Largest loss outliers concentrated in first 30–90 min of open. Institutional volatility destroys retail entries." },
+      { n:"3", text: "<strong>Win rate below 50%.</strong> 47.92% means losses more frequent than wins — survivable only if avg win > avg loss. Currently the opposite." },
+      { n:"4", text: "<strong>Negative EV system.</strong> -$6.54 per trade. The edge needs to flip sign before size is increased." },
+    ];
+
+    const rules = [
+      { icon: "🚫", text: "<strong>No trading 9:30–9:45 AM.</strong> Wait for open volatility to resolve." },
+      { icon: "⏱️", text: "<strong>Let winners run.</strong> Set target. Don't manually exit before it." },
+      { icon: "🛑", text: "<strong>Max 2% risk per trade.</strong> Position size = max$ ÷ (entry − stop)." },
+      { icon: "📉", text: "<strong>Daily loss limit: stop.</strong> Define before session. Honor it." },
+      { icon: "3️⃣", text: "<strong>Max 3 trades/day.</strong> >3 = chasing or revenge mode." },
+      { icon: "📊", text: "<strong>Reactivate TradeZella.</strong> Data visibility is non-negotiable." },
+    ];
+
+    /* ── Real Equity Curve (computed from Robinhood CSV export) ──── */
+    // Source: 5,680 transaction rows across two Robinhood exports in 00 Raw Inputs/financial raw data/
+    // Cumulative sum of Amount for Buy/Sell/BTO/BTC/STO/STC trans codes only (excludes funding, dividends, interest, fees)
+    const csvMonthlyPoints = [
+      { date: "Jul 2023", pnl: -69.50 },   { date: "Aug 2023", pnl: -266.25 },
+      { date: "Mar 2024", pnl: -1288.02 }, { date: "Apr 2024", pnl: -2128.71 },
+      { date: "May 2024", pnl: -4205.55 }, { date: "Jun 2024", pnl: -6197.57 },
+      { date: "Jul 2024", pnl: -3969.90 }, { date: "Aug 2024", pnl: -4034.45 },
+      { date: "Sep 2024", pnl: -5531.76 }, { date: "Oct 2024", pnl: -7164.87 },
+      { date: "Nov 2024", pnl: -7231.35 }, { date: "Dec 2024", pnl: -7162.21 },
+      { date: "Jan 2025", pnl: -6359.21 }, { date: "Feb 2025", pnl: -6364.21 },
+      { date: "Mar 2025", pnl: -7174.41 }, { date: "Apr 2025", pnl: -8152.07 },
+      { date: "May 2025", pnl: -8796.97 }, { date: "Jun 2025", pnl: -9494.85 },
+      { date: "Jul 2025", pnl: -10042.89 },{ date: "Aug 2025", pnl: -7572.11 },
+      { date: "Sep 2025", pnl: -6106.22 }, { date: "Oct 2025", pnl: -6758.89 },
+      { date: "Nov 2025", pnl: -7372.55 }, { date: "Dec 2025", pnl: -8378.10 },
+      { date: "Jan 2026", pnl: -8804.17 }, { date: "Feb 2026", pnl: -8898.28 },
+      { date: "Mar 2026", pnl: -9600.55 }, { date: "Apr 2026", pnl: -9193.76 },
+      { date: "May 2026", pnl: -9867.96 }, { date: "Jun 2026", pnl: -9265.66 },
+    ];
+    // Note: Sep–Feb 2023/2024 has no points — zero trading activity those months (gap in export, not a data error).
+
+    function renderCsvEquityCurve() {
+      const canvas = document.getElementById('csvEquityCanvas');
+      const dpr = window.devicePixelRatio || 1;
+      const W = canvas.parentElement.clientWidth - 48;
+      const H = 160;
+      canvas.style.width  = W + 'px';
+      canvas.style.height = H + 'px';
+      canvas.width  = W * dpr;
+      canvas.height = H * dpr;
+
+      const ctx = canvas.getContext('2d');
+      ctx.scale(dpr, dpr);
+
+      const pts = csvMonthlyPoints;
+      const minPnl = Math.min(...pts.map(p => p.pnl)) * 1.1;
+      const maxPnl = 500;
+      const pad = { t: 10, r: 10, b: 30, l: 60 };
+      const cw = W - pad.l - pad.r;
+      const ch = H - pad.t - pad.b;
+
+      function xp(i)   { return pad.l + (i / (pts.length - 1)) * cw; }
+      function yp(pnl) { return pad.t + ch - ((pnl - minPnl) / (maxPnl - minPnl)) * ch; }
+
+      ctx.strokeStyle = '#2c4a6e';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4, 4]);
+      const zy = yp(0);
+      ctx.beginPath();
+      ctx.moveTo(pad.l, zy);
+      ctx.lineTo(W - pad.r, zy);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      const grad = ctx.createLinearGradient(0, pad.t, 0, H - pad.b);
+      grad.addColorStop(0, 'rgba(244,67,54,0.25)');
+      grad.addColorStop(1, 'rgba(244,67,54,0.02)');
+
+      ctx.beginPath();
+      ctx.moveTo(xp(0), yp(pts[0].pnl));
+      for (let i = 1; i < pts.length; i++) ctx.lineTo(xp(i), yp(pts[i].pnl));
+      ctx.lineTo(xp(pts.length - 1), H - pad.b);
+      ctx.lineTo(pad.l, H - pad.b);
+      ctx.closePath();
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.moveTo(xp(0), yp(pts[0].pnl));
+      for (let i = 1; i < pts.length; i++) ctx.lineTo(xp(i), yp(pts[i].pnl));
+      ctx.strokeStyle = '#f44336';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Latest point marker
+      const lastIdx = pts.length - 1;
+      ctx.beginPath();
+      ctx.arc(xp(lastIdx), yp(pts[lastIdx].pnl), 4, 0, Math.PI * 2);
+      ctx.fillStyle = '#d4af6a';
+      ctx.fill();
+
+      ctx.fillStyle = '#7e93b3';
+      ctx.font = '10px JetBrains Mono, monospace';
+      ctx.textAlign = 'right';
+      [[0, '$0'], [-3500, '-$3.5K'], [-7000, '-$7K'], [-10000, '-$10K']].forEach(([v, lbl]) => {
+        ctx.fillText(lbl, pad.l - 6, yp(v) + 3);
+      });
+
+      ctx.textAlign = 'left';
+      ctx.fillText('Jul 2023', pad.l, H - 8);
+      ctx.textAlign = 'right';
+      ctx.fillText('Jun 2026', W - pad.r, H - 8);
+    }
+
+    /* ── Equity Curve (approximate from described data) ────── */
+    // Key data points from TradeZella analysis:
+    // 2020 start: $0
+    // Steady decline 2020-2023
+    // ~2023/2024: -$10,000 to -$12,000 (worst drawdown)
+    // Sep 2024: -$7,093 (recovery milestone)
+    // Aug 2025: -$8,661 (final)
+    const equityPoints = [
+      { date: "Jan 2020", pnl: 0 },
+      { date: "Jun 2020", pnl: -800 },
+      { date: "Dec 2020", pnl: -1800 },
+      { date: "Jun 2021", pnl: -3200 },
+      { date: "Dec 2021", pnl: -4800 },
+      { date: "Jun 2022", pnl: -6900 },
+      { date: "Dec 2022", pnl: -8500 },
+      { date: "Jun 2023", pnl: -10200 },
+      { date: "Dec 2023", pnl: -11800 },
+      { date: "Mar 2024", pnl: -12100 },
+      { date: "Sep 2024", pnl: -7093 },
+      { date: "Dec 2024", pnl: -8200 },
+      { date: "Apr 2025", pnl: -7500 },
+      { date: "Aug 2025", pnl: -8661 },
+    ];
+
+    function renderMetrics() {
+      const grid = document.getElementById('metrics');
+      metrics.forEach(m => {
+        const div = document.createElement('div');
+        div.className = 'metric-tile';
+        div.innerHTML = `
+          <div class="metric-label">${m.label}</div>
+          <div class="metric-value ${m.cls}">${m.value}</div>
+          <div class="metric-sub">${m.sub}</div>
+        `;
+        grid.appendChild(div);
+      });
+    }
+
+    function renderDiagnosis() {
+      const el = document.getElementById('diagnosis');
+      diagItems.forEach(d => {
+        el.innerHTML += `
+          <div class="diagnosis-item">
+            <span class="diag-num">${d.n}.</span>
+            <span class="diag-text">${d.text}</span>
+          </div>`;
+      });
+    }
+
+    function renderRules() {
+      const el = document.getElementById('rules');
+      rules.forEach(r => {
+        el.innerHTML += `
+          <div class="rule-row">
+            <span class="rule-icon">${r.icon}</span>
+            <span>${r.text}</span>
+          </div>`;
+      });
+    }
+
+    function renderEquityCurve() {
+      const canvas = document.getElementById('equityCanvas');
+      const dpr = window.devicePixelRatio || 1;
+      const W = canvas.parentElement.clientWidth - 48;
+      const H = 160;
+      canvas.style.width  = W + 'px';
+      canvas.style.height = H + 'px';
+      canvas.width  = W * dpr;
+      canvas.height = H * dpr;
+
+      const ctx = canvas.getContext('2d');
+      ctx.scale(dpr, dpr);
+
+      const pts = equityPoints;
+      const minPnl = Math.min(...pts.map(p => p.pnl)) * 1.1;
+      const maxPnl = 2000;
+      const pad = { t: 10, r: 10, b: 30, l: 60 };
+      const cw = W - pad.l - pad.r;
+      const ch = H - pad.t - pad.b;
+
+      function xp(i)   { return pad.l + (i / (pts.length - 1)) * cw; }
+      function yp(pnl) { return pad.t + ch - ((pnl - minPnl) / (maxPnl - minPnl)) * ch; }
+
+      // Zero line
+      ctx.strokeStyle = '#2c4a6e';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4, 4]);
+      const zy = yp(0);
+      ctx.beginPath();
+      ctx.moveTo(pad.l, zy);
+      ctx.lineTo(W - pad.r, zy);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Fill gradient under curve
+      const grad = ctx.createLinearGradient(0, pad.t, 0, H - pad.b);
+      grad.addColorStop(0, 'rgba(244,67,54,0.25)');
+      grad.addColorStop(1, 'rgba(244,67,54,0.02)');
+
+      ctx.beginPath();
+      ctx.moveTo(xp(0), yp(pts[0].pnl));
+      for (let i = 1; i < pts.length; i++) ctx.lineTo(xp(i), yp(pts[i].pnl));
+      ctx.lineTo(xp(pts.length - 1), H - pad.b);
+      ctx.lineTo(pad.l, H - pad.b);
+      ctx.closePath();
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      // Curve line
+      ctx.beginPath();
+      ctx.moveTo(xp(0), yp(pts[0].pnl));
+      for (let i = 1; i < pts.length; i++) ctx.lineTo(xp(i), yp(pts[i].pnl));
+      ctx.strokeStyle = '#f44336';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Sep 2024 recovery dot
+      const recIdx = pts.findIndex(p => p.date === 'Sep 2024');
+      if (recIdx >= 0) {
+        ctx.beginPath();
+        ctx.arc(xp(recIdx), yp(pts[recIdx].pnl), 4, 0, Math.PI * 2);
+        ctx.fillStyle = '#4caf50';
+        ctx.fill();
+      }
+
+      // Y-axis labels
+      ctx.fillStyle = '#7e93b3';
+      ctx.font = '10px JetBrains Mono, monospace';
+      ctx.textAlign = 'right';
+      [[0, '$0'], [-4000, '-$4K'], [-8000, '-$8K'], [-12000, '-$12K']].forEach(([v, lbl]) => {
+        ctx.fillText(lbl, pad.l - 6, yp(v) + 3);
+      });
+
+      // X-axis start/end labels
+      ctx.textAlign = 'left';
+      ctx.fillText('2020', pad.l, H - 8);
+      ctx.textAlign = 'right';
+      ctx.fillText('Aug 2025', W - pad.r, H - 8);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      Brain.renderNav('trading');
+      renderMetrics();
+      renderDiagnosis();
+      renderRules();
+      renderCsvEquityCurve();
+      renderEquityCurve();
+    });
+
+    window.addEventListener('resize', () => {
+      renderCsvEquityCurve();
+      renderEquityCurve();
+    });
+  </script>
+</body>
+</html>

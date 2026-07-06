@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Social Stats — James</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../_shared/style.css">
+  <style>
+    .platform-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .platform-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .platform-identity {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .platform-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .platform-icon.instagram { background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045); }
+    .platform-icon.x         { background: #000; border: 1px solid #333; }
+    .platform-icon.linkedin  { background: #0077b5; }
+    .platform-icon.tiktok    { background: #000; border: 1px solid #333; color: #25f4ee; }
+
+    .platform-name    { font-size: 15px; font-weight: 600; }
+    .platform-handle  { font-size: 12px; color: var(--text-secondary); font-family: var(--font-mono); }
+
+    .platform-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    .mini-stat { display: flex; flex-direction: column; gap: 3px; }
+    .mini-stat-value {
+      font-family: var(--font-mono);
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
+    .mini-stat-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-secondary);
+    }
+
+    .platform-assessment {
+      border-top: 1px solid var(--border);
+      padding-top: 16px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.55;
+    }
+
+    .ratio-bar {
+      margin-top: 12px;
+    }
+    .ratio-bar-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+      font-family: var(--font-mono);
+    }
+    .ratio-track {
+      height: 4px;
+      background: var(--bg-elevated);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .ratio-fill {
+      height: 100%;
+      border-radius: 99px;
+      transition: width 0.5s ease;
+    }
+
+    .summary-bar {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 20px;
+    }
+    .summary-stat { display: flex; flex-direction: column; gap: 2px; text-align: center; }
+    .summary-value {
+      font-family: var(--font-mono);
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--gold);
+      letter-spacing: -0.02em;
+    }
+    .summary-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-secondary);
+    }
+    .summary-divider {
+      width: 1px;
+      height: 40px;
+      background: var(--border);
+    }
+
+    @media (max-width: 900px) {
+      .col-4 { grid-column: span 12 !important; }
+      .content-strategy-grid { grid-template-columns: 1fr !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <div class="app-title">Social Stats</div>
+      <div class="app-date" id="app-date"></div>
+    </header>
+
+    <main class="app-body">
+
+      <!-- Summary Bar -->
+      <div class="summary-bar">
+        <div class="summary-stat">
+          <div class="summary-value">6,582</div>
+          <div class="summary-label">Total Followers</div>
+        </div>
+        <div class="summary-divider"></div>
+        <div class="summary-stat">
+          <div class="summary-value">17.8K</div>
+          <div class="summary-label">Total Posts</div>
+        </div>
+        <div class="summary-divider"></div>
+        <div class="summary-stat">
+          <span class="badge gold" style="font-size:13px; padding: 5px 14px;">Instagram Strongest</span>
+          <div class="summary-label" style="margin-top:6px;">Best Brand Asset</div>
+        </div>
+        <div class="summary-divider"></div>
+        <div class="summary-stat">
+          <span class="badge red" style="font-size:13px; padding: 5px 14px;">LinkedIn Stale</span>
+          <div class="summary-label" style="margin-top:6px;">Top Priority Fix</div>
+        </div>
+        <div class="summary-divider"></div>
+        <div class="summary-stat">
+          <div class="summary-value text-muted" style="font-size:13px; font-family: var(--font-display);">2026-07-01</div>
+          <div class="summary-label">Last Audited</div>
+        </div>
+      </div>
+
+      <!-- Platform Cards -->
+      <div class="grid">
+
+        <!-- Instagram -->
+        <div class="platform-card col-3">
+          <div class="platform-header">
+            <div class="platform-identity">
+              <div class="platform-icon instagram">📷</div>
+              <div>
+                <div class="platform-name">Instagram</div>
+                <div class="platform-handle">@mr.megley</div>
+              </div>
+            </div>
+            <span class="badge green">Strong</span>
+          </div>
+
+          <div class="platform-stats">
+            <div class="mini-stat">
+              <div class="mini-stat-value">1,740</div>
+              <div class="mini-stat-label">Followers</div>
+            </div>
+            <div class="mini-stat">
+              <div class="mini-stat-value">89</div>
+              <div class="mini-stat-label">Posts</div>
+            </div>
+            <div class="mini-stat">
+              <div class="mini-stat-value">630</div>
+              <div class="mini-stat-label">Following</div>
+            </div>
+          </div>
+
+          <div class="ratio-bar">
+            <div class="ratio-bar-label">
+              <span>Follower / Following ratio</span>
+              <span>2.8×</span>
+            </div>
+            <div class="ratio-track">
+              <div class="ratio-fill" style="width: 74%; background: var(--green);"></div>
+            </div>
+          </div>
+
+          <div class="platform-assessment">
+            Masculine, faith-grounded aesthetic. Grid is clean and coherent — gym, outdoors, snowboarding, music. Bio <em>"Servant of God"</em> is a confident identity anchor. Biggest gap: no growth hook beyond organic discovery.
+          </div>
+        </div>
+
+        <!-- X / Twitter -->
+        <div class="platform-card col-3">
+          <div class="platform-header">
+            <div class="platform-identity">
+              <div class="platform-icon x" style="color:#fff; font-weight:700; font-family: var(--font-mono);">𝕏</div>
+              <div>
+                <div class="platform-name">X / Twitter</div>
+                <div class="platform-handle">@RealJimmyM4</div>
+              </div>
+            </div>
+            <span class="badge muted">Anon</span>
+          </div>
+
+          <div class="platform-stats">
+            <div class="mini-stat">
+              <div class="mini-stat-value">1,206</div>
+              <div class="mini-stat-label">Followers</div>
+            </div>
+            <div class="mini-stat">
+              <div class="mini-stat-value">17.5K</div>
+              <div class="mini-stat-label">Posts</div>
+            </div>
+            <div class="mini-stat">
+              <div class="mini-stat-value">2,686</div>
+              <div class="mini-stat-label">Following</div>
+            </div>
+          </div>
+
+          <div class="ratio-bar">
+            <div class="ratio-bar-label">
+              <span>Follower / Following ratio</span>
+              <span>0.45×</span>
+            </div>
+            <div class="ratio-track">
+              <div class="ratio-fill" style="width: 15%; background: var(--orange);"></div>
+            </div>
+          </div>
+
+          <div class="platform-assessment">
+            17.5K posts → 1,206 followers is a bad compounding ratio. The writing quality is real (468K views on one reply). But anonymous handle + <em>"shitpost extraordinaire"</em> bio means equity can't accumulate. Decision: private release valve or rebuild under real identity.
+          </div>
+        </div>
+
+        <!-- LinkedIn -->
+        <div class="platform-card col-3">
+          <div class="platform-header">
+            <div class="platform-identity">
+              <div class="platform-icon linkedin" style="color:#fff; font-weight:700; font-size:15px;">in</div>
+              <div>
+                <div class="platform-name">LinkedIn</div>
+                <div class="platform-handle">jameswmegleyiv</div>
+              </div>
+            </div>
+            <span class="badge red">Action Needed</span>
+          </div>
+
+          <div class="platform-stats">
+            <div class="mini-stat">
+              <div class="mini-stat-value">2,659</div>
+              <div class="mini-stat-label">Followers</div>
+            </div>
+            <div class="mini-stat">
+              <div class="mini-stat-value">160</div>
+              <div class="mini-stat-label">Posts</div>
+            </div>
+            <div class="mini-stat">
+              <div class="mini-stat-value">~1yr</div>
+              <div class="mini-stat-label">Last Post</div>
+            </div>
+          </div>
+
+          <div class="ratio-bar">
+            <div class="ratio-bar-label">
+              <span>Profile → Filevine narrative alignment</span>
+              <span>Broken</span>
+            </div>
+            <div class="ratio-track">
+              <div class="ratio-fill" style="width: 30%; background: var(--red);"></div>
+            </div>
+          </div>
+
+          <div class="platform-assessment">
+            Headline and banner are strong — Filevine + LOIS + Forbes Fast 50. But first visible post is an Azure Knowledge Corp announcement that directly contradicts government legal tech positioning. Feed has been dead ~1yr. Highest-ROI fix in this whole audit.
+          </div>
+        </div>
+
+        <!-- TikTok -->
+        <div class="platform-card col-3">
+          <div class="platform-header">
+            <div class="platform-identity">
+              <div class="platform-icon tiktok" style="font-weight:700; font-family: var(--font-mono);">♪</div>
+              <div>
+                <div class="platform-name">TikTok</div>
+                <div class="platform-handle">@brainwifi</div>
+              </div>
+            </div>
+            <span class="badge muted">Anon</span>
+          </div>
+
+          <div class="platform-stats">
+            <div class="mini-stat">
+              <div class="mini-stat-value">977</div>
+              <div class="mini-stat-label">Followers</div>
+            </div>
+            <div class="mini-stat">
+              <div class="mini-stat-value">23.4K</div>
+              <div class="mini-stat-label">Likes</div>
+            </div>
+            <div class="mini-stat">
+              <div class="mini-stat-value">168</div>
+              <div class="mini-stat-label">Following</div>
+            </div>
+          </div>
+
+          <div class="ratio-bar">
+            <div class="ratio-bar-label">
+              <span>Follower / Following ratio</span>
+              <span>5.8×</span>
+            </div>
+            <div class="ratio-track">
+              <div class="ratio-fill" style="width: 100%; background: var(--green);"></div>
+            </div>
+          </div>
+
+          <div class="platform-assessment">
+            Best follower/following ratio of any platform by far. Bio <em>"welcome to my wireless field🧠📡〰️"</em> — content is ADHD/neurodivergent humor + Utah dating &amp; LDS-scene POV bits. Pinned video hit 59.7K views. Deliberately its own lane, separate from @RealJimmyM4 and the real-name accounts — content matches what this platform and audience actually reward.
+          </div>
+        </div>
+
+      </div>
+      <!-- Content Strategy -->
+      <div style="margin-top:24px;">
+        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);">
+          🎯 Content Strategy
+        </div>
+
+        <div class="content-strategy-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px;">
+
+          <!-- Instagram -->
+          <div style="background:var(--bg-surface);border:2px solid var(--border);border-radius:var(--radius-md);padding:16px 18px;">
+            <div style="font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:10px;">📷 Instagram — @mr.megley</div>
+            <div style="font-size:12px;color:var(--text-muted);font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.06em;">Angles that work</div>
+            <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:12px;">
+              <div style="font-size:12px;color:var(--text-secondary);">• Gym progress + lifting form</div>
+              <div style="font-size:12px;color:var(--text-secondary);">• Snowboarding + outdoor lifestyle</div>
+              <div style="font-size:12px;color:var(--text-secondary);">• Faith moments (Orthodox aesthetic)</div>
+              <div style="font-size:12px;color:var(--text-secondary);">• Behind-the-scenes AE life / wins</div>
+            </div>
+            <div style="font-size:12px;color:var(--text-muted);font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.06em;">Growth levers</div>
+            <div style="font-size:12px;color:var(--text-secondary);">2.8× ratio is solid. Add a story CTA and Reels to chase algorithm reach. Target: 2,500 followers by Q4.</div>
+          </div>
+
+          <!-- X -->
+          <div style="background:var(--bg-surface);border:2px solid var(--orange);border-radius:var(--radius-md);padding:16px 18px;">
+            <div style="font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:10px;">𝕏 X — @RealJimmyM4</div>
+            <div style="font-size:12px;color:var(--orange);font-weight:600;margin-bottom:8px;">⚠️ Decision needed</div>
+            <div style="font-size:12px;color:var(--text-secondary);line-height:1.6;">17.5K posts, 1,206 followers = bad return on effort. The writing is clearly capable (468K views on a single reply). Two paths:</div>
+            <div style="margin-top:8px;display:flex;flex-direction:column;gap:5px;">
+              <div style="font-size:12px;padding:6px 8px;background:var(--bg-elevated);border-radius:6px;color:var(--text-secondary);"><strong style="color:var(--text-primary);">A.</strong> Keep as private lab — experiment, no brand building</div>
+              <div style="font-size:12px;padding:6px 8px;background:rgba(212,175,106,0.08);border:1px solid rgba(212,175,106,0.2);border-radius:6px;color:var(--text-secondary);"><strong style="color:var(--gold);">B.</strong> New real-name account — government tech, faith, trading takes</div>
+            </div>
+          </div>
+
+          <!-- LinkedIn -->
+          <div style="background:var(--bg-surface);border:2px solid var(--red);border-radius:var(--radius-md);padding:16px 18px;">
+            <div style="font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:10px;">💼 LinkedIn — jameswmegleyiv</div>
+            <div style="font-size:12px;color:var(--red);font-weight:600;margin-bottom:8px;">🔴 Highest ROI fix in the audit</div>
+            <div style="font-size:12px;color:var(--text-muted);font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.06em;">This week's post ideas</div>
+            <div style="display:flex;flex-direction:column;gap:5px;">
+              <div style="font-size:12px;color:var(--text-secondary);">• "What government legal offices actually buy" — AE POV</div>
+              <div style="font-size:12px;color:var(--text-secondary);">• LOIS integration story — DA office efficiency</div>
+              <div style="font-size:12px;color:var(--text-secondary);">• "How I structure a cold call to a DA" — tactical</div>
+              <div style="font-size:12px;color:var(--text-secondary);">• Filevine Forbes Fast 50 + what it means for govtech</div>
+            </div>
+            <div style="margin-top:10px;font-size:11px;color:var(--text-muted);">Target: 1 post/week minimum. Remove the Azure post — contradicts positioning.</div>
+          </div>
+
+          <!-- TikTok -->
+          <div style="background:var(--bg-surface);border:2px solid var(--border);border-radius:var(--radius-md);padding:16px 18px;">
+            <div style="font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:10px;">♪ TikTok — @brainwifi</div>
+            <div style="font-size:12px;color:var(--green);font-weight:600;margin-bottom:8px;">✅ Best-performing account</div>
+            <div style="font-size:12px;color:var(--text-secondary);line-height:1.6;">977 followers, 5.8× ratio, 23.4K likes on ADHD/neurodivergent humor + Utah dating/LDS-scene POV bits. Pinned video: 59.7K views.</div>
+            <div style="margin-top:8px;font-size:12px;color:var(--text-muted);font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.06em;">Growth levers</div>
+            <div style="font-size:12px;color:var(--text-secondary);">Post more of the ADHD/neurodivergent angle specifically — highest-view videos lean that way. Own lane by design, on-platform content — no crossover needed with IG/LinkedIn/X.</div>
+          </div>
+
+        </div>
+
+        <!-- Content calendar / next posts tracker -->
+        <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px 20px;">
+          <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-muted);margin-bottom:12px;">📅 This Week's Content Commitments</div>
+          <div id="content-checks" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;"></div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="../_shared/utils.js"></script>
+  <script>
+    const CONTENT_KEY = 'brain-content-week-' + Math.floor(Date.now() / (1000 * 60 * 60 * 24 * 7));
+    const contentTasks = [
+      { key: 'li-post',  emoji: '💼', label: 'LinkedIn post published' },
+      { key: 'ig-reel',  emoji: '📷', label: 'Instagram Reel posted' },
+      { key: 'ig-story', emoji: '📸', label: 'IG Stories (3+ this week)' },
+      { key: 'x-clear',  emoji: '𝕏',  label: 'X strategy decision made' },
+      { key: 'li-clean', emoji: '🧹', label: 'Remove Azure post from LI' },
+      { key: 'li-banner',emoji: '🖼️', label: 'Update LI banner/headline' },
+    ];
+
+    function renderContentChecks() {
+      const done = JSON.parse(localStorage.getItem(CONTENT_KEY) || '[]');
+      const wrap = document.getElementById('content-checks');
+      wrap.innerHTML = contentTasks.map(t => {
+        const checked = done.includes(t.key);
+        return `<div onclick="toggleContent('${t.key}')" style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:${checked ? 'rgba(76,175,80,0.1)' : 'var(--bg-elevated)'};border:1px solid ${checked ? 'rgba(76,175,80,0.3)' : 'var(--border)'};border-radius:8px;cursor:pointer;transition:all 0.15s;">
+          <span style="font-size:13px;">${t.emoji}</span>
+          <span style="font-size:12px;color:${checked ? 'var(--green)' : 'var(--text-secondary)'};flex:1;">${t.label}</span>
+          <span>${checked ? '✅' : '○'}</span>
+        </div>`;
+      }).join('');
+    }
+
+    function toggleContent(key) {
+      const done = JSON.parse(localStorage.getItem(CONTENT_KEY) || '[]');
+      const idx = done.indexOf(key);
+      if (idx > -1) done.splice(idx, 1); else done.push(key);
+      localStorage.setItem(CONTENT_KEY, JSON.stringify(done));
+      renderContentChecks();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      Brain.renderNav('social');
+      renderContentChecks();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Life Dashboard — James</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../_shared/style.css">
+  <style>
+    /* ── Domain grid ──────────────────────────────────────── */
+    .domain-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 900px) { .domain-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 550px) { .domain-grid { grid-template-columns: 1fr; } }
+
+    .domain-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .domain-card:hover { border-color: var(--border-hover); background: var(--bg-elevated); }
+
+    .domain-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .domain-left { display: flex; align-items: center; gap: 10px; }
+    .domain-emoji { font-size: 22px; }
+    .domain-name  { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+
+    .status-pill {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .status-pill.active   { background: rgba(76,175,80,0.15);  color: var(--green); }
+    .status-pill.building { background: rgba(255,152,0,0.15);  color: var(--orange); }
+    .status-pill.blocked  { background: rgba(244,67,54,0.15);  color: var(--red); }
+
+    .domain-focus {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .focus-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+    .focus-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      margin-top: 5px;
+      flex-shrink: 0;
+    }
+    .focus-dot.green  { background: var(--green); }
+    .focus-dot.orange { background: var(--orange); }
+    .focus-dot.red    { background: var(--red); }
+
+    .domain-goal-bar {
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+    }
+    .goal-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .goal-text {
+      font-size: 12px;
+      color: var(--gold);
+      font-family: var(--font-mono);
+    }
+
+    /* ── Intention row ────────────────────────────────────── */
+    .intention-bar {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 18px 22px;
+      margin-bottom: 20px;
+    }
+    .intention-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .intention-text {
+      font-size: 14px;
+      color: var(--text-primary);
+      font-style: italic;
+    }
+
+    /* ── Back link ────────────────────────────────────────── */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-muted);
+      text-decoration: none;
+      margin-bottom: 20px;
+    }
+    .back-link:hover { color: var(--gold); }
+  </style>
+</head>
+<body>
+  <div class="app">
+
+    <!-- Header -->
+    <header class="app-header">
+      <div>
+        <div class="app-title">🧬 Life Dashboard</div>
+        <div class="app-date" id="dateLine">6 Domains · Loading...</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-family:var(--font-mono);font-size:20px;color:var(--gold);" id="clock"></div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">SLC, Utah</div>
+      </div>
+    </header>
+
+    <div class="app-body">
+
+      <!-- Weekly Intention -->
+      <div class="intention-bar">
+        <div class="intention-label">🎯 This Week's Priority</div>
+        <div class="intention-text" id="weekIntention">Loading...</div>
+      </div>
+
+      <!-- 6 Domain Cards -->
+      <div class="domain-grid" id="domainGrid"></div>
+
+      <!-- Weekly Domain Check -->
+      <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:18px 22px;margin-bottom:16px;">
+        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-muted);margin-bottom:14px;">📋 Weekly Domain Check <span id="week-label" style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-muted);"></span></div>
+        <div id="week-checks" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;"></div>
+      </div>
+
+      <!-- Quick Links -->
+      <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:18px 22px;">
+        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-muted);margin-bottom:14px;">Quick Links</div>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;">
+          <a href="obsidian://open?vault=MainBrain&file=GOALS" style="text-decoration:none;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:12px;color:var(--text-secondary);">📋 GOALS.md</a>
+          <a href="obsidian://open?vault=MainBrain&file=02%20Active%20Tasks%2F(C)%20QUEUE" style="text-decoration:none;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:12px;color:var(--text-secondary);">🔴 Queue</a>
+          <a href="../trading/index.html" style="text-decoration:none;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:12px;color:var(--text-secondary);">📈 Trading</a>
+          <a href="../health/index.html" style="text-decoration:none;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:12px;color:var(--text-secondary);">💪 Health</a>
+          <a href="obsidian://open?vault=MainBrain&file=01%20Wiki%2F(C)%20Mental%20Models" style="text-decoration:none;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:12px;color:var(--text-secondary);">🧠 Mental Models</a>
+          <a href="obsidian://open?vault=MainBrain&file=01%20Wiki%2F(C)%20Faith%20%26%20Theology" style="text-decoration:none;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:12px;color:var(--text-secondary);">✝️ Faith</a>
+          <a href="../daily-briefing/index.html" style="text-decoration:none;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:12px;color:var(--text-secondary);">☀️ Daily Briefing</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="../_shared/utils.js"></script>
+  <script>
+    /* ── Domain Data ─────────────────────────────────────── */
+    const domains = [
+      {
+        emoji: "✝️",
+        name: "Spiritual",
+        status: "building",
+        statusText: "Building",
+        wiki: "obsidian://open?vault=MainBrain&file=01%20Wiki%2F(C)%20Faith%20%26%20Theology",
+        focus: [
+          { dot: "orange", text: "Establish consistent morning prayer rule (5×/week)" },
+          { dot: "orange", text: "Begin Wednesday/Friday fasting consistently" },
+          { dot: "green",  text: "Patristic reading — The Way of a Pilgrim queued" },
+        ],
+        goal: "Find SLC Orthodox parish → weekly attendance"
+      },
+      {
+        emoji: "💪",
+        name: "Physical",
+        status: "active",
+        statusText: "Active",
+        wiki: "../health/index.html",
+        focus: [
+          { dot: "green",  text: "PPL split 4–5×/week — compound lift focus" },
+          { dot: "orange", text: "Cutting phase — 175 lbs lean, visible abs" },
+          { dot: "green",  text: "Enzyme Nutrition protocol active (8 supps)" },
+        ],
+        goal: "Sub-175 lbs + visible abs by Q3 2026"
+      },
+      {
+        emoji: "🧠",
+        name: "Mental",
+        status: "active",
+        statusText: "Active",
+        wiki: "obsidian://open?vault=MainBrain&file=01%20Wiki%2F(C)%20Mental%20Models",
+        focus: [
+          { dot: "green",  text: "ADHD protocols built — Focus Reset, Anti-Patterns" },
+          { dot: "orange", text: "This brain system — externalize working memory" },
+          { dot: "green",  text: "20+ mental models active and documented" },
+        ],
+        goal: "Daily review habit — QUEUE + GOALS check each morning"
+      },
+      {
+        emoji: "💰",
+        name: "Financial",
+        status: "building",
+        statusText: "Building",
+        wiki: "obsidian://open?vault=MainBrain&file=01%20Wiki%2F(C)%20Trading%20%26%20Finance",
+        focus: [
+          { dot: "green",  text: "Filevine AE — $150K OTE territory loaded" },
+          { dot: "orange", text: "Trading edge refinement — system rules defined" },
+          { dot: "red",    text: "Net Worth $12,932 → $100K target by 2027" },
+        ],
+        goal: "Retire AFCU car note → redeploy $1,050/mo to investments"
+      },
+      {
+        emoji: "🤝",
+        name: "Relationships",
+        status: "building",
+        statusText: "Healing",
+        wiki: "obsidian://open?vault=MainBrain&file=01%20Wiki%2F(C)%20Relationships",
+        focus: [
+          { dot: "orange", text: "Anxious → earned secure attachment work active" },
+          { dot: "orange", text: "Processing betrayal without losing self-concept" },
+          { dot: "green",  text: "Non-negotiables defined — loyalty, faith, consistency" },
+        ],
+        goal: "Complete Attached (Levine & Heller) + practice 3 secure behaviors"
+      },
+      {
+        emoji: "💼",
+        name: "Professional",
+        status: "active",
+        statusText: "Active",
+        wiki: "obsidian://open?vault=MainBrain&file=01%20Wiki%2F(C)%20Sales%20%26%20Career",
+        focus: [
+          { dot: "green",  text: "Filevine Govt AE — LOIS into DA offices, GC offices" },
+          { dot: "orange", text: "MEDDICC on every deal — champion + econ buyer" },
+          { dot: "orange", text: "LinkedIn content cadence — 1×/week minimum" },
+        ],
+        goal: "Q3 2026: Hit 100% quota, advance to Senior AE by EOY"
+      },
+    ];
+
+    /* ── Weekly intentions (12 — rotates weekly) ────────── */
+    const intentions = [
+      "One strategic thing per day before reacting to anyone else's agenda.",
+      "The gap between James and his goals narrows only through consistent daily action.",
+      "Stop exiting winners early. In every domain — trading, conversations, relationships.",
+      "Secure attachment starts with secure self-concept. Build yourself; attract accordingly.",
+      "Prayer, gym, and one big sales move. That's the whole game this week.",
+      "Systems beat streaks. If a streak breaks, restart immediately — the system continues.",
+      "The body is the first domain. Sleep, lift, and eat with the same discipline as everything else.",
+      "Government sales truth: inertia is the competitor. Make staying still more painful than moving.",
+      "Compounding requires patience. The boring years are where the real advantage is built.",
+      "Every tool in the SecondBrain exists to reduce cognitive load. Use the system, trust the system.",
+      "Healing is not linear. Forward is still forward, even on hard weeks.",
+      "Identity precedes behavior. Decide who James Megley is. Live into it daily.",
+    ];
+    const weekNum = Math.floor(Date.now() / (1000 * 60 * 60 * 24 * 7));
+    document.getElementById('weekIntention').textContent =
+      intentions[weekNum % intentions.length];
+
+    /* ── Clock + Date ────────────────────────────────────── */
+    function tick() {
+      const now = new Date();
+      document.getElementById('clock').textContent =
+        now.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' });
+      document.getElementById('dateLine').textContent =
+        '6 Domains · ' + now.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
+    }
+    tick();
+    setInterval(tick, 30000);
+
+    /* ── Render domains ──────────────────────────────────── */
+    function renderDomains() {
+      const grid = document.getElementById('domainGrid');
+      domains.forEach(d => {
+        const card = document.createElement('a');
+        card.className = 'domain-card';
+        card.href = d.wiki;
+        card.innerHTML = `
+          <div class="domain-header">
+            <div class="domain-left">
+              <span class="domain-emoji">${d.emoji}</span>
+              <span class="domain-name">${d.name}</span>
+            </div>
+            <span class="status-pill ${d.status}">${d.statusText}</span>
+          </div>
+          <div class="domain-focus">
+            ${d.focus.map(f => `
+              <div class="focus-item">
+                <div class="focus-dot ${f.dot}"></div>
+                <span>${f.text}</span>
+              </div>`).join('')}
+          </div>
+          <div class="domain-goal-bar">
+            <div class="goal-label">🎯 Primary Goal</div>
+            <div class="goal-text">${d.goal}</div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    /* ── Weekly checks ─────────────────────────────────── */
+    const weekChecks = [
+      { emoji: "✝️", label: "Prayer rule 5×",       key: "spiritual-prayer"  },
+      { emoji: "⛪",  label: "Parish this Sunday?",  key: "spiritual-parish"  },
+      { emoji: "🏋️", label: "4+ gym sessions",       key: "physical-gym"      },
+      { emoji: "💊",  label: "Stack every morning",  key: "physical-supps"    },
+      { emoji: "📞",  label: "5+ outbound calls",    key: "sales-calls"       },
+      { emoji: "✍️",  label: "LinkedIn post",        key: "sales-linkedin"    },
+      { emoji: "💰",  label: "Budget reviewed",      key: "finance-budget"    },
+      { emoji: "📖",  label: "Reading (30 min)",     key: "mental-read"       },
+      { emoji: "🤝",  label: "1 connection call",    key: "rel-connect"       },
+    ];
+    const WEEK_KEY = 'brain-life-week-' + Math.floor(Date.now() / (1000 * 60 * 60 * 24 * 7));
+
+    function renderWeekChecks() {
+      const done = JSON.parse(localStorage.getItem(WEEK_KEY) || '[]');
+      const wrap = document.getElementById('week-checks');
+      const weekLabel = document.getElementById('week-label');
+      const now = new Date();
+      const monday = new Date(now); monday.setDate(now.getDate() - (now.getDay() || 7) + 1);
+      const sunday = new Date(monday); sunday.setDate(monday.getDate() + 6);
+      const fmt = d => d.toLocaleDateString('en-US', { month:'short', day:'numeric' });
+      if (weekLabel) weekLabel.textContent = `· Week of ${fmt(monday)} – ${fmt(sunday)}`;
+
+      wrap.innerHTML = weekChecks.map(c => {
+        const checked = done.includes(c.key);
+        return `<div onclick="toggleWeekCheck('${c.key}')" style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:${checked ? 'rgba(76,175,80,0.1)' : 'var(--bg-elevated)'};border:1px solid ${checked ? 'rgba(76,175,80,0.3)' : 'var(--border)'};border-radius:8px;cursor:pointer;transition:all 0.15s;">
+          <span style="font-size:14px;">${c.emoji}</span>
+          <span style="font-size:12px;color:${checked ? 'var(--green)' : 'var(--text-secondary)'};flex:1;">${c.label}</span>
+          <span style="font-size:12px;">${checked ? '✅' : '○'}</span>
+        </div>`;
+      }).join('');
+    }
+
+    function toggleWeekCheck(key) {
+      const done = JSON.parse(localStorage.getItem(WEEK_KEY) || '[]');
+      const idx = done.indexOf(key);
+      if (idx > -1) done.splice(idx, 1); else done.push(key);
+      localStorage.setItem(WEEK_KEY, JSON.stringify(done));
+      renderWeekChecks();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      Brain.renderNav('life');
+      renderDomains();
+      renderWeekChecks();
+    });
+
+  </script>
+</body>
+</html>

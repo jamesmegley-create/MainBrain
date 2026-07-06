@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Payment Confirmed — Ironframe</title>
+  <meta name="description" content="Ironframe payment confirmation page." />
+  <meta name="robots" content="noindex" />
+  <link rel="canonical" href="https://ironframe.ai/success.html" />
+  <!-- PLACEHOLDER: Plausible analytics one-line swap:
+  <script defer data-domain="ironframe.ai" src="https://plausible.io/js/script.js"></script>
+  -->
+  <link rel="icon" href="favicon.ico" sizes="any" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="favicon-32x32.png" type="image/png" sizes="32x32" />
+  <link rel="icon" href="favicon-16x16.png" type="image/png" sizes="16x16" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <link rel="manifest" href="site.webmanifest" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <nav class="topbar">
+    <div class="topbar-left">
+      <a href="index.html" class="topbar-brand">ironframe.ai</a>
+      <span class="topbar-label">/ confirmed</span>
+    </div>
+  </nav>
+
+  <main class="result-page">
+    <div class="result-card">
+      <div class="result-icon gold">✓</div>
+      <h1 id="r-title">Payment received.</h1>
+      <p class="result-lead" id="r-lead">
+        Your build slot is locked in. A receipt is on its way to your inbox.
+      </p>
+
+      <div class="result-next">
+        <span class="mono-label">What happens next</span>
+        <ol class="result-steps">
+          <li>You'll get a personal email from me within 24 hours.</li>
+          <li>We book your discovery call — that's where the build starts.
+            <!-- PLACEHOLDER: once Calendly exists, link the word "book" to your
+                 Calendly event URL so they can self-schedule immediately. -->
+          </li>
+          <li>I send a short intake doc so day one isn't spent on basics.</li>
+        </ol>
+      </div>
+
+      <div class="result-actions">
+        <a href="index.html" class="btn btn-ghost">Back to site</a>
+        <a href="mailto:james@ironframe.ai" class="btn btn-solid">Email me directly</a>
+      </div>
+
+      <div class="result-meta" id="r-meta"></div>
+    </div>
+  </main>
+
+  <script>
+  // Verify the session with the server — never trust the URL alone.
+  (function () {
+    var params = new URLSearchParams(window.location.search);
+    var sid = params.get('session_id');
+    if (!sid) return; // direct visit — leave the generic confirmation copy
+
+    fetch('/api/session-status?session_id=' + encodeURIComponent(sid))
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (!d) return;
+        var meta = document.getElementById('r-meta');
+        if (d.status === 'complete') {
+          meta.textContent = 'Confirmed' + (d.customer_email ? ' — receipt sent to ' + d.customer_email : '') + '.';
+        } else if (d.status === 'open') {
+          document.getElementById('r-title').textContent = 'Payment not completed';
+          document.getElementById('r-lead').textContent =
+            'This checkout session is still open — your card was not charged. You can head back and try again.';
+        }
+      })
+      .catch(function () { /* verification is best-effort; receipt email is authoritative */ });
+  })();
+  </script>
+</body>
+</html>

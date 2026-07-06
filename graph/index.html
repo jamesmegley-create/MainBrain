@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brain Graph — James</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../_shared/style.css">
+  <script src="https://unpkg.com/vis-network@9.1.9/dist/vis-network.min.js"></script>
+  <style>
+    html, body { height: 100%; margin: 0; overflow: hidden; }
+    .app { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+    #graph-wrap {
+      position: relative;
+      flex: 1;
+      min-height: 0;
+    }
+
+    #graph-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--bg-base);
+    }
+
+    /* Toolbar */
+    .graph-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-surface);
+      flex-wrap: wrap;
+    }
+    .filter-btn {
+      padding: 4px 12px;
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 500;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: var(--font-display);
+    }
+    .filter-btn:hover  { border-color: var(--text-muted); color: var(--text-primary); }
+    .filter-btn.active { color: var(--bg-base); border-color: transparent; }
+    .filter-btn.wiki      { background: #4caf50; color: #fff; }
+    .filter-btn.project   { background: #5eb3ff; color: #fff; }
+    .filter-btn.raw       { background: #6f83a3; color: #fff; }
+    .filter-btn.widget    { background: #9c6fe4; color: #fff; }
+    .filter-btn.skill     { background: #d4af6a; color: #0b1c30; }
+    .filter-btn.queue     { background: #ff9800; color: #111; }
+    .filter-btn.core      { background: #f44336; color: #fff; }
+
+    .toolbar-sep { width: 1px; height: 20px; background: var(--border); margin: 0 4px; }
+    .toolbar-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+
+    /* Info panel */
+    #info-panel {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      min-width: 240px;
+      max-width: 320px;
+      display: none;
+      z-index: 10;
+    }
+    #info-panel.visible { display: block; }
+    .info-type {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    .info-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+    .info-desc {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+    .info-open {
+      display: inline-block;
+      padding: 5px 14px;
+      background: var(--gold);
+      color: var(--bg-base);
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: opacity 0.15s;
+    }
+    .info-open:hover { opacity: 0.85; }
+    .info-close {
+      float: right;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 16px;
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+    }
+
+    #node-count {
+      margin-left: auto;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="app-header" style="padding: 14px 20px;">
+      <div class="app-title">Brain Graph</div>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <a href="../Home Widget.html" style="font-size:12px; color:var(--text-muted); text-decoration:none;">← Hub</a>
+        <div class="app-date" id="app-date"></div>
+      </div>
+    </header>
+
+    <!-- Filter toolbar -->
+    <div class="graph-toolbar">
+      <span class="toolbar-label">Show</span>
+      <button class="filter-btn" id="btn-all" style="background:var(--text-muted);color:#fff;border-color:transparent;">All</button>
+      <button class="filter-btn active core"    data-group="core">Core</button>
+      <button class="filter-btn active wiki"    data-group="wiki">Wiki</button>
+      <button class="filter-btn active project" data-group="project">Projects</button>
+      <button class="filter-btn active queue"   data-group="queue">Queue</button>
+      <button class="filter-btn active raw"     data-group="raw">Raw Inputs</button>
+      <button class="filter-btn active widget"  data-group="widget">Widgets</button>
+      <button class="filter-btn active skill"   data-group="skill">Skills</button>
+      <div class="toolbar-sep"></div>
+      <span class="toolbar-label">Physics</span>
+      <button class="filter-btn" id="btn-separate" style="background:var(--blue);color:#fff;border-color:transparent;">Separate</button>
+      <button class="filter-btn" id="btn-physics">Freeze</button>
+      <button class="filter-btn" id="btn-fit">Fit</button>
+      <span id="node-count"></span>
+    </div>
+
+    <!-- Graph -->
+    <div id="graph-wrap">
+      <div id="graph-canvas"></div>
+
+      <!-- Info Panel -->
+      <div id="info-panel">
+        <button class="info-close" onclick="closeInfo()">✕</button>
+        <div class="info-type" id="info-type"></div>
+        <div class="info-name" id="info-name"></div>
+        <div class="info-desc" id="info-desc"></div>
+        <a class="info-open" id="info-open" href="#">Open in VS Code</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="../_shared/utils.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => Brain.renderNav('graph'));
+  </script>
+  <script>
+    const VAULT = 'C:/Users/james/OneDrive/Desktop/MainBrain/James SecondBrain';
+
+    // ── Node definitions ─────────────────────────────────────────
+    const NODE_COLORS = {
+      core:    { bg: '#f44336', border: '#b71c1c', text: '#fff' },
+      wiki:    { bg: '#4caf50', border: '#2e7d32', text: '#fff' },
+      project: { bg: '#5eb3ff', border: '#1565c0', text: '#fff' },
+      queue:   { bg: '#ff9800', border: '#e65100', text: '#111' },
+      raw:     { bg: '#6f83a3', border: '#3d5d85', text: '#f5f8fc' },
+      widget:  { bg: '#9c6fe4', border: '#6a1b9a', text: '#fff' },
+      skill:   { bg: '#d4af6a', border: '#8d6e2e', text: '#0b1c30' },
+    };
+
+    const rawNodes = [
+      // ── Core vault files ──────────────────────────────────────
+      { id: 'claude-vault',  group: 'core', label: 'CLAUDE.md',    desc: 'Master vault rules, James profile, Claude purpose', path: 'CLAUDE.md', size: 28 },
+      { id: 'goals',         group: 'core', label: 'GOALS.md',     desc: 'Master goals file — currently empty, needs populating', path: 'GOALS.md', size: 20 },
+      { id: 'state',         group: 'core', label: 'STATE.md',     desc: 'Auto-generated brain state — updated by ss command', path: 'STATE.md', size: 18 },
+      { id: 'setup',         group: 'core', label: 'Setup Guide',  desc: 'Vault onboarding walkthrough', path: 'SETUP GUIDE.md', size: 14 },
+
+      // ── Wiki pages ────────────────────────────────────────────
+      { id: 'wiki-trading',  group: 'wiki', label: 'Trading & Finance',       desc: 'Joseph James methodology, SPY/UPRO, TradeZella data, system rules', path: '03 Projects/MainBrain/01 Wiki/(C) Trading & Finance.md', size: 22 },
+      { id: 'wiki-faith',    group: 'wiki', label: 'Faith & Theology',        desc: 'Orthodox Christianity, prayer rule, fasting, patristics, apologetics', path: '03 Projects/MainBrain/01 Wiki/(C) Faith & Theology.md', size: 22 },
+      { id: 'wiki-ai',       group: 'wiki', label: 'AI & Automation',         desc: 'AI tools, Claude, Playwright, n8n automation systems', path: '03 Projects/MainBrain/01 Wiki/(C) AI & Automation.md', size: 18 },
+      { id: 'wiki-music',    group: 'wiki', label: 'Music — Metal & Drums',   desc: 'Metal genres, drumming, gear, artists', path: '03 Projects/MainBrain/01 Wiki/(C) Music — Metal & Drums.md', size: 16 },
+      { id: 'wiki-gaming',   group: 'wiki', label: 'Gaming',                  desc: 'Games, genres, Bannerlord AI Influence mod, milsim', path: '03 Projects/MainBrain/01 Wiki/(C) Gaming.md', size: 18 },
+      { id: 'wiki-comedy',   group: 'wiki', label: 'Comedy & Entertainment',  desc: 'Comedy, shows, entertainment interests', path: '03 Projects/MainBrain/01 Wiki/(C) Comedy & Entertainment.md', size: 16 },
+      { id: 'wiki-althistory', group: 'wiki', label: 'Alt History & Mysteries', desc: 'Alternative history, mysteries, unexplained', path: '03 Projects/MainBrain/01 Wiki/(C) Alternative History & Mysteries.md', size: 16 },
+      { id: 'wiki-politics', group: 'wiki', label: 'Politics & Commentary',   desc: 'Political views, commentary, current events', path: '03 Projects/MainBrain/01 Wiki/(C) Politics & Commentary.md', size: 16 },
+      { id: 'wiki-military', group: 'wiki', label: 'Military & War History',  desc: 'Military history, tactics, warfare', path: '03 Projects/MainBrain/01 Wiki/(C) Military & War History.md', size: 16 },
+      { id: 'wiki-sports',   group: 'wiki', label: 'Sports & MMA',            desc: 'MMA, sports, athletes', path: '03 Projects/MainBrain/01 Wiki/(C) Sports & MMA.md', size: 16 },
+      { id: 'wiki-health',   group: 'wiki', label: 'Health & Physical',       desc: 'PPL training, recovery, nutrition, MTHFR, ADHD supplements', path: '03 Projects/MainBrain/01 Wiki/(C) Health & Physical.md', size: 20 },
+      { id: 'wiki-sales',    group: 'wiki', label: 'Sales & Career',          desc: 'Filevine AE, LOIS, MEDDICC, government procurement, LinkedIn', path: '03 Projects/MainBrain/01 Wiki/(C) Sales & Career.md', size: 20 },
+      { id: 'wiki-relationships', group: 'wiki', label: 'Relationships',      desc: 'Attachment theory, healing, non-negotiables, Orthodox marriage', path: '03 Projects/MainBrain/01 Wiki/(C) Relationships.md', size: 20 },
+      { id: 'wiki-models',   group: 'wiki', label: 'Mental Models',           desc: '20+ frameworks: systems, trading, sales, psychology, faith', path: '03 Projects/MainBrain/01 Wiki/(C) Mental Models.md', size: 22 },
+      { id: 'wiki-hobbies',  group: 'wiki', label: 'Snowboarding & Hobbies', desc: 'SLC mountains, Challenger 392, dog, gaming, MMA, music', path: '03 Projects/MainBrain/01 Wiki/(C) Snowboarding & Hobbies.md', size: 18 },
+
+      // ── Projects ──────────────────────────────────────────────
+      { id: 'proj-mainbrain',    group: 'project', label: 'MainBrain',     desc: 'Central knowledge engine — wiki, raw inputs, queue', path: '03 Projects/MainBrain/CLAUDE.md', size: 24 },
+      { id: 'proj-widgets',      group: 'project', label: 'Widgets',       desc: 'HTML/CSS/JS dashboard widgets — dark mode, gold accent', path: '03 Projects/Widgets/CLAUDE.md', size: 22 },
+      { id: 'proj-metacog',      group: 'project', label: 'Metacognition', desc: 'ADHD mind OS — focus protocols, decision logs, Infinite Plane', path: '03 Projects/Metacognition/CLAUDE.md', size: 18 },
+
+      // ── Queue files ───────────────────────────────────────────
+      { id: 'queue-main',    group: 'queue', label: 'MainBrain Queue',    desc: '~30 items — data pulls, wiki expansions, skills to write', path: '03 Projects/MainBrain/02 Active Tasks/(C) QUEUE.md', size: 20 },
+      { id: 'queue-widgets', group: 'queue', label: 'Widgets Queue',      desc: 'Widget build order — shared, social, trading, life dashboard', path: '03 Projects/Widgets/(C) QUEUE.md', size: 20 },
+      { id: 'queue-metacog', group: 'queue', label: 'Metacognition Queue',desc: 'Brain dump sessions, ADHD protocol, Infinite Plane build', path: '03 Projects/Metacognition/(C) QUEUE.md', size: 20 },
+
+      // ── Raw inputs ────────────────────────────────────────────
+      { id: 'raw-youtube',  group: 'raw', label: 'YouTube Liked Videos', desc: '~300 liked videos across 12 categories — 2026-06-26', path: '03 Projects/MainBrain/00 Raw Inputs/(C) YouTube Liked Videos 2026-06-26.md', size: 18 },
+      { id: 'raw-tradezella', group: 'raw', label: 'TradeZella Dashboard', desc: 'Trading data 2020-2025 — screenshot capture', path: '03 Projects/MainBrain/00 Raw Inputs/(C) TradeZella Dashboard Screenshot 2026-06-26.md', size: 16 },
+      { id: 'raw-social',   group: 'raw', label: 'Social Profiles Audit', desc: 'Instagram, X, LinkedIn audit + screenshots — 2026-06-26', path: '03 Projects/MainBrain/00 Raw Inputs/(C) Social Profiles Audit 2026-06-26.md', size: 16 },
+
+      // ── Widgets ───────────────────────────────────────────────
+      { id: 'widget-hub',      group: 'widget', label: 'Brain Hub',        desc: 'Master command center — 8 widgets, 16 wikis, markets, domains', path: '03 Projects/Widgets/01 Builds/Home Widget.html', size: 24 },
+      { id: 'widget-social',   group: 'widget', label: 'Social Stats',     desc: 'Instagram, X, LinkedIn metrics and brand assessment', path: '03 Projects/Widgets/01 Builds/social/index.html', size: 18 },
+      { id: 'widget-graph',    group: 'widget', label: 'Brain Graph',      desc: 'This file — interactive force graph of the vault (16 wiki nodes)', path: '03 Projects/Widgets/01 Builds/graph/index.html', size: 18 },
+      { id: 'widget-trading',  group: 'widget', label: 'Trading Dashboard',desc: 'TradeZella metrics, equity curve, system rules, instrument table', path: '03 Projects/Widgets/01 Builds/trading/index.html', size: 20 },
+      { id: 'widget-life',     group: 'widget', label: 'Life Dashboard',   desc: '6-domain status cards — Spiritual, Physical, Mental, Financial, Relationships, Professional', path: '03 Projects/Widgets/01 Builds/life-dashboard/index.html', size: 20 },
+      { id: 'widget-briefing', group: 'widget', label: 'Daily Briefing',   desc: 'Morning widget — date, Orthodox feast, top 3 tasks, health, sales, markets', path: '03 Projects/Widgets/01 Builds/daily-briefing/index.html', size: 18 },
+      { id: 'widget-health',   group: 'widget', label: 'Health',           desc: 'Enzyme Nutrition supplement stack, protocol timeline, goals, photo upload', path: '03 Projects/Widgets/01 Builds/health/index.html', size: 18 },
+      { id: 'widget-spiritual',group: 'widget', label: 'Spiritual',        desc: 'Prayer rule tracker, Jesus Prayer counter, fasting guide, upcoming Orthodox feasts, theology cards', path: '03 Projects/Widgets/01 Builds/spiritual/index.html', size: 18 },
+
+      // ── Skills ────────────────────────────────────────────────
+      { id: 'skill-brain',   group: 'skill', label: 'brain-setup',    desc: 'Skill: how to set up the SecondBrain vault from scratch', path: '05 Skills/brain-setup.md', size: 18 },
+      { id: 'skill-project', group: 'skill', label: 'new-project',    desc: 'Skill: initialize a new project with CLAUDE.md and QUEUE', path: '05 Skills/new-project.md', size: 18 },
+      { id: 'skill-weekly',  group: 'skill', label: 'weekly-update',  desc: 'Skill: weekly review — update CLAUDE.md files, GOALS, SESSION log', path: '05 Skills/weekly-update.md', size: 18 },
+    ];
+
+    // ── Edge definitions ──────────────────────────────────────────
+    const rawEdges = [
+      // Vault core → projects
+      { from: 'claude-vault', to: 'proj-mainbrain' },
+      { from: 'claude-vault', to: 'proj-widgets' },
+      { from: 'claude-vault', to: 'proj-metacog' },
+      { from: 'claude-vault', to: 'goals' },
+      { from: 'claude-vault', to: 'state' },
+
+      // Projects → queues
+      { from: 'proj-mainbrain', to: 'queue-main' },
+      { from: 'proj-widgets',   to: 'queue-widgets' },
+      { from: 'proj-metacog',   to: 'queue-metacog' },
+
+      // Projects → skills
+      { from: 'proj-mainbrain', to: 'skill-brain' },
+      { from: 'proj-mainbrain', to: 'skill-project' },
+      { from: 'proj-mainbrain', to: 'skill-weekly' },
+
+      // Raw inputs → wiki
+      { from: 'raw-youtube',   to: 'wiki-music' },
+      { from: 'raw-youtube',   to: 'wiki-gaming' },
+      { from: 'raw-youtube',   to: 'wiki-comedy' },
+      { from: 'raw-youtube',   to: 'wiki-trading' },
+      { from: 'raw-youtube',   to: 'wiki-faith' },
+      { from: 'raw-youtube',   to: 'wiki-ai' },
+      { from: 'raw-youtube',   to: 'wiki-politics' },
+      { from: 'raw-youtube',   to: 'wiki-military' },
+      { from: 'raw-youtube',   to: 'wiki-althistory' },
+      { from: 'raw-tradezella', to: 'wiki-trading' },
+      { from: 'raw-social',    to: 'widget-social' },
+
+      // Raw inputs → project
+      { from: 'proj-mainbrain', to: 'raw-youtube' },
+      { from: 'proj-mainbrain', to: 'raw-tradezella' },
+      { from: 'proj-mainbrain', to: 'raw-social' },
+
+      // Widgets → raw data they display
+      { from: 'raw-tradezella', to: 'wiki-trading' },
+      { from: 'wiki-trading',   to: 'goals' },
+      { from: 'wiki-faith',     to: 'goals' },
+
+      // New wiki pages → goals and cross-links
+      { from: 'wiki-health',   to: 'goals' },
+      { from: 'wiki-sales',    to: 'goals' },
+      { from: 'wiki-relationships', to: 'goals' },
+      { from: 'wiki-models',   to: 'goals' },
+      { from: 'wiki-models',   to: 'wiki-trading' },
+      { from: 'wiki-models',   to: 'wiki-sales' },
+      { from: 'wiki-models',   to: 'wiki-faith' },
+      { from: 'wiki-health',   to: 'wiki-models' },
+      { from: 'wiki-relationships', to: 'wiki-faith' },
+      { from: 'wiki-hobbies',  to: 'wiki-gaming' },
+      { from: 'wiki-hobbies',  to: 'wiki-music' },
+      { from: 'wiki-hobbies',  to: 'wiki-sports' },
+
+      // Widget hub → all widgets
+      { from: 'widget-hub',    to: 'widget-social' },
+      { from: 'widget-hub',    to: 'widget-graph' },
+      { from: 'widget-hub',    to: 'widget-trading' },
+      { from: 'widget-hub',    to: 'widget-life' },
+      { from: 'widget-hub',    to: 'widget-briefing' },
+      { from: 'widget-hub',    to: 'widget-health' },
+      { from: 'widget-hub',    to: 'widget-spiritual' },
+      { from: 'proj-widgets',  to: 'widget-hub' },
+      { from: 'proj-widgets',  to: 'widget-social' },
+      { from: 'proj-widgets',  to: 'widget-graph' },
+      { from: 'proj-widgets',  to: 'widget-trading' },
+      { from: 'proj-widgets',  to: 'widget-life' },
+      { from: 'proj-widgets',  to: 'widget-briefing' },
+      { from: 'proj-widgets',  to: 'widget-health' },
+      { from: 'proj-widgets',  to: 'widget-spiritual' },
+
+      // Widget connections to data sources
+      { from: 'wiki-trading',  to: 'widget-trading' },
+      { from: 'raw-tradezella',to: 'widget-trading' },
+      { from: 'wiki-health',   to: 'widget-health' },
+      { from: 'wiki-faith',    to: 'widget-spiritual' },
+
+      // Metacognition → widgets (Infinite Plane)
+      { from: 'proj-metacog',  to: 'widget-hub' },
+      { from: 'proj-metacog',  to: 'wiki-models' },
+
+      // State connects everything
+      { from: 'state', to: 'proj-mainbrain' },
+      { from: 'state', to: 'proj-widgets' },
+      { from: 'state', to: 'proj-metacog' },
+    ];
+
+    // ── Build vis datasets ────────────────────────────────────────
+    let hiddenGroups = new Set();
+
+    function buildNodes() {
+      return rawNodes
+        .filter(n => !hiddenGroups.has(n.group))
+        .map(n => {
+          const c = NODE_COLORS[n.group];
+          return {
+            id: n.id,
+            label: n.label,
+            color: { background: c.bg, border: c.border, highlight: { background: c.bg, border: '#fff' } },
+            font: {
+              color: c.text,
+              size: 13,
+              face: 'Inter',
+              background: 'rgba(11,28,48,0.8)',
+              strokeWidth: 0,
+              bold: false,
+            },
+            size: n.size || 18,
+            shape: n.group === 'core' ? 'diamond' : (n.group === 'widget' ? 'hexagon' : 'dot'),
+            borderWidth: 2,
+            title: n.desc || n.label,
+            widthConstraint: false,
+          };
+        });
+    }
+
+    function buildEdges() {
+      const visibleIds = new Set(rawNodes.filter(n => !hiddenGroups.has(n.group)).map(n => n.id));
+      return rawEdges
+        .filter(e => visibleIds.has(e.from) && visibleIds.has(e.to))
+        .map((e, i) => ({
+          id: i,
+          from: e.from,
+          to: e.to,
+          color: { color: '#2c4a6e', highlight: '#d4af6a', hover: '#7e93b3' },
+          width: 1.5,
+          smooth: { type: 'continuous' },
+          arrows: { to: { enabled: true, scaleFactor: 0.5 } },
+        }));
+    }
+
+    // ── Init graph ────────────────────────────────────────────────
+    const container = document.getElementById('graph-canvas');
+    const nodesDS = new vis.DataSet(buildNodes());
+    const edgesDS = new vis.DataSet(buildEdges());
+
+    const options = {
+      physics: {
+        enabled: true,
+        forceAtlas2Based: {
+          gravitationalConstant: -160,
+          centralGravity: 0.004,
+          springLength: 200,
+          springConstant: 0.04,
+          damping: 0.5,
+          avoidOverlap: 1,
+        },
+        solver: 'forceAtlas2Based',
+        stabilization: { iterations: 300, updateInterval: 10 },
+        minVelocity: 0.5,
+      },
+      interaction: {
+        hover: true,
+        tooltipDelay: 300,
+        zoomView: true,
+        dragView: true,
+        hideEdgesOnDrag: true,
+      },
+      nodes: {
+        borderWidthSelected: 3,
+        scaling: { min: 18, max: 32 },
+      },
+      edges: {
+        smooth: { type: 'continuous', roundness: 0.2 },
+      },
+    };
+
+    const network = new vis.Network(container, { nodes: nodesDS, edges: edgesDS }, options);
+
+    // Update node count
+    function updateCount() {
+      document.getElementById('node-count').textContent =
+        `${nodesDS.length} nodes · ${edgesDS.length} edges`;
+    }
+    network.on('stabilized', updateCount);
+    updateCount();
+
+    // ── Node click → info panel ───────────────────────────────────
+    network.on('click', function(params) {
+      if (params.nodes.length === 0) { closeInfo(); return; }
+      const id = params.nodes[0];
+      const node = rawNodes.find(n => n.id === id);
+      if (!node) return;
+
+      const vscodeUri = `vscode://file/${VAULT.replace(/\//g, '/')}/${node.path}`;
+      document.getElementById('info-type').textContent = node.group.toUpperCase();
+      document.getElementById('info-name').textContent = node.label;
+      document.getElementById('info-desc').textContent = node.desc;
+      document.getElementById('info-open').href = vscodeUri;
+      document.getElementById('info-panel').classList.add('visible');
+    });
+
+    function closeInfo() {
+      document.getElementById('info-panel').classList.remove('visible');
+    }
+
+    // ── Filter buttons ────────────────────────────────────────────
+    document.querySelectorAll('.filter-btn[data-group]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const g = btn.dataset.group;
+        if (hiddenGroups.has(g)) {
+          hiddenGroups.delete(g);
+          btn.classList.add('active');
+        } else {
+          hiddenGroups.add(g);
+          btn.classList.remove('active');
+        }
+        nodesDS.clear(); edgesDS.clear();
+        nodesDS.add(buildNodes());
+        edgesDS.add(buildEdges());
+        updateCount();
+      });
+    });
+
+    // ── Show All ──────────────────────────────────────────────────
+    document.getElementById('btn-all').addEventListener('click', () => {
+      hiddenGroups.clear();
+      document.querySelectorAll('.filter-btn[data-group]').forEach(btn => btn.classList.add('active'));
+      nodesDS.clear(); edgesDS.clear();
+      nodesDS.add(buildNodes());
+      edgesDS.add(buildEdges());
+      updateCount();
+    });
+
+    // ── Separate — scatter nodes outward then re-settle ───────────
+    document.getElementById('btn-separate').addEventListener('click', () => {
+      const ids = nodesDS.getIds();
+      const count = ids.length;
+      // Place nodes on an evenly-spaced spiral so they start spread out
+      ids.forEach((id, i) => {
+        const angle = (i / count) * 2 * Math.PI;
+        const radius = 300 + (i % 3) * 120;
+        network.moveNode(id, Math.cos(angle) * radius, Math.sin(angle) * radius);
+      });
+      // Re-enable physics and let them settle from the new positions
+      physicsOn = true;
+      document.getElementById('btn-physics').textContent = 'Freeze';
+      network.setOptions({ physics: { enabled: true } });
+    });
+
+    // ── Physics toggle ────────────────────────────────────────────
+    let physicsOn = true;
+    document.getElementById('btn-physics').addEventListener('click', function() {
+      physicsOn = !physicsOn;
+      network.setOptions({ physics: { enabled: physicsOn } });
+      this.textContent = physicsOn ? 'Freeze' : 'Unfreeze';
+    });
+
+    document.getElementById('btn-fit').addEventListener('click', () => network.fit({ animation: true }));
+
+    // Auto-fit on window resize
+    window.addEventListener('resize', () => {
+      network.redraw();
+      network.fit();
+    });
+
+    // Fit after stabilization
+    network.on('stabilized', () => network.fit({ animation: { duration: 600, easingFunction: 'easeInOutQuad' } }));
+  </script>
+</body>
+</html>

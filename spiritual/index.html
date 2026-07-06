@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spiritual — James</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../_shared/style.css">
+  <style>
+    /* ── Hero strip ─────────────────────────────────────────── */
+    .spirit-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 900px) { .spirit-strip { grid-template-columns: repeat(2, 1fr); } }
+
+    .spirit-stat {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .spirit-stat-val {
+      font-family: var(--font-mono);
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+    .spirit-stat-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+    }
+    .spirit-stat-sub {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+      line-height: 1.4;
+    }
+
+    /* ── Section title ──────────────────────────────────────── */
+    .spirit-section-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* ── Layouts ────────────────────────────────────────────── */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+
+    .three-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    @media (max-width: 1100px) { .three-col { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 700px)  { .three-col { grid-template-columns: 1fr; } }
+
+    .panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 18px 20px;
+    }
+
+    /* ── Anchor quote ───────────────────────────────────────── */
+    .anchor-block {
+      background: linear-gradient(135deg, rgba(156,111,228,0.07), rgba(212,175,106,0.07));
+      border: 1px solid rgba(156,111,228,0.22);
+      border-radius: var(--radius-md);
+      padding: 22px 28px;
+      margin-bottom: 22px;
+      text-align: center;
+    }
+    .anchor-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--purple);
+      margin-bottom: 12px;
+    }
+    .anchor-text {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text-primary);
+      line-height: 1.65;
+      font-style: italic;
+    }
+
+    /* ── Prayer rule items ──────────────────────────────────── */
+    .prayer-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      user-select: none;
+    }
+    .prayer-item:last-child { border-bottom: none; }
+    .prayer-item:hover .prayer-label { color: var(--text-primary); }
+
+    .prayer-check {
+      width: 18px;
+      height: 18px;
+      border: 2px solid var(--border);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+      font-size: 11px;
+      transition: all 0.15s;
+    }
+    .prayer-check.done { background: var(--purple); border-color: var(--purple); color: white; }
+
+    .prayer-label {
+      font-size: 13px;
+      color: var(--text-secondary);
+      flex: 1;
+      line-height: 1.4;
+      transition: color 0.15s;
+    }
+    .prayer-label.done { color: var(--text-muted); text-decoration: line-through; }
+
+    /* ── Jesus Prayer counter ───────────────────────────────── */
+    .jp-counter-wrap { text-align: center; }
+    .jp-count {
+      font-family: var(--font-mono);
+      font-size: 72px;
+      font-weight: 700;
+      color: var(--gold);
+      line-height: 1;
+      margin: 14px 0 6px;
+      transition: transform 0.12s ease;
+    }
+    .jp-goal-label { font-size: 12px; color: var(--text-muted); margin-bottom: 14px; }
+    .jp-bar-track { height: 6px; background: #1c3a5c; border-radius: 3px; overflow: hidden; margin-bottom: 18px; }
+    .jp-bar-fill { height: 100%; background: var(--gold); border-radius: 3px; transition: width 0.3s ease; }
+    .jp-btn {
+      background: rgba(212,175,106,0.1);
+      border: 2px solid rgba(212,175,106,0.3);
+      border-radius: var(--radius-md);
+      color: var(--gold);
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      padding: 14px 28px;
+      cursor: pointer;
+      transition: all 0.15s;
+      width: 100%;
+      display: block;
+      margin-bottom: 10px;
+    }
+    .jp-btn:hover { background: rgba(212,175,106,0.18); border-color: var(--gold); }
+    .jp-btn:active { transform: scale(0.97); }
+    .jp-reset { font-size: 11px; color: var(--text-muted); background: none; border: none; cursor: pointer; }
+    .jp-reset:hover { color: var(--text-secondary); text-decoration: underline; }
+
+    /* ── Fasting guide ──────────────────────────────────────── */
+    .fast-level-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+    .fast-level-row:last-child { border-bottom: none; }
+    .fast-level-name { color: var(--text-primary); font-weight: 500; }
+    .fast-level-desc { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+
+    /* ── Feast calendar ─────────────────────────────────────── */
+    .feast-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .feast-row:last-child { border-bottom: none; }
+    .feast-date { font-family: var(--font-mono); font-size: 11px; min-width: 48px; }
+    .feast-name { font-size: 13px; color: var(--text-primary); flex: 1; line-height: 1.3; }
+    .feast-delta { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+
+    /* ── Patristic reading ──────────────────────────────────── */
+    .reading-current {
+      background: rgba(212,175,106,0.06);
+      border: 1px solid rgba(212,175,106,0.2);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      margin-bottom: 14px;
+    }
+    .reading-title { font-size: 14px; font-weight: 600; color: var(--gold); margin-bottom: 2px; }
+    .reading-author { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+    .reading-note { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+    .queue-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 7px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .queue-row:last-child { border-bottom: none; }
+    .queue-num { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); min-width: 18px; padding-top: 1px; }
+    .queue-text { font-size: 12px; }
+    .queue-title { color: var(--text-secondary); display: block; }
+    .queue-why { color: var(--text-muted); font-size: 11px; display: block; margin-top: 1px; }
+
+    /* ── Theology concept cards ─────────────────────────────── */
+    .concept-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+    .concept-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .concept-card:hover { border-color: rgba(156,111,228,0.35); }
+    .concept-card.open { border-color: var(--purple); }
+    .concept-name { font-size: 14px; font-weight: 600; color: var(--purple); margin-bottom: 3px; }
+    .concept-greek { font-size: 10px; color: var(--text-muted); letter-spacing: 0.04em; margin-bottom: 8px; }
+    .concept-summary { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+    .concept-detail {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+      display: none;
+    }
+    .concept-card.open .concept-detail { display: block; }
+
+    /* ── Domain integration ─────────────────────────────────── */
+    .domain-faith-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+    .domain-faith-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+    }
+    .domain-faith-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .domain-faith-lens { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+
+    /* ── Goals checklist ────────────────────────────────────── */
+    .goal-check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      user-select: none;
+    }
+    .goal-check-item:last-child { border-bottom: none; }
+    .goal-check-box {
+      width: 18px;
+      height: 18px;
+      border: 2px solid var(--border);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+      font-size: 11px;
+      transition: all 0.15s;
+    }
+    .goal-check-box.done { background: var(--green); border-color: var(--green); color: white; }
+    .goal-check-text { font-size: 13px; color: var(--text-secondary); flex: 1; line-height: 1.4; }
+    .goal-check-text.done { color: var(--text-muted); text-decoration: line-through; }
+
+    .section-gap { margin-bottom: 28px; }
+    .col-stack { display: flex; flex-direction: column; gap: 16px; }
+  </style>
+</head>
+<body>
+  <div class="app">
+
+    <!-- Header -->
+    <div class="app-header">
+      <div>
+        <div class="app-title">✝️ Spiritual</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:3px;">Eastern Orthodox · Theosis path · Hesychasm</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div id="liturgicalBadge"></div>
+        <div class="app-date" id="headerDate">—</div>
+        <a href="../Home Widget.html" style="font-size:12px;color:var(--text-muted);text-decoration:none;padding:5px 10px;border:1px solid var(--border);border-radius:6px;">← Home</a>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="app-body">
+
+      <!-- Hero strip: 4 stats -->
+      <div class="spirit-strip">
+        <div class="spirit-stat">
+          <div class="spirit-stat-label">Liturgical Status</div>
+          <div class="spirit-stat-val" id="fastStatVal" style="color:var(--purple);font-size:15px;">—</div>
+          <div class="spirit-stat-sub" id="fastStatSub">—</div>
+        </div>
+        <div class="spirit-stat">
+          <div class="spirit-stat-label">Prayer Rule Today</div>
+          <div class="spirit-stat-val" id="prayerStatVal" style="color:var(--green);">0/11</div>
+          <div class="spirit-stat-sub" id="prayerStatSub">tap items to check off</div>
+        </div>
+        <div class="spirit-stat">
+          <div class="spirit-stat-label">Jesus Prayer Count</div>
+          <div class="spirit-stat-val" id="jpStatVal" style="color:var(--gold);">0</div>
+          <div class="spirit-stat-sub">Daily goal: 50</div>
+        </div>
+        <div class="spirit-stat">
+          <div class="spirit-stat-label">Next Great Feast</div>
+          <div class="spirit-stat-val" id="nextFeastName" style="font-size:13px;color:var(--gold);">—</div>
+          <div class="spirit-stat-sub" id="nextFeastDays">— days</div>
+        </div>
+      </div>
+
+      <!-- Today's anchor -->
+      <div class="anchor-block">
+        <div class="anchor-label">✝️ Today's Orthodox Anchor</div>
+        <div class="anchor-text" id="anchorQuote">—</div>
+      </div>
+
+      <!-- Row 1: Prayer rules (left) + Jesus Prayer counter (right) -->
+      <div class="two-col">
+
+        <!-- Prayer rules column -->
+        <div class="col-stack">
+          <div class="panel">
+            <div class="spirit-section-title">
+              <span>🌅 Morning Rule</span>
+              <span style="font-family:var(--font-mono);font-size:11px;" id="morningCount">0/6</span>
+            </div>
+            <div id="morningRule"></div>
+          </div>
+          <div class="panel">
+            <div class="spirit-section-title">
+              <span>🌙 Evening Rule</span>
+              <span style="font-family:var(--font-mono);font-size:11px;" id="eveningCount">0/5</span>
+            </div>
+            <div id="eveningRule"></div>
+          </div>
+        </div>
+
+        <!-- Jesus Prayer counter -->
+        <div class="panel" style="display:flex;flex-direction:column;justify-content:center;">
+          <div class="spirit-section-title">✝️ Jesus Prayer Counter</div>
+          <div class="jp-counter-wrap">
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-style:italic;">"Lord Jesus Christ, Son of God, have mercy on me, a sinner."</div>
+            <div class="jp-count" id="jpCount">0</div>
+            <div class="jp-goal-label" id="jpGoalLabel">of 50 repetitions</div>
+            <div class="jp-bar-track"><div class="jp-bar-fill" id="jpBar" style="width:0%"></div></div>
+            <button class="jp-btn" onclick="incrementJP()">+ Lord Jesus Christ, have mercy</button>
+            <button class="jp-reset" onclick="resetJP()">reset today's count</button>
+          </div>
+          <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);line-height:1.6;">
+            The goal is not quantity — it is <em>quality of attention</em>. Use a prayer rope (chotki) as a tactile anchor. Integrate into idle moments: traffic, gym, falling asleep.
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Row 2: Fasting guide + Upcoming feasts + Patristic reading -->
+      <div class="three-col">
+
+        <!-- Fasting guide -->
+        <div class="panel">
+          <div class="spirit-section-title">⚡ Fasting Guide</div>
+          <div id="fastingGuide"></div>
+        </div>
+
+        <!-- Upcoming feasts -->
+        <div class="panel">
+          <div class="spirit-section-title">📅 Upcoming Feasts</div>
+          <div id="upcomingFeasts"></div>
+        </div>
+
+        <!-- Patristic reading -->
+        <div class="panel">
+          <div class="spirit-section-title">📖 Patristic Reading</div>
+          <div class="reading-current">
+            <div class="reading-title">The Way of a Pilgrim</div>
+            <div class="reading-author">Anonymous Russian · 19th Century</div>
+            <div class="reading-note">Journey of learning the Jesus Prayer. Most accessible intro to hesychasm — directly feeds the daily counter above. Start here.</div>
+          </div>
+          <div class="spirit-section-title" style="margin-top:4px;">Reading Queue</div>
+          <div id="readingQueue"></div>
+        </div>
+
+      </div>
+
+      <!-- Row 3: Theological concepts -->
+      <div class="spirit-section-title section-gap" style="margin-bottom:14px;">🧠 Theological Foundations — tap to expand</div>
+      <div class="concept-grid" id="conceptGrid"></div>
+
+      <!-- Row 4: Faith × Domain integration -->
+      <div class="spirit-section-title" style="margin-bottom:14px;">🔗 Faith × Every Domain</div>
+      <div class="domain-faith-grid" id="domainFaithGrid"></div>
+
+      <!-- Row 5: Faith Goals -->
+      <div class="panel section-gap">
+        <div class="spirit-section-title">🎯 Faith Goals</div>
+        <div id="faithGoals"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="../_shared/utils.js"></script>
+  <script>
+
+    /* ── Orthodox liturgical data ─────────────────────────── */
+    const FEASTS = [
+      { month:6,  day:29, name:"Ss. Peter & Paul",             type:"apostle" },
+      { month:7,  day:17, name:"St. Paisios of Mt. Athos",     type:"saint"   },
+      { month:8,  day:6,  name:"Transfiguration of Christ",    type:"great"   },
+      { month:8,  day:15, name:"Dormition of the Theotokos",   type:"great"   },
+      { month:9,  day:8,  name:"Nativity of the Theotokos",    type:"great"   },
+      { month:9,  day:14, name:"Exaltation of the Holy Cross", type:"great"   },
+      { month:10, day:14, name:"Protection of the Theotokos",  type:"great"   },
+      { month:11, day:21, name:"Entry of the Theotokos",       type:"great"   },
+      { month:12, day:6,  name:"St. Nicholas the Wonderworker",type:"saint"   },
+      { month:12, day:25, name:"Nativity of Christ",           type:"great"   },
+      { month:1,  day:6,  name:"Theophany",                    type:"great"   },
+      { month:1,  day:7,  name:"Synaxis of St. John Baptist",  type:"feast"   },
+      { month:2,  day:2,  name:"Presentation of Christ",       type:"great"   },
+    ];
+
+    const FASTING_PERIODS = [
+      { start:[6,16],  end:[6,28],  name:"Apostles' Fast",  color:"var(--blue)",   allowance:"🐟🫒🍷 Fish, oil & wine ARE permitted Mon, Tue, Thu, Sat & Sun. 🚫 Strict (no fish/oil/wine, vegan) on Wednesday AND on Friday — two separate individual fast days each week, not a Wed-through-Fri stretch." },
+      { start:[8,1],   end:[8,14],  name:"Dormition Fast",  color:"var(--gold)",   allowance:"🌱 Vegan the whole period. 🐟 Fish allowed ONE day only — Aug 6 (Transfiguration). 🫒🍷 Oil & wine permitted on Mon, Wed & Fri specifically (just those 3 individual days each week, not consecutive)." },
+      { start:[11,15], end:[12,24], name:"Nativity Fast",   color:"var(--green)",  allowance:"📆 Progressive strictness: 🐟🫒🍷 fish/oil/wine allowed most days in weeks 1–3. 🔒 Tightens the closer you get to Dec 25 — less fish, more vegan days. 🚫🥩 No meat at any point in the whole 40-day fast." },
+      { start:[2,23],  end:[4,11],  name:"Great Lent",      color:"var(--purple)", allowance:"🌱 The strictest fast of the year — vegan by default. 🐟 Fish permitted only on two exceptions: Annunciation (Mar 25) & Palm Sunday. 🚫🫒🍷 No oil or wine on Monday, Wednesday & Friday specifically (each an individual day, not a range)." },
+    ];
+
+    function getFastingInfo(now) {
+      const m = now.getMonth() + 1, d = now.getDate();
+      const dow = now.getDay();
+      const isWedFri = dow === 3 || dow === 5;
+
+      for (const fp of FASTING_PERIODS) {
+        const [sm, sd] = fp.start, [em, ed] = fp.end;
+        const after  = (m > sm) || (m === sm && d >= sd);
+        const before = (m < em) || (m === em && d <= ed);
+        if (after && before) {
+          const startDate = new Date(now.getFullYear(), sm-1, sd);
+          const endDate   = new Date(now.getFullYear(), em-1, ed);
+          const daysIn    = Math.floor((now - startDate) / 86400000) + 1;
+          const daysLeft  = Math.floor((endDate - now) / 86400000) + 1;
+          return { type:'fast-period', name:fp.name, color:fp.color, allowance:fp.allowance, daysIn, daysLeft, isWedFri,
+            label:`${fp.name}${isWedFri ? ' · strict today' : ''}` };
+        }
+      }
+      if (isWedFri) return { type:'wed-fri', name:'Weekly Fast', color:'var(--purple)',
+        allowance:`🚫🥩 No meat today${dow === 3 ? ' (Wednesday — day of the Betrayal)' : ' (Friday — day of the Crucifixion)'}. 🫒🍷 Oil & wine ARE permitted — this is lighter than the 4 seasonal fasts. Happens every single Wed and every single Fri, year-round, as its own individual day (not a Wed→Fri block).`,
+        label:'📅 Wed/Fri Fast — no meat' };
+      return { type:'free', name:'Fast-Free Day', color:'var(--text-muted)',
+        allowance:'✅ No fasting restrictions today — eat freely.', label:'✅ Fast-free day' };
+    }
+
+    function getUpcomingFeasts(now, count) {
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      return FEASTS.map(f => {
+        let fd = new Date(now.getFullYear(), f.month-1, f.day);
+        if (fd < today) fd = new Date(now.getFullYear()+1, f.month-1, f.day);
+        return { ...f, date: fd, daysAway: Math.floor((fd - today) / 86400000) };
+      }).sort((a,b) => a.daysAway - b.daysAway).slice(0, count);
+    }
+
+    /* ── Orthodox anchor quotes (30 — rotates daily) ─────── */
+    const ANCHORS = [
+      "God became man so that man might become God. — St. Athanasius",
+      "The goal is not to know about God — it is to know God. All theology serves this end.",
+      "Prayer is not a monologue into the void. It is an address — to a Person.",
+      "Theosis is the direction, not the destination. Every day, walk toward.",
+      "The Jesus Prayer is not a mantra. It is a name — the Name above all names.",
+      "The Resurrection is not a metaphor. Everything in Orthodoxy stands or falls on an empty tomb.",
+      "Synergy: God provides the grace. You provide the will. Both are necessary.",
+      "Hesychasm is the antidote to the age — interior stillness in a world of noise.",
+      "The body is the temple. Fasting, sleep, training — all are liturgical acts.",
+      "A saint is not someone who never falls. A saint gets up one more time than they fall.",
+      "The Church's job is not to make you comfortable. It is to deify you.",
+      "Kenosis: choose to lay power down, not lack it. That is the stronger move.",
+      "The passions are not enemies — they are misdirected energy. Redirect them.",
+      "Icons are not idols. The veneration passes through the image to the prototype.",
+      "The Theotokos is not worshipped — she is honored as the greatest human who ever lived.",
+      "The Fathers interpreted Scripture together. That interpretation is the Tradition.",
+      "God is unknowable in essence yet truly knowable through participation in His energies.",
+      "Faith and reason are not at war. The Church Fathers were rigorous thinkers.",
+      "The Ladder has 30 rungs. You are on one of them. Keep climbing.",
+      "Suffering is not punishment — it is material for transformation.",
+      "Attend Liturgy. The Eucharist is not optional equipment for the Orthodox life.",
+      "The chotki in your pocket: a tactile anchor for wandering attention. Use it.",
+      "Examination of conscience: not guilt-mining — precision calibration of the will.",
+      "Stewardship, not ownership. Everything you have is on loan from God.",
+      "Marriage is a path of theosis — two people sanctifying each other in kenotic love.",
+      "Your ADHD is not a spiritual liability. The hesychasts worked with minds like yours.",
+      "Start with the Jesus Prayer. Everything else follows from interior recollection.",
+      "The Resurrection does not explain suffering. It defeats it.",
+      "Orthodoxy is not a belief system to hold — it is a way of being to inhabit.",
+      "Truth > Comfort. The Church has always known this. So should you.",
+    ];
+
+    /* ── Prayer rule items ──────────────────────────────── */
+    const MORNING_RULE = [
+      { id:'mr1', text:'Trisagion — "Holy God, Holy Mighty, Holy Immortal" (×3)' },
+      { id:'mr2', text:'Our Father + Kyrie eleison (×12)' },
+      { id:'mr3', text:'Prayer to the Holy Spirit — "O Heavenly King, Comforter..."' },
+      { id:'mr4', text:'Nicene-Constantinopolitan Creed' },
+      { id:'mr5', text:'Morning Prayers — Jordanville Prayer Book' },
+      { id:'mr6', text:'Psalm 51 (Miserere) — anchor psalm for morning' },
+    ];
+    const EVENING_RULE = [
+      { id:'er1', text:'Trisagion opening' },
+      { id:'er2', text:'Evening Prayers — Jordanville Prayer Book' },
+      { id:'er3', text:'Examination of conscience — where did I miss the mark today?' },
+      { id:'er4', text:'Jesus Prayer repetitions (with full attention, not just lips)' },
+      { id:'er5', text:'Thanksgiving prayer' },
+    ];
+
+    /* ── Theology concepts ──────────────────────────────── */
+    const CONCEPTS = [
+      { name:"Theosis",   greek:"θέωσις · Deification",
+        summary:"The central goal: becoming like God through participation in His divine energies. Not a metaphor.",
+        detail:"2 Peter 1:4 — 'partakers of the divine nature.' Athanasius: 'God became man so that man might become God.' Every domain of life is a theater of theosis — nothing is excluded." },
+      { name:"Hesychasm", greek:"ἡσυχασμός · Interior Stillness",
+        summary:"The tradition of inner prayer, silence, and attention to the heart. Practiced through the Jesus Prayer.",
+        detail:"The antidote to ADHD's core liability: inability to be still and present. Jesus Prayer: 'Lord Jesus Christ, Son of God, have mercy on me, a sinner.' Goal: quality of attention, not quantity of repetitions." },
+      { name:"Kenosis",   greek:"κένωσις · Self-Emptying Love",
+        summary:"Christ emptied Himself, taking the form of a servant (Phil 2:7) — the model for all relationships.",
+        detail:"Not weakness. Kenotic strength is choosing to lay power down. Applied in marriage, fatherhood, leadership. Give without demanding return. The stronger move." },
+      { name:"Synergy",   greek:"συνεργία · Cooperation with Grace",
+        summary:"God provides the grace; you provide the will. Both are necessary. Orthodox soteriology.",
+        detail:"Neither Calvinist (God does everything) nor Pelagian (you earn it). The ship analogy: God builds the ship, provides wind and open water. You decide to sail. Self-discipline is cooperation with grace already given — not self-reliance." },
+      { name:"Palamism",  greek:"Divine Energies vs. Essence",
+        summary:"St. Gregory Palamas: God is unknowable in essence, truly knowable through His energies.",
+        detail:"Resolves the paradox: we can genuinely participate in God without claiming to comprehend His totality. Prayer, sacraments, and ascesis genuinely change you — real participation, not symbolic. This distinguishes Orthodox theology from Western scholasticism." },
+      { name:"Logismoi",  greek:"λογισμοί · Passions & Thoughts",
+        summary:"The passions are not enemies — they are misdirected energy. The goal is redirection, not suppression.",
+        detail:"The hesychast Fathers mapped the passions centuries before modern psychology. ADHD impulses map directly: novelty-seeking, emotional intensity, difficulty with stillness. The Jesus Prayer interrupts the logismoi loop. Attention is trainable." },
+    ];
+
+    /* ── Patristic reading queue ────────────────────────── */
+    const READING_QUEUE = [
+      { title:"St. Nikolai Velimirović — Prayers by the Lake",  why:"Poetry-theology hybrid; profound for quiet reading" },
+      { title:"St. Paisios — Spiritual Counsels Vol. 1",         why:"Deeply practical on passions, relationships, prayer" },
+      { title:"St. Seraphim — Conversation with Motovilov",     why:"Short + essential — acquiring the Holy Spirit as the goal" },
+      { title:"Fr. Schmemann — For the Life of the World",      why:"Eucharistic theology; reframes the sacraments" },
+      { title:"St. John Climacus — Ladder of Divine Ascent",    why:"30 steps toward God — matches your systems framework" },
+    ];
+
+    /* ── Faith × Domain integration ────────────────────── */
+    const DOMAIN_FAITH = [
+      { emoji:"✝️", domain:"Spiritual",    lens:"The load-bearing framework — not background color. Theosis as the direction of all practice." },
+      { emoji:"💪", domain:"Physical",     lens:"Body as temple (1 Cor 6:19). Ascesis = bodily discipline for spiritual ends. Fasting trains the will." },
+      { emoji:"🧠", domain:"Mental",       lens:"Hesychasm as interior stillness. The logismoi map to ADHD impulses. Attention is trainable." },
+      { emoji:"📈", domain:"Financial",    lens:"Stewardship, not ownership. Wealth is a tool for virtue, not the goal. Generosity as spiritual discipline." },
+      { emoji:"🤝", domain:"Relationships",lens:"Marriage as theosis path. Kenotic love — give without demanding return. Priest of the household." },
+      { emoji:"💼", domain:"Professional", lens:"Vocation — work as offering, not performance. Integrity as non-negotiable. Truth > Comfort always." },
+    ];
+
+    /* ── Faith Goals ────────────────────────────────────── */
+    const FAITH_GOALS = [
+      { id:'fg1', text:'Consistent morning prayer rule — 5 days/week minimum' },
+      { id:'fg2', text:'Begin Wednesday/Friday fasting consistently' },
+      { id:'fg3', text:'Complete The Way of a Pilgrim (primary reading queue)' },
+      { id:'fg4', text:'Find an Orthodox parish in SLC — attend regularly' },
+      { id:'fg5', text:'Start prayer rope (chotki) practice — Jesus Prayer in idle moments' },
+      { id:'fg6', text:'Read St. Athanasius — On the Incarnation (short; foundational)' },
+      { id:'fg7', text:'Add Orthodox liturgical feasts to Google Calendar' },
+    ];
+
+    /* ── LocalStorage helpers ─────────────────────────── */
+    const TODAY_KEY = new Date().toISOString().slice(0, 10);
+
+    function lsGet(k)    { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } }
+    function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+
+    function getPrayerState(prefix) { return lsGet(`spr_${prefix}_${TODAY_KEY}`) || {}; }
+    function savePrayerState(prefix, state) { lsSet(`spr_${prefix}_${TODAY_KEY}`, state); }
+    function getJPCount() { return lsGet(`spr_jp_${TODAY_KEY}`) || 0; }
+    function saveJPCount(n) { lsSet(`spr_jp_${TODAY_KEY}`, n); }
+    function getGoals() { return lsGet('spr_goals') || {}; }
+    function saveGoal(id, val) { const g = getGoals(); g[id] = val; lsSet('spr_goals', g); }
+
+    /* ── Render: prayer rule ─────────────────────────── */
+    function renderPrayerRule(items, prefix, containerId, countId) {
+      const state = getPrayerState(prefix);
+      const done  = items.filter(i => state[i.id]).length;
+      document.getElementById(countId).textContent = `${done}/${items.length}`;
+      document.getElementById(countId).style.color  = done === items.length ? 'var(--green)' : 'var(--text-muted)';
+
+      document.getElementById(containerId).innerHTML = items.map(item => {
+        const checked = !!state[item.id];
+        return `<div class="prayer-item" onclick="togglePrayer('${prefix}','${item.id}')">
+          <div class="prayer-check ${checked ? 'done' : ''}">${checked ? '✓' : ''}</div>
+          <div class="prayer-label ${checked ? 'done' : ''}">${item.text}</div>
+        </div>`;
+      }).join('');
+
+      // Update hero stat
+      const mState = getPrayerState('morning');
+      const eState = getPrayerState('evening');
+      const total  = MORNING_RULE.filter(i => mState[i.id]).length + EVENING_RULE.filter(i => eState[i.id]).length;
+      document.getElementById('prayerStatVal').textContent = `${total}/11`;
+      document.getElementById('prayerStatSub').textContent = total === 11 ? '✓ Rule complete today' : 'tap items to check off';
+    }
+
+    function togglePrayer(prefix, id) {
+      const state = getPrayerState(prefix);
+      state[id] = !state[id];
+      savePrayerState(prefix, state);
+      const items   = prefix === 'morning' ? MORNING_RULE : EVENING_RULE;
+      const contId  = prefix === 'morning' ? 'morningRule' : 'eveningRule';
+      const countId = prefix === 'morning' ? 'morningCount' : 'eveningCount';
+      renderPrayerRule(items, prefix, contId, countId);
+    }
+
+    /* ── Render: Jesus Prayer counter ──────────────── */
+    const JP_GOAL = 50;
+    function renderJP() {
+      const n   = getJPCount();
+      const pct = Math.min(100, Math.round((n / JP_GOAL) * 100));
+      document.getElementById('jpCount').textContent    = n;
+      document.getElementById('jpStatVal').textContent  = n;
+      document.getElementById('jpGoalLabel').textContent = n >= JP_GOAL ? `${n} · Goal reached ✓` : `of ${JP_GOAL} repetitions`;
+      document.getElementById('jpBar').style.width      = pct + '%';
+      document.getElementById('jpBar').style.background = n >= JP_GOAL ? 'var(--green)' : 'var(--gold)';
+    }
+
+    function incrementJP() {
+      saveJPCount(getJPCount() + 1);
+      renderJP();
+      const el = document.getElementById('jpCount');
+      el.style.transform = 'scale(1.18)';
+      setTimeout(() => { el.style.transform = 'scale(1)'; }, 130);
+    }
+
+    function resetJP() {
+      if (confirm('Reset today\'s Jesus Prayer count to 0?')) { saveJPCount(0); renderJP(); }
+    }
+
+    /* ── Render: Fasting guide ──────────────────────── */
+    function renderFastingGuide(fi) {
+      const statusBg = fi.type === 'free'
+        ? 'rgba(85,85,85,0.08)' : 'rgba(156,111,228,0.08)';
+      const statusBorder = fi.type === 'free'
+        ? 'rgba(85,85,85,0.2)' : 'rgba(156,111,228,0.22)';
+
+      let html = `<div style="padding:10px 14px;border-radius:8px;background:${statusBg};border:1px solid ${statusBorder};margin-bottom:14px;">
+        <div style="font-size:13px;font-weight:600;color:${fi.color};margin-bottom:4px;">${fi.label}</div>
+        <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;">${fi.allowance}</div>
+        ${fi.daysLeft ? `<div style="font-size:11px;color:var(--text-muted);margin-top:6px;">${fi.daysLeft} days remaining in ${fi.name}</div>` : ''}
+      </div>`;
+
+      html += `<div class="spirit-section-title" style="margin-top:2px;">🍽️ Fasting Levels (strictest → loosest)</div>`;
+      const levels = [
+        { emoji:'💧', name:'1. Strict fast',       desc:'Water only until Liturgy is served; or vegan (no meat/dairy/eggs/fish) all day. Used for Great Lent weekdays & the day before Communion.' },
+        { emoji:'🫒', name:'2. Wine & oil allowed', desc:'Vegan diet, PLUS olive oil and wine are added back in. Common on weekends during stricter fasts.' },
+        { emoji:'🐟', name:'3. Fish permitted',     desc:'Everything from level 2, PLUS fish (but not other meat) is allowed. Used on lighter fasting days like Mon/Tue/Thu/Sat/Sun of the Apostles\' Fast.' },
+        { emoji:'🍗', name:'4. Fast broken',        desc:'Normal eating — meat, dairy, everything. No restrictions. This is every fast-free day.' },
+      ];
+      html += levels.map(l => `<div class="fast-level-row">
+        <div><div class="fast-level-name">${l.emoji} ${l.name}</div><div class="fast-level-desc">${l.desc}</div></div>
+      </div>`).join('');
+
+      html += `<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);line-height:1.7;">
+        📅 <b>Wed &amp; Fri = two separate individual weekly fast days</b>, every single week, year-round — NOT a continuous Wednesday-through-Friday stretch. Skip meat both days; oil &amp; wine are still fine on these two.<br><br>
+        ⛪ <b>4 seasonal fasts/yr:</b> 🕊️ Apostles' (Jun 16–28) → 🌸 Dormition (Aug 1–14) → 🎄 Nativity (Nov 15–Dec 24) → ✝️ Great Lent (Feb 23–Apr 11). Each one layers its own rules on top of the Wed/Fri rule above.<br><br>
+        🎯 Fasting is not dieting — it trains the will and aligns the body with the Church's rhythm.
+      </div>`;
+
+      document.getElementById('fastingGuide').innerHTML = html;
+    }
+
+    /* ── Render: Upcoming feasts ────────────────────── */
+    function renderFeasts(feasts) {
+      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      document.getElementById('upcomingFeasts').innerHTML = feasts.map(f => {
+        const color  = f.type === 'great' ? 'var(--gold)' : f.type === 'apostle' ? 'var(--blue)' : 'var(--text-secondary)';
+        const dateStr = `${months[f.date.getMonth()]} ${f.date.getDate()}`;
+        const delta   = f.daysAway === 0 ? 'TODAY ✨' : f.daysAway === 1 ? 'Tomorrow' : `${f.daysAway}d`;
+        return `<div class="feast-row">
+          <div class="feast-date" style="color:${color}">${dateStr}</div>
+          <div class="feast-name">${f.name}</div>
+          <div class="feast-delta">${delta}</div>
+        </div>`;
+      }).join('');
+    }
+
+    /* ── Render: Reading queue ──────────────────────── */
+    function renderReadingQueue() {
+      document.getElementById('readingQueue').innerHTML = READING_QUEUE.map((b, i) => `
+        <div class="queue-row">
+          <span class="queue-num">${i+1}</span>
+          <div class="queue-text">
+            <span class="queue-title">${b.title}</span>
+            <span class="queue-why">${b.why}</span>
+          </div>
+        </div>`).join('');
+    }
+
+    /* ── Render: Theology concepts ──────────────────── */
+    function renderConcepts() {
+      document.getElementById('conceptGrid').innerHTML = CONCEPTS.map(c => `
+        <div class="concept-card" onclick="this.classList.toggle('open')">
+          <div class="concept-name">${c.name}</div>
+          <div class="concept-greek">${c.greek}</div>
+          <div class="concept-summary">${c.summary}</div>
+          <div class="concept-detail">${c.detail}</div>
+        </div>`).join('');
+    }
+
+    /* ── Render: Domain integration ─────────────────── */
+    function renderDomainFaith() {
+      document.getElementById('domainFaithGrid').innerHTML = DOMAIN_FAITH.map(d => `
+        <div class="domain-faith-card">
+          <div class="domain-faith-title">${d.emoji} ${d.domain}</div>
+          <div class="domain-faith-lens">${d.lens}</div>
+        </div>`).join('');
+    }
+
+    /* ── Render: Faith goals ─────────────────────────── */
+    function renderGoals() {
+      const state = getGoals();
+      document.getElementById('faithGoals').innerHTML = FAITH_GOALS.map(g => {
+        const done = !!state[g.id];
+        return `<div class="goal-check-item" onclick="toggleGoal('${g.id}')">
+          <div class="goal-check-box ${done ? 'done' : ''}">${done ? '✓' : ''}</div>
+          <div class="goal-check-text ${done ? 'done' : ''}">${g.text}</div>
+        </div>`;
+      }).join('');
+    }
+    function toggleGoal(id) {
+      const g = getGoals(); saveGoal(id, !g[id]); renderGoals();
+    }
+
+    /* ── Boot ────────────────────────────────────────── */
+    function boot() {
+      const now = new Date();
+      const fi  = getFastingInfo(now);
+
+      // Header date
+      document.getElementById('headerDate').textContent =
+        now.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' });
+
+      // Liturgical badge
+      const badgeIcon = fi.type === 'free' ? '☀️' : '✝️';
+      document.getElementById('liturgicalBadge').innerHTML =
+        `<span style="font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid ${fi.color};color:${fi.color};opacity:0.9;">${badgeIcon} ${fi.label}</span>`;
+
+      // Hero fasting stat
+      document.getElementById('fastStatVal').textContent = fi.name;
+      document.getElementById('fastStatSub').textContent = fi.allowance.length > 50 ? fi.allowance.slice(0,48) + '…' : fi.allowance;
+
+      // Anchor quote (rotates daily)
+      const doy = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+      document.getElementById('anchorQuote').textContent = ANCHORS[doy % ANCHORS.length];
+
+      // Prayer rules
+      renderPrayerRule(MORNING_RULE, 'morning', 'morningRule', 'morningCount');
+      renderPrayerRule(EVENING_RULE, 'evening', 'eveningRule', 'eveningCount');
+
+      // Jesus Prayer
+      renderJP();
+
+      // Fasting guide
+      renderFastingGuide(fi);
+
+      // Upcoming feasts
+      const feasts = getUpcomingFeasts(now, 6);
+      renderFeasts(feasts);
+
+      // Hero next feast
+      if (feasts.length > 0) {
+        const nf = feasts[0];
+        const short = nf.name.length > 22 ? nf.name.slice(0, 20) + '…' : nf.name;
+        document.getElementById('nextFeastName').textContent = short;
+        document.getElementById('nextFeastDays').textContent = nf.daysAway === 0 ? 'TODAY ✨' : `${nf.daysAway} days away`;
+      }
+
+      // Reading queue
+      renderReadingQueue();
+
+      // Concepts, domains, goals
+      renderConcepts();
+      renderDomainFaith();
+      renderGoals();
+    }
+
+    boot();
+  </script>
+</body>
+</html>

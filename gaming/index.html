@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gaming & Strategy — James</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../_shared/style.css">
+  <style>
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 22px; }
+    @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+
+    .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 22px; }
+    @media (max-width: 1100px) { .three-col { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 700px)  { .three-col { grid-template-columns: 1fr; } }
+
+    .panel { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 18px 20px; }
+
+    /* ── Anchor / principle-of-the-day ─────────────────────── */
+    .anchor-block {
+      background: linear-gradient(135deg, rgba(212,175,106,0.08), rgba(94,179,255,0.06));
+      border: 1px solid rgba(212,175,106,0.22);
+      border-radius: var(--radius-md);
+      padding: 20px 26px;
+      margin-bottom: 22px;
+      text-align: center;
+    }
+    .anchor-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gold); margin-bottom: 10px; }
+    .anchor-text { font-size: 15px; font-weight: 500; color: var(--text-primary); line-height: 1.6; font-style: italic; }
+
+    /* ── Active games strip ─────────────────────────────────── */
+    .game-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 22px; }
+    @media (max-width: 700px) { .game-strip { grid-template-columns: 1fr; } }
+    .game-tile { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px 18px; }
+    .game-role { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); margin-bottom: 6px; }
+    .game-name { font-size: 16px; font-weight: 600; color: var(--text-primary); }
+    .game-focus { font-size: 12px; color: var(--text-secondary); margin-top: 6px; line-height: 1.5; }
+
+    /* ── Tip list ────────────────────────────────────────────── */
+    .tip-item { display: flex; align-items: flex-start; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); }
+    .tip-item:last-child { border-bottom: none; }
+    .tip-icon { font-size: 13px; min-width: 18px; }
+    .tip-text { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+    .tip-text strong { color: var(--text-primary); }
+
+    /* ── Strategy game card ─────────────────────────────────── */
+    .strat-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px 18px; }
+    .strat-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .strat-name { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+    .strat-tip { font-size: 12px; color: var(--text-secondary); line-height: 1.55; }
+
+    /* ── Explore list ────────────────────────────────────────── */
+    .explore-row { display: flex; align-items: baseline; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+    .explore-row:last-child { border-bottom: none; }
+    .explore-name { color: var(--text-primary); font-weight: 500; min-width: 130px; }
+    .explore-note { color: var(--text-muted); }
+
+    .chart-wrap { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px 24px; margin-bottom: 0; height: 100%; }
+    .chart-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); margin-bottom: 14px; }
+    canvas { width: 100%; }
+
+    .back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); text-decoration: none; margin-bottom: 20px; }
+    .back-link:hover { color: var(--gold); }
+  </style>
+</head>
+<body>
+  <div class="app">
+
+    <header class="app-header">
+      <div>
+        <div class="app-title">🎮 Gaming & Strategy</div>
+        <div class="app-date">Active games + strategy reference</div>
+      </div>
+    </header>
+
+    <div class="app-body">
+
+      <a class="back-link" href="../index.html">← Home</a>
+
+      <!-- Principle of the day -->
+      <div class="anchor-block">
+        <div class="anchor-label" id="principleLabel">Strategic Principle</div>
+        <div class="anchor-text" id="principleText"></div>
+      </div>
+
+      <!-- Active games -->
+      <div class="game-strip">
+        <div class="game-tile">
+          <div class="game-role">Primary Active Game</div>
+          <div class="game-name">Arma Reforger</div>
+          <div class="game-focus">Infantry/CQB, logistics, aviation (Little Bird). Highest content volume of anything tracked.</div>
+        </div>
+        <div class="game-tile">
+          <div class="game-role">Modded Campaign</div>
+          <div class="game-name">Bannerlord — AI Influence v5.0.5</div>
+          <div class="game-focus">Player 2 local LLM drives NPC diplomacy. Debug skill available: say "bannerlord debug."</div>
+        </div>
+        <div class="game-tile">
+          <div class="game-role">Secondary Active Game</div>
+          <div class="game-name">Nuclear Option</div>
+          <div class="game-focus">Air combat RTS/sim hybrid. Still in the learning phase — following theLV2 for Ibis analysis.</div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <!-- Arma Reforger cheat sheet -->
+        <div class="panel">
+          <div class="card-title" style="margin-bottom:12px;">🪖 Arma Reforger — Strategy Cheat Sheet</div>
+          <div id="armaTips"></div>
+        </div>
+
+        <!-- Bannerlord quick reference -->
+        <div class="panel">
+          <div class="card-title" style="margin-bottom:12px;">⚔️ Bannerlord — Quick Reference</div>
+          <div id="bannerlordTips"></div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <!-- Attention allocation -->
+        <div class="chart-wrap">
+          <div class="chart-title">Attention Allocation (inferred from saved content volume, not logged playtime)</div>
+          <canvas id="attentionCanvas" height="180"></canvas>
+          <div id="attentionLegend" style="margin-top:12px;"></div>
+        </div>
+
+        <!-- Nuclear Option starter tips -->
+        <div class="panel">
+          <div class="card-title" style="margin-bottom:12px;">✈️ Nuclear Option — Learning-Phase Basics</div>
+          <div id="nuclearTips"></div>
+        </div>
+      </div>
+
+      <!-- Grand strategy catalog -->
+      <div class="card-title" style="margin-bottom:12px;">🗺️ Grand Strategy Catalog</div>
+      <div class="three-col" id="strategyGrid"></div>
+
+      <!-- Explore list -->
+      <div class="panel" style="margin-bottom:20px;">
+        <div class="card-title" style="margin-bottom:12px;">🔍 High Learning-Curve Games — Watching / Exploring</div>
+        <div id="exploreRows"></div>
+      </div>
+
+      <!-- Footer -->
+      <div style="text-align:center;padding:20px 0;font-size:11px;color:var(--text-muted);">
+        Source: <code style="color:var(--gold);">01 Wiki/(C) Gaming.md</code> +
+        <code style="color:var(--gold);">00 Raw Inputs/(C) YouTube Liked Videos.md</code> ·
+        Strategy tips are general principles, not patch-specific meta — verify against current game version before relying on them competitively.
+      </div>
+
+    </div>
+  </div>
+
+  <script src="../_shared/utils.js"></script>
+  <script src="../_shared/components.js"></script>
+  <script>
+    const principles = [
+      "Games that reward learning and mastery beat games that reward accessibility. Pick the harder game if it teaches a real system.",
+      "One-life mindset in Arma: slow and deliberate beats fast and dead. Speed is earned after the map is memorized, not before.",
+      "In Bannerlord diplomacy, relations are built through consistent aid over time — not one-off gifts before an ask.",
+      "Historical/military authenticity is the filter: if a game fakes the systems underneath, the depth is fake too.",
+      "Logistics wins wars in both Arma and grand strategy — supply lines are the actual battlefield, contact is just where it's decided.",
+      "Watching someone else learn a system in real time teaches faster than a wiki — that's why the creator-content habit works.",
+    ];
+
+    function renderPrinciple() {
+      const dayIndex = Math.floor(Date.now() / 86400000) % principles.length;
+      document.getElementById('principleText').textContent = principles[dayIndex];
+    }
+
+    const armaTips = [
+      { icon: "🚪", text: "<strong>CQB:</strong> clear corners, not open rooms. Never peek the same angle twice — reposition or call a teammate to take it." },
+      { icon: "📡", text: "<strong>Comms:</strong> call contact direction on the clock (\"contact, 2 o'clock, treeline\") — vague callouts get people killed." },
+      { icon: "📦", text: "<strong>Logistics:</strong> pre-stage supplies near the front, not just at main base. Escort convoys — unguarded trucks near contested ground are free kills." },
+      { icon: "🚁", text: "<strong>Little Bird:</strong> terrain-mask on approach (low and fast), never hover in an open sightline, and always brief an alternate LZ before final approach." },
+      { icon: "🐦", text: "<strong>Environmental read:</strong> birds scattering from a treeline is a real contact indicator — use it before you push." },
+    ];
+
+    const bannerlordTips = [
+      { icon: "✅", text: "<strong>Pre-launch:</strong> Player 2 must be running (check <code>127.0.0.1:4315</code>) before launching — dialogue fails silently otherwise." },
+      { icon: "🔢", text: "<strong>Load order:</strong> Native → SandBoxCore → Sandbox → StoryMode → CustomBattle → Harmony → UIExtenderEx → AIInfluence last." },
+      { icon: "🤝", text: "<strong>Diplomacy:</strong> the AI dialogue rewards consistent aid before a big ask (alliance, marriage) — same pattern as real relationship-building, not a min-max shortcut." },
+      { icon: "🐛", text: "<strong>Something broke?</strong> Say \"bannerlord debug\" or paste the error — runs the structured diagnosis skill and logs it." },
+    ];
+
+    const nuclearTips = [
+      { icon: "⚡", text: "<strong>Energy management first.</strong> Learn how speed/altitude trade off before learning weapons — most beginner deaths are energy-starved, not out-gunned." },
+      { icon: "🗻", text: "<strong>Use terrain</strong> to break radar and missile lock — ridgelines and valleys are cover, same as ground combat." },
+      { icon: "🎯", text: "<strong>SEAD before strike.</strong> Don't commit a strike package into live air defense — suppress it first." },
+    ];
+
+    const strategyGames = [
+      { name: "Civilization", status: "Deep catalog", tip: "Civ 5: 1UPT means chokepoints are king — defend a pass, not a border. Civ 6: district adjacency is the real optimization lever, not raw production." },
+      { name: "Age of Empires 4", status: "Learning phase", tip: "Pick a forgiving economy civ (English/Rus style) while learning build orders — don't learn an aggro civ and the economy at the same time." },
+      { name: "Total War", status: "Comparative awareness", tip: "Flanking cavalry + morale-break is the core loop — a battle is usually won before the last unit dies, once morale cracks." },
+      { name: "Kenshi", status: "Survival/roleplay", tip: "Start weak on purpose. Avoid factions above your level, build reputation with weaker ones first, and treat escape as a valid win condition." },
+      { name: "Project Zomboid", status: "Multiplayer content", tip: "Defensible base before exploration. Don't loot alone in high-pop areas, and lock down food security before pushing map knowledge." },
+    ];
+
+    const exploreGames = [
+      { name: "Half Sword", note: "Physics-based medieval combat — frog stance / finishing-move technique content." },
+      { name: "War of Rights", note: "1776 expansion announced — Civil War milsim, adjacent to the Arma interest." },
+      { name: "KSP", note: "Systems/engineering overlap — speedrun content suggests deep mechanical mastery, not casual play." },
+      { name: "Dark and Darker", note: "Solo wizard zero-to-hero content — extraction-shooter-adjacent risk/reward loop." },
+      { name: "Rust", note: "Base-building chaos content — same logistics-defense instinct as Zomboid/Arma." },
+      { name: "Fallout New Vegas", note: "Revisit content — faction-reputation systems worth re-mining for the Bannerlord diplomacy angle." },
+      { name: "Starfield", note: "Tracking critical takes (SsethTzeentach) more than the game itself right now." },
+      { name: "Battlefield 6", note: "Engineer-class tips — monitoring, not yet active." },
+    ];
+
+    function renderList(containerId, items) {
+      const el = document.getElementById(containerId);
+      items.forEach(t => {
+        const div = document.createElement('div');
+        div.className = 'tip-item';
+        div.innerHTML = `<span class="tip-icon">${t.icon}</span><span class="tip-text">${t.text}</span>`;
+        el.appendChild(div);
+      });
+    }
+
+    function renderStrategyGrid() {
+      const el = document.getElementById('strategyGrid');
+      strategyGames.forEach(g => {
+        const div = document.createElement('div');
+        div.className = 'strat-card';
+        div.innerHTML = `
+          <div class="strat-header"><span class="strat-name">${g.name}</span><span class="badge gold">${g.status}</span></div>
+          <div class="strat-tip">${g.tip}</div>
+        `;
+        el.appendChild(div);
+      });
+    }
+
+    function renderExplore() {
+      const el = document.getElementById('exploreRows');
+      exploreGames.forEach(g => {
+        const div = document.createElement('div');
+        div.className = 'explore-row';
+        div.innerHTML = `<span class="explore-name">${g.name}</span><span class="explore-note">${g.note}</span>`;
+        el.appendChild(div);
+      });
+    }
+
+    function renderAttention() {
+      const segs = [
+        { label: 'Arma Reforger', value: 45, color: getComputedStyle(document.documentElement).getPropertyValue('--blue') },
+        { label: 'Grand Strategy', value: 22, color: getComputedStyle(document.documentElement).getPropertyValue('--gold') },
+        { label: 'Bannerlord', value: 15, color: getComputedStyle(document.documentElement).getPropertyValue('--purple') },
+        { label: 'Nuclear Option', value: 10, color: getComputedStyle(document.documentElement).getPropertyValue('--orange') },
+        { label: 'Exploring / Other', value: 8, color: getComputedStyle(document.documentElement).getPropertyValue('--text-muted') },
+      ];
+      Charts.donut(document.getElementById('attentionCanvas'), segs, { height: 180, centerLabel: 'Focus', centerSub: 'saved content' });
+      const legend = document.getElementById('attentionLegend');
+      legend.innerHTML = '';
+      segs.forEach(s => {
+        const row = document.createElement('div');
+        row.className = 'legend-row';
+        row.style.display = 'flex'; row.style.alignItems = 'center'; row.style.gap = '8px';
+        row.style.fontSize = '12px'; row.style.color = 'var(--text-secondary)'; row.style.padding = '5px 0';
+        row.innerHTML = `<span style="width:10px;height:10px;border-radius:3px;background:${s.color};flex-shrink:0;"></span><span>${s.label}</span><span style="margin-left:auto;font-family:var(--font-mono);">${s.value}%</span>`;
+        legend.appendChild(row);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      Brain.renderNav('gaming');
+      renderPrinciple();
+      renderList('armaTips', armaTips);
+      renderList('bannerlordTips', bannerlordTips);
+      renderList('nuclearTips', nuclearTips);
+      renderStrategyGrid();
+      renderExplore();
+      renderAttention();
+    });
+
+    window.addEventListener('resize', () => renderAttention());
+  </script>
+</body>
+</html>

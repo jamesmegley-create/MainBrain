@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<!--
+  IRONFRAME — Launch Tracker widget
+  Data source: static inventory of the AI Consulting Brand project, hand-maintained.
+  Checklist state persists in localStorage (key: ironframe-checklist-v1).
+  Canonical website files live in: James SecondBrain/03 Projects/AI Consulting Brand/04 Website/
+  The ./site/ folder here is a PREVIEW COPY served by brain-server — run sync-site.bat after editing canonical.
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ironframe — Launch Tracker</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f0f0f'/%3E%3Crect x='6' y='6' width='20' height='20' rx='3' fill='none' stroke='%23c8a96e' stroke-width='2.5'/%3E%3Crect x='13.5' y='11' width='5' height='10' fill='%23c8a96e'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #0f0f0f;
+    --surface:   #1a1a1a;
+    --elevated:  #222222;
+    --border:    #2a2a2a;
+    --gold:      #c8a96e;
+    --blue:      #4a9eff;
+    --green:     #4caf50;
+    --warn:      #ff9800;
+    --danger:    #f44336;
+    --text:      #f0f0f0;
+    --text-2:    #888888;
+    --mono:      'JetBrains Mono', monospace;
+    --sans:      'Inter', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    padding: 28px 20px 60px;
+  }
+
+  .wrap { max-width: 1060px; margin: 0 auto; }
+
+  a { color: var(--blue); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* Header */
+  .head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .head h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.01em; }
+  .head h1 span { color: var(--gold); }
+  .head .sub { color: var(--text-2); font-size: 12.5px; margin-top: 3px; }
+  .head-links { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--text);
+    font-size: 12.5px;
+    font-weight: 500;
+    transition: border-color .15s, background .15s;
+  }
+  .pill:hover { border-color: var(--gold); text-decoration: none; background: var(--elevated); }
+  .pill.gold { border-color: rgba(200,169,110,.45); color: var(--gold); }
+
+  /* Section labels */
+  .label {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin: 30px 0 12px;
+    padding-bottom: 7px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .label .note { color: var(--text-2); letter-spacing: 0; text-transform: none; font-weight: 400; }
+
+  /* Phase pipeline */
+  .pipeline {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+  }
+  .phase {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 10px 10px;
+    text-align: center;
+    position: relative;
+  }
+  .phase .p-icon { font-size: 16px; margin-bottom: 4px; }
+  .phase .p-name { font-size: 11.5px; font-weight: 600; }
+  .phase .p-sub  { font-family: var(--mono); font-size: 9.5px; color: var(--text-2); margin-top: 2px; }
+  .phase.done   { border-color: rgba(76,175,80,.4); }
+  .phase.done .p-name { color: var(--green); }
+  .phase.now    { border-color: var(--gold); background: var(--elevated); box-shadow: 0 0 14px rgba(200,169,110,.12); }
+  .phase.now .p-name { color: var(--gold); }
+  .phase.todo   { opacity: .55; }
+
+  /* Critical path strip */
+  .critical {
+    margin-top: 14px;
+    background: var(--surface);
+    border: 1px solid rgba(200,169,110,.35);
+    border-left: 3px solid var(--gold);
+    border-radius: 8px;
+    padding: 13px 16px;
+    font-size: 13px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 22px;
+  }
+  .critical b { color: var(--gold); font-family: var(--mono); font-size: 11px; }
+
+  /* Grid */
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+  }
+  .card h3 { font-size: 14px; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+
+  /* Badges */
+  .badge {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    font-weight: 600;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+  .badge.green  { background: rgba(76,175,80,.12);  color: var(--green);  border: 1px solid rgba(76,175,80,.3); }
+  .badge.gold   { background: rgba(200,169,110,.1); color: var(--gold);   border: 1px solid rgba(200,169,110,.3); }
+  .badge.warn   { background: rgba(255,152,0,.1);   color: var(--warn);   border: 1px solid rgba(255,152,0,.3); }
+  .badge.red    { background: rgba(244,67,54,.1);   color: var(--danger); border: 1px solid rgba(244,67,54,.3); }
+  .badge.blue   { background: rgba(74,158,255,.1);  color: var(--blue);   border: 1px solid rgba(74,158,255,.3); }
+
+  /* Inventory table */
+  .inv { width: 100%; border-collapse: collapse; }
+  .inv td {
+    padding: 7px 8px;
+    border-bottom: 1px solid var(--border);
+    font-size: 12.5px;
+    vertical-align: top;
+  }
+  .inv tr:last-child td { border-bottom: none; }
+  .inv .path { font-family: var(--mono); font-size: 10.5px; color: var(--text-2); display: block; margin-top: 1px; }
+  .inv td:last-child { text-align: right; }
+
+  /* Stub cards */
+  .stub {
+    border: 1px dashed rgba(255,152,0,.4);
+    border-radius: 8px;
+    padding: 13px 14px;
+    margin-bottom: 10px;
+    background: rgba(255,152,0,.03);
+  }
+  .stub:last-child { margin-bottom: 0; }
+  .stub .s-title { font-weight: 600; font-size: 13px; display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 5px; }
+  .stub p { font-size: 12.5px; color: var(--text-2); }
+  .stub code {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: var(--gold);
+    background: var(--elevated);
+    padding: 1px 5px;
+    border-radius: 4px;
+    word-break: break-all;
+  }
+
+  /* Checklist */
+  .check-group { margin-bottom: 16px; }
+  .check-group:last-child { margin-bottom: 0; }
+  .check-group .cg-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--text-2);
+    margin-bottom: 7px;
+  }
+  .check {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 6px 4px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background .12s;
+    user-select: none;
+  }
+  .check:hover { background: var(--elevated); }
+  .check input { margin-top: 3px; accent-color: var(--gold); cursor: pointer; }
+  .check.done span { color: var(--text-2); text-decoration: line-through; }
+
+  .progress-wrap { margin-top: 14px; }
+  .progress-meta {
+    display: flex; justify-content: space-between;
+    font-family: var(--mono); font-size: 10.5px; color: var(--text-2);
+    margin-bottom: 5px;
+  }
+  .progress-bar {
+    height: 6px; background: var(--elevated);
+    border-radius: 3px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: var(--gold);
+    border-radius: 3px; width: 0%;
+    transition: width .3s ease;
+  }
+
+  /* Offer stack */
+  .tiers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .tier {
+    background: var(--elevated);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+  }
+  .tier.mid { border-color: rgba(200,169,110,.4); }
+  .tier .t-name { font-size: 11.5px; font-weight: 600; margin-bottom: 3px; }
+  .tier .t-price { font-family: var(--mono); font-size: 15px; font-weight: 600; color: var(--gold); }
+  .tier .t-sub { font-family: var(--mono); font-size: 9.5px; color: var(--text-2); margin-top: 3px; }
+
+  .addons { margin-top: 10px; font-size: 12px; color: var(--text-2); line-height: 1.7; }
+  .addons b { color: var(--text); font-weight: 500; }
+
+  footer {
+    margin-top: 34px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: var(--text-2);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  @media (max-width: 860px) {
+    .pipeline { grid-template-columns: repeat(4, 1fr) !important; }
+    .grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 520px) {
+    .pipeline { grid-template-columns: repeat(2, 1fr) !important; }
+    .tiers { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Header -->
+  <div class="head">
+    <div>
+      <h1>🏗️ Ironframe <span>— Launch Tracker</span></h1>
+      <div class="sub">AI Consulting Brand · everything needed from here to first client</div>
+    </div>
+    <div class="head-links">
+      <a class="pill gold" href="site/index.html">🌐 Landing Page Preview</a>
+      <a class="pill" href="site/resume.html">📄 Resume Page</a>
+      <a class="pill" href="../Home Widget.html">← Brain Home</a>
+    </div>
+  </div>
+
+  <!-- Phase pipeline -->
+  <div class="label">Launch Pipeline</div>
+  <div class="pipeline" style="grid-template-columns: repeat(10, 1fr);">
+    <div class="phase done"><div class="p-icon">🧱</div><div class="p-name">Brand</div><div class="p-sub">ironframe ✓</div></div>
+    <div class="phase done"><div class="p-icon">📋</div><div class="p-name">Strategy</div><div class="p-sub">plan · ICP · offers</div></div>
+    <div class="phase done"><div class="p-icon">🖥️</div><div class="p-name">Website</div><div class="p-sub">built 2026-07-04</div></div>
+    <div class="phase now"><div class="p-icon">🔌</div><div class="p-name">Wire-Up</div><div class="p-sub">keys + accounts</div></div>
+    <div class="phase done"><div class="p-icon">💳</div><div class="p-name">Checkout</div><div class="p-sub">code built 07-04</div></div>
+    <div class="phase todo"><div class="p-icon">🌍</div><div class="p-name">Domain</div><div class="p-sub">buy ironframe.ai</div></div>
+    <div class="phase todo"><div class="p-icon">🚀</div><div class="p-name">Deploy</div><div class="p-sub">Vercel + DNS</div></div>
+    <div class="phase todo"><div class="p-icon">📈</div><div class="p-name">Visibility</div><div class="p-sub">SEO · analytics</div></div>
+    <div class="phase todo"><div class="p-icon">GT</div><div class="p-name">Go-to-Market</div><div class="p-sub">launch kit + CRM</div></div>
+    <div class="phase todo"><div class="p-icon">💰</div><div class="p-name">Pipeline</div><div class="p-sub">outreach + first client</div></div>
+  </div>
+
+  <div class="critical">
+    <span><b>CRITICAL PATH</b></span>
+    <span><b>1.</b> Buy <code style="font-family:var(--mono);font-size:11px;color:var(--gold)">ironframe.ai</code> (~$15/yr Namecheap)</span>
+    <span><b>2.</b> Create Stripe + Calendly + Formspree accounts, fill stubs</span>
+    <span><b>3.</b> Capture 4 screenshots + og:image</span>
+    <span><b>4.</b> Deploy to Vercel → verify checkout in test mode</span>
+    <span><b>5.</b> Update LinkedIn → announce</span>
+  </div>
+
+  <div class="stub" style="border-color: rgba(74,158,255,.4); background: rgba(74,158,255,.03); margin-top: 14px;">
+    <div class="s-title">📄 Go-to-Market build plan &amp; Fable 5 prompt <span class="badge blue">Saved</span></div>
+    <p>Full infrastructure map (Stripe embedded checkout, hosting, SEO, cost ledger, account list) and the exact prompt to hand Fable 5 are saved to <code>(C) Go-To-Market Plan.md</code> in this project's <code>04 Website/</code> folder — durable, so the plan survives even if Fable can't run today. <a href="obsidian://open?vault=MainBrain&file=James%20SecondBrain%2F03%20Projects%2FAI%20Consulting%20Brand%2F04%20Website%2F(C)%20Go-To-Market%20Plan">Open plan →</a></p>
+  </div>
+
+  <div class="grid" style="margin-top: 26px;">
+
+    <!-- LEFT column -->
+    <div>
+      <!-- Build inventory -->
+      <div class="card">
+        <h3>📦 Build Inventory <span class="badge green">20 assets</span></h3>
+        <table class="inv">
+          <tr><td>Business Plan<span class="path">01 Business Plan/(C) Business Plan.md</span></td><td><span class="badge green">Done</span></td></tr>
+          <tr><td>Firmographics &amp; ICP<span class="path">02 Market &amp; ICP/(C) Firmographics &amp; ICP.md</span></td><td><span class="badge green">Done</span></td></tr>
+          <tr><td>Service Offerings — 3 tiers + add-ons<span class="path">03 Offerings/(C) Service Offerings.md</span></td><td><span class="badge green">Done</span></td></tr>
+          <tr><td>Resume — AI Consultant version<span class="path">03 Offerings/(C) Resume — AI Consultant Version.md</span></td><td><span class="badge green">Done</span></td></tr>
+          <tr><td>Resume — Enterprise AE version<span class="path">03 Offerings/(C) Resume — Enterprise AE Version.md</span></td><td><span class="badge green">Done</span></td></tr>
+          <tr><td>Landing Page Brief (design spec)<span class="path">04 Website/(C) Landing Page Brief.md</span></td><td><span class="badge green">Done</span></td></tr>
+          <tr><td>Digital Infrastructure plan<span class="path">04 Website/(C) Digital Infrastructure.md</span></td><td><span class="badge green">Done</span></td></tr>
+          <tr><td>Landing page — 9 sections<span class="path">04 Website/index.html</span></td><td><span class="badge blue">New 07-04</span></td></tr>
+          <tr><td>Shared stylesheet (design system)<span class="path">04 Website/style.css</span></td><td><span class="badge blue">New 07-04</span></td></tr>
+          <tr><td>Interactions — nav / form / scroll<span class="path">04 Website/main.js</span></td><td><span class="badge blue">New 07-04</span></td></tr>
+          <tr><td>Resume page — refactored to shared CSS<span class="path">04 Website/resume.html</span></td><td><span class="badge blue">Updated</span></td></tr>
+          <tr><td>Go-To-Market Plan + Fable 5 prompt<span class="path">04 Website/(C) Go-To-Market Plan.md</span></td><td><span class="badge blue">New 07-04</span></td></tr>
+          <tr><td>Stripe embedded checkout — page + modal flow<span class="path">04 Website/checkout.html + config.js</span></td><td><span class="badge blue">New 07-04</span></td></tr>
+          <tr><td>Serverless API — session create + verify<span class="path">04 Website/api/ (2 functions)</span></td><td><span class="badge blue">New 07-04</span></td></tr>
+          <tr><td>Success / cancel / 404 pages<span class="path">04 Website/success.html · cancel.html · 404.html</span></td><td><span class="badge blue">New 07-04</span></td></tr>
+          <tr><td>Deploy config<span class="path">package.json · vercel.json · .gitignore · .env.example</span></td><td><span class="badge blue">New 07-04</span></td></tr>
+          <tr><td>SEO pack<span class="path">sitemap.xml · robots.txt · favicon.svg · canonical/GSC/analytics meta</span></td><td><span class="badge blue">New 07-04</span></td></tr>
+          <tr><td>Runbooks — deploy · Stripe · costs · launch kit<span class="path">DEPLOY.md · STRIPE-SETUP.md · COSTS.md · LAUNCH.md</span></td><td><span class="badge blue">New 07-04</span></td></tr>
+          <tr><td>Client CRM scaffold<span class="path">05 Clients/(C) CRM Tracker.md + _TEMPLATE/</span></td><td><span class="badge blue">New 07-04</span></td></tr>
+        </table>
+      </div>
+
+      <!-- Stubs -->
+      <div class="card" style="margin-top: 18px;">
+        <h3>🔌 Stubs to Wire <span class="badge warn">4 open</span></h3>
+
+        <div class="stub">
+          <div class="s-title">Stripe checkout — paste keys <span class="badge blue">Code built 07-04</span></div>
+          <p>Fully coded: <code>checkout.html</code> + <code>api/create-checkout-session.js</code> + <code>api/session-status.js</code> + success/cancel pages. Tiers wired: Personal $1,497, deposit $748, strategy $250 (amounts server-enforced). <b>Your part:</b> create Stripe account → paste <code>pk_test_</code> into <code>config.js</code> and <code>sk_test_</code> into Vercel env / <code>.env</code> → test with card <code>4242…</code>. Full steps: <code>STRIPE-SETUP.md</code>. Until keys exist the page shows a graceful "email me" fallback.</p>
+        </div>
+
+        <div class="stub">
+          <div class="s-title">Calendly booking link <span class="badge warn">Blocked on account</span></div>
+          <p>Create free Calendly account → 30-min "Discovery Call" event. Then in <code>index.html</code> replace every <code>href="#contact"</code> on elements marked <code>data-calendly</code> (5 spots: nav, hero, 3 service cards) and swap the <code>.calendly-slot</code> div for the inline embed — exact snippet is in the HTML comment at the contact section.</p>
+        </div>
+
+        <div class="stub">
+          <div class="s-title">Formspree endpoint <span class="badge warn">Blocked on account</span></div>
+          <p>Create free form at formspree.io → set <code>action="https://formspree.io/f/YOUR-ID"</code> on <code>#contactForm</code> and delete the <code>data-stub</code> attribute. AJAX submit is already coded in <code>main.js</code>.</p>
+        </div>
+
+        <div class="stub">
+          <div class="s-title">Portfolio screenshots ×4 + og:image <span class="badge warn">Ready to capture</span></div>
+          <p>Capture: ① Home Widget full view ② Obsidian vault wiki tree ③ Trading widget ④ architecture overview → save to <code>04 Website/img/</code> and swap the four <code>.shot-img</code> placeholder divs (filenames listed in the portfolio HTML comment). Also make a 1200×630 <code>og.png</code>.</p>
+        </div>
+      </div>
+
+      <!-- Cost Ledger -->
+      <div class="card" style="margin-top: 18px;">
+        <h3>💵 Cost Ledger <span class="badge green">~$0/mo minimum</span></h3>
+        <table class="inv">
+          <tr><td>Domain — <code style="font-family:var(--mono);font-size:10.5px;color:var(--gold);background:none;padding:0;">.ai</code> TLD<span class="path">Namecheap or Cloudflare Registrar</span></td><td><span class="badge gold">$15–20/yr</span></td></tr>
+          <tr><td>Hosting + SSL<span class="path">Vercel free tier</span></td><td><span class="badge green">Free</span></td></tr>
+          <tr><td>Card processing<span class="path">Stripe — 2.9% + 30¢ per sale</span></td><td><span class="badge green">$0 fixed</span></td></tr>
+          <tr><td>Contact form<span class="path">Formspree free tier</span></td><td><span class="badge green">Free</span></td></tr>
+          <tr><td>Scheduling<span class="path">Calendly free tier</span></td><td><span class="badge green">Free</span></td></tr>
+          <tr><td>Analytics<span class="path">GA4 free / Plausible upgrade</span></td><td><span class="badge green">Free</span></td></tr>
+          <tr><td style="border-top:1px solid var(--border);padding-top:10px;"><b>Minimum to launch</b></td><td style="border-top:1px solid var(--border);padding-top:10px;"><span class="badge gold">~$0/mo + $15/yr</span></td></tr>
+          <tr><td>Pro email — <code style="font-family:var(--mono);font-size:10.5px;color:var(--gold);background:none;padding:0;">james@ironframe.ai</code><span class="path">Google Workspace Business Starter</span></td><td><span class="badge blue">$6/mo</span></td></tr>
+          <tr><td>Privacy analytics<span class="path">Plausible</span></td><td><span class="badge blue">$9/mo</span></td></tr>
+          <tr><td>Proposals + contracts + e-sign<span class="path">Bonsai</span></td><td><span class="badge blue">$25/mo</span></td></tr>
+          <tr><td style="border-top:1px solid var(--border);padding-top:10px;"><b>Full professional stack</b></td><td style="border-top:1px solid var(--border);padding-top:10px;"><span class="badge blue">~$40/mo</span></td></tr>
+        </table>
+        <div class="addons" style="margin-top:14px;">
+          <b>Per-sale net (Stripe, 2.9%+30¢):</b> $1,497 → nets ~$1,454 · $748 deposit → nets ~$726 · $250 session → nets ~$242
+        </div>
+      </div>
+
+      <!-- Offer stack -->
+      <div class="card" style="margin-top: 18px;">
+        <h3>💼 Offer Stack <span class="badge gold">Priced</span></h3>
+        <div class="tiers">
+          <div class="tier"><div class="t-name">Personal Brain</div><div class="t-price">$1,497</div><div class="t-sub">10–14 days · → $1,997 after 3 testimonials</div></div>
+          <div class="tier mid"><div class="t-name">Team Brain</div><div class="t-price">$4.5–8.5k</div><div class="t-sub">5–40 seats · 4–6 wks</div></div>
+          <div class="tier"><div class="t-name">AI Retainer</div><div class="t-price">$2.5–5k/mo</div><div class="t-sub">3-mo minimum</div></div>
+        </div>
+        <div class="addons">
+          <b>Add-ons:</b> Resume build $297 · Profile site $497 · Extra wiki pages $100/pg · Custom widget $750–1.5k · Maintenance $200/mo (solo) / $750/mo (team) · Strategy session $250
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT column: Go-live checklist -->
+    <div>
+      <div class="card">
+        <h3>✅ Go-Live Checklist <span class="badge gold" id="check-badge">—</span></h3>
+
+        <div class="check-group" data-group="Must-have before launch">
+          <div class="cg-title">Must-Have Before Launch</div>
+          <label class="check" data-id="domain"><input type="checkbox"><span>Domain purchased — <b>ironframe.ai</b> (Namecheap ~$15/yr)</span></label>
+          <label class="check" data-id="hosting"><input type="checkbox"><span>Hosting set up (Vercel or Netlify, free tier)</span></label>
+          <label class="check" data-id="pages" data-default="1"><input type="checkbox"><span>Home, Services, Portfolio, Resume, Contact pages built</span></label>
+          <label class="check" data-id="resume-pdf"><input type="checkbox"><span>Resume PDF exported (print resume.html → save as PDF) + linked</span></label>
+          <label class="check" data-id="form"><input type="checkbox"><span>Contact form working — Formspree wired + test submission</span></label>
+          <label class="check" data-id="calendly"><input type="checkbox"><span>Calendly wired on all 5 CTAs</span></label>
+          <label class="check" data-id="linkedin"><input type="checkbox"><span>LinkedIn updated to point to site</span></label>
+          <label class="check" data-id="shots"><input type="checkbox"><span>4 portfolio screenshots dropped in</span></label>
+          <label class="check" data-id="mobile" data-default="1"><input type="checkbox"><span>Mobile-responsive (built + verified at 375px)</span></label>
+        </div>
+
+        <div class="check-group" data-group="Go-to-market infrastructure">
+          <div class="cg-title">Go-To-Market · Checkout &amp; Visibility</div>
+          <label class="check" data-id="stripe-account"><input type="checkbox"><span>Stripe account created</span></label>
+          <label class="check" data-id="stripe-pk"><input type="checkbox"><span>Stripe publishable key pasted into config.js (pk_test_...)</span></label>
+          <label class="check" data-id="stripe-sk"><input type="checkbox"><span>Stripe secret key added to Vercel env + local .env (sk_test_...)</span></label>
+          <label class="check" data-id="stripe-checkout" data-default="1"><input type="checkbox"><span>Embedded checkout code built (Fable 5, 2026-07-04)</span></label>
+          <label class="check" data-id="checkout-tiers" data-default="1"><input type="checkbox"><span>Checkout tiers wired: $1,497 full, $748 deposit, $250 strategy</span></label>
+          <label class="check" data-id="stripe-4242"><input type="checkbox"><span>Test payment completes with card 4242 (needs your keys)</span></label>
+          <label class="check" data-id="stripe-live"><input type="checkbox"><span>Stripe verified for live payouts (bank + ID)</span></label>
+          <label class="check" data-id="vercel-deploy"><input type="checkbox"><span>Deployed to Vercel + domain DNS pointed</span></label>
+          <label class="check" data-id="sitemap"><input type="checkbox"><span>sitemap.xml + robots.txt + og:image live</span></label>
+          <label class="check" data-id="gsc2"><input type="checkbox"><span>Google Search Console verified + sitemap submitted</span></label>
+        </div>
+
+        <div class="check-group" data-group="Accounts and costs">
+          <div class="cg-title">Accounts + Cost Items</div>
+          <label class="check" data-id="costs-doc" data-default="1"><input type="checkbox"><span>COSTS.md ledger built: minimum launch + full stack + per-transaction math</span></label>
+          <label class="check" data-id="vercel-account"><input type="checkbox"><span>Vercel account created (free)</span></label>
+          <label class="check" data-id="namecheap-domain"><input type="checkbox"><span>Namecheap domain purchased: ironframe.ai (~$15-$20/yr)</span></label>
+          <label class="check" data-id="formspree-account"><input type="checkbox"><span>Formspree account/form created (free tier)</span></label>
+          <label class="check" data-id="calendly-account"><input type="checkbox"><span>Calendly account/event created (free tier)</span></label>
+          <label class="check" data-id="plausible-account"><input type="checkbox"><span>Plausible account created or GA4 chosen</span></label>
+          <label class="check" data-id="gsc-account"><input type="checkbox"><span>Google Search Console property created</span></label>
+        </div>
+
+        <div class="check-group" data-group="Nice-to-have at launch">
+          <div class="cg-title">Nice-to-Have at Launch</div>
+          <label class="check" data-id="analytics"><input type="checkbox"><span>Plausible or Google Analytics installed</span></label>
+          <label class="check" data-id="gsc"><input type="checkbox"><span>Google Search Console + sitemap submitted</span></label>
+          <label class="check" data-id="og"><input type="checkbox"><span>Open Graph preview image (1200×630) created</span></label>
+        </div>
+
+        <div class="check-group" data-group="Go-to-market">
+          <div class="cg-title">Go-To-Market</div>
+          <label class="check" data-id="launch-doc" data-default="1"><input type="checkbox"><span>LAUNCH.md paste-ready LinkedIn headline/about/featured/post built</span></label>
+          <label class="check" data-id="crm-scaffold" data-default="1"><input type="checkbox"><span>05 Clients CRM tracker + client template created</span></label>
+          <label class="check" data-id="linkedin-headline"><input type="checkbox"><span>LinkedIn headline/about/featured updated</span></label>
+          <label class="check" data-id="launch-assets"><input type="checkbox"><span>2-3 real screenshots ready for launch post</span></label>
+          <label class="check" data-id="first-dm-list"><input type="checkbox"><span>First 10 warm outbound names loaded into CRM</span></label>
+        </div>
+
+        <div class="check-group" data-group="Post-launch first 30 days">
+          <div class="cg-title">Post-Launch · First 30 Days</div>
+          <label class="check" data-id="li-post"><input type="checkbox"><span>"This is what I built" LinkedIn post</span></label>
+          <label class="check" data-id="dm10"><input type="checkbox"><span>DM 5–10 people who might want a Brain built</span></label>
+          <label class="check" data-id="case-study"><input type="checkbox"><span>Post one case study (yourself)</span></label>
+          <label class="check" data-id="apply3"><input type="checkbox"><span>Apply to 3 AI consultant roles using site as portfolio</span></label>
+          <label class="check" data-id="free-builds"><input type="checkbox"><span>Offer 1–2 free builds for testimonials</span></label>
+        </div>
+
+        <div class="progress-wrap">
+          <div class="progress-meta"><span>LAUNCH PROGRESS</span><span id="progress-pct">0%</span></div>
+          <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        </div>
+      </div>
+
+      <!-- Where everything lives -->
+      <div class="card" style="margin-top: 18px;">
+        <h3>🗺️ Where Everything Lives</h3>
+        <table class="inv">
+          <tr><td>Canonical website source<span class="path">James SecondBrain/03 Projects/AI Consulting Brand/04 Website/</span></td><td><span class="badge gold">Edit here</span></td></tr>
+          <tr><td>This preview copy (served on Tailscale)<span class="path">Widgets/01 Builds/ironframe/site/ — run sync-site.bat after edits</span></td><td><span class="badge blue">Mirror</span></td></tr>
+          <tr><td>Brand strategy docs<span class="path">AI Consulting Brand/01–03 folders</span></td><td><span class="badge green">Stable</span></td></tr>
+          <tr><td>Deploy runbook — exact go-live steps<span class="path">04 Website/DEPLOY.md · STRIPE-SETUP.md</span></td><td><span class="badge gold">Follow this</span></td></tr>
+          <tr><td>Deploy target (once domain bought)<span class="path">Vercel ← `vercel --prod` from 04 Website</span></td><td><span class="badge red">Pending</span></td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <span>IRONFRAME LAUNCH TRACKER · built 2026-07-04</span>
+    <span>checklist saves locally · canonical: AI Consulting Brand/04 Website</span>
+  </footer>
+</div>
+
+<script>
+(function () {
+  var KEY = 'ironframe-checklist-v1';
+  var saved = {};
+  try { saved = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) {}
+
+  var checks = Array.prototype.slice.call(document.querySelectorAll('.check'));
+
+  function persist() {
+    var out = {};
+    checks.forEach(function (c) {
+      out[c.getAttribute('data-id')] = c.querySelector('input').checked;
+    });
+    try { localStorage.setItem(KEY, JSON.stringify(out)); } catch (e) {}
+  }
+
+  function render() {
+    var done = 0;
+    checks.forEach(function (c) {
+      var on = c.querySelector('input').checked;
+      c.classList.toggle('done', on);
+      if (on) done++;
+    });
+    var pct = Math.round((done / checks.length) * 100);
+    document.getElementById('progress-pct').textContent = pct + '%';
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('check-badge').textContent = done + ' / ' + checks.length;
+  }
+
+  checks.forEach(function (c) {
+    var id = c.getAttribute('data-id');
+    var input = c.querySelector('input');
+    // saved state wins; otherwise pre-check items already done by the build
+    input.checked = (id in saved) ? !!saved[id] : c.hasAttribute('data-default');
+    input.addEventListener('change', function () { persist(); render(); });
+  });
+
+  persist();
+  render();
+})();
+</script>
+</body>
+</html>

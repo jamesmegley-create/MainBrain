@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Health — James</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../_shared/style.css">
+  <style>
+    /* ── Hero strip ───────────────────────────────────────── */
+    .health-strip {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 800px) { .health-strip { grid-template-columns: repeat(3, 1fr); } }
+
+    .health-stat {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .health-stat-val {
+      font-family: var(--font-mono);
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+    .health-stat-val.green  { color: var(--green); }
+    .health-stat-val.gold   { color: var(--gold); }
+    .health-stat-val.orange { color: var(--orange); }
+    .health-stat-val.red    { color: var(--red); }
+    .health-stat-val.blue   { color: #5eb3ff; }
+    .health-stat-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+    }
+    .health-stat-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* ── Section header ───────────────────────────────────── */
+    .health-section-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* ── Supplement cards ─────────────────────────────────── */
+    .supp-full-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .supp-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: border-color 0.15s;
+    }
+    .supp-card:hover { border-color: var(--border-hover); }
+    .supp-card-top { display: flex; align-items: center; justify-content: space-between; }
+    .supp-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .supp-dose {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--gold);
+    }
+    .supp-brand {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-top: -2px;
+    }
+    .supp-note {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      flex: 1;
+    }
+    .supp-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 4px;
+    }
+    .timing-pill {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+    .timing-pill.am   { background: rgba(255,152,0,0.15);   color: var(--orange); }
+    .timing-pill.pm   { background: rgba(94,179,255,0.15);  color: #5eb3ff; }
+    .timing-pill.meal { background: rgba(76,175,80,0.15);   color: var(--green); }
+
+    /* ── Photo section ────────────────────────────────────── */
+    .photo-section {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .photo-drop-zone {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius-md);
+      padding: 32px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 13px;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .photo-drop-zone:hover { border-color: var(--gold); color: var(--gold); }
+    .photo-drop-icon { font-size: 36px; margin-bottom: 10px; }
+    .photo-display { position: relative; }
+    .photo-display img {
+      width: 100%;
+      border-radius: var(--radius-md);
+      max-height: 400px;
+      object-fit: cover;
+    }
+    .photo-remove {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(0,0,0,0.65);
+      border: none;
+      color: white;
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    /* ── Goals / tracking ─────────────────────────────────── */
+    .goal-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .goal-row:last-child { border-bottom: none; }
+    .goal-label { font-size: 13px; color: var(--text-secondary); flex: 1; }
+    .goal-label strong { color: var(--text-primary); }
+    .goal-bar-wrap { width: 120px; }
+    .goal-bar-track { height: 6px; background: #1c3a5c; border-radius: 3px; overflow: hidden; }
+    .goal-bar-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+    .goal-pct { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); min-width: 36px; text-align: right; }
+
+    /* ── Protocol rows ────────────────────────────────────── */
+    .protocol-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 18px 20px;
+      margin-bottom: 12px;
+    }
+    .protocol-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+    .protocol-item:last-child { border-bottom: none; }
+    .protocol-time {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--gold);
+      min-width: 52px;
+      padding-top: 2px;
+    }
+    .protocol-text { color: var(--text-secondary); line-height: 1.45; }
+    .protocol-text strong { color: var(--text-primary); }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:2px;">Physical Domain</div>
+        <div class="app-title">💪 Health</div>
+      </div>
+      <div style="text-align:right;">
+        <div class="app-date" id="app-date"></div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:3px;" id="health-data-note">Data: manual · Apple Health pending</div>
+      </div>
+    </header>
+
+    <main class="app-body">
+
+      <!-- Health Stats Strip -->
+      <div class="health-strip">
+        <div class="health-stat">
+          <div class="health-stat-val orange">—</div>
+          <div class="health-stat-label">Avg Sleep</div>
+          <div class="health-stat-sub">Apple Health needed</div>
+        </div>
+        <div class="health-stat">
+          <div class="health-stat-val green">—</div>
+          <div class="health-stat-label">Avg Steps</div>
+          <div class="health-stat-sub">Apple Health needed</div>
+        </div>
+        <div class="health-stat">
+          <div class="health-stat-val blue">124/82</div>
+          <div class="health-stat-label">Blood Pressure</div>
+          <div class="health-stat-sub">Manual · target &lt;120/80</div>
+        </div>
+        <div class="health-stat">
+          <div class="health-stat-val gold">~185</div>
+          <div class="health-stat-label">Body Weight (lbs)</div>
+          <div class="health-stat-sub">Est. · goal: 175 lean</div>
+        </div>
+        <div class="health-stat">
+          <div class="health-stat-val green">Active</div>
+          <div class="health-stat-label">Supplement Protocol</div>
+          <div class="health-stat-sub">8 items · Enzyme Nutrition</div>
+        </div>
+      </div>
+
+      <!-- Supplement Photo -->
+      <div class="health-section-title">
+        📸 Supplement Photo
+        <span style="font-size:11px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-muted);">visual reference of your stack</span>
+      </div>
+
+      <div class="photo-section" style="margin-bottom:20px;">
+        <div class="photo-drop-zone" id="photo-drop" onclick="document.getElementById('photo-input').click()">
+          <div class="photo-drop-icon">📸</div>
+          <div style="font-weight:600;font-size:14px;margin-bottom:6px;">Upload your supplement photo</div>
+          <div>Click to select · or drag a photo of your Enzyme Nutrition stack here</div>
+          <input type="file" id="photo-input" accept="image/*" style="display:none" onchange="handlePhoto(event)">
+        </div>
+        <div class="photo-display" id="photo-display" style="display:none;">
+          <img id="photo-img" alt="Supplement stack">
+          <button class="photo-remove" onclick="clearPhoto()">✕ Remove photo</button>
+        </div>
+      </div>
+
+      <!-- Supplement Grid -->
+      <div class="health-section-title">
+        💊 Supplement Stack
+        <a href="obsidian://open?vault=MainBrain&file=01%20Wiki%2F(C)%20Health%20%26%20Physical" style="font-size:11px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-muted);text-decoration:none;">Health Wiki ↗</a>
+      </div>
+
+      <div class="supp-full-grid" id="supp-full-grid">
+        <!-- Rendered from LIVE.supplements -->
+      </div>
+
+      <!-- Daily Protocol -->
+      <div class="health-section-title">⏱ Daily Protocol</div>
+      <div class="protocol-card">
+        <div class="protocol-item">
+          <span class="protocol-time">6–7 AM</span>
+          <span class="protocol-text"><strong>Wake + Hydrate</strong> · 16oz water + electrolytes before anything else. Fast still active.</span>
+        </div>
+        <div class="protocol-item">
+          <span class="protocol-time">7 AM</span>
+          <span class="protocol-text"><strong>Morning supps (fasted)</strong> · Creatine, D3+K2, Proteolytic Enzymes (systemic action, away from food), Ashwagandha optional AM.</span>
+        </div>
+        <div class="protocol-item">
+          <span class="protocol-time">12–1 PM</span>
+          <span class="protocol-text"><strong>Break fast — take with meal</strong> · Digestive Enzymes (1–2 caps) + Omega-3 with first meal. Zinc if not taken at dinner.</span>
+        </div>
+        <div class="protocol-item">
+          <span class="protocol-time">Training</span>
+          <span class="protocol-text"><strong>Pre-workout</strong> · Creatine (5g) if not taken AM. Hydration focus. 3–5x/week compound lifts.</span>
+        </div>
+        <div class="protocol-item">
+          <span class="protocol-time">9–10 PM</span>
+          <span class="protocol-text"><strong>Evening supps</strong> · Magnesium Glycinate 400mg + Zinc/Copper if not taken at lunch. Ashwagandha (KSM-66) for cortisol wind-down.</span>
+        </div>
+      </div>
+
+      <!-- Health Goals -->
+      <div class="health-section-title">🎯 Physical Goals</div>
+      <div class="card" style="margin-bottom:20px;">
+
+        <div class="goal-row">
+          <div class="goal-label"><strong>Body composition</strong> — visible abs, 175 lbs lean</div>
+          <div class="goal-bar-wrap"><div class="goal-bar-track"><div class="goal-bar-fill" style="width:45%;background:var(--green)"></div></div></div>
+          <div class="goal-pct">45%</div>
+        </div>
+
+        <div class="goal-row">
+          <div class="goal-label"><strong>Blood pressure</strong> — &lt;120/80 consistently</div>
+          <div class="goal-bar-wrap"><div class="goal-bar-track"><div class="goal-bar-fill" style="width:50%;background:var(--blue)"></div></div></div>
+          <div class="goal-pct">50%</div>
+        </div>
+
+        <div class="goal-row">
+          <div class="goal-label"><strong>Sleep quality</strong> — 7.5h avg, HRV tracking</div>
+          <div class="goal-bar-wrap"><div class="goal-bar-track"><div class="goal-bar-fill" style="width:30%;background:var(--purple)"></div></div></div>
+          <div class="goal-pct">30%</div>
+        </div>
+
+        <div class="goal-row">
+          <div class="goal-label"><strong>Supplement consistency</strong> — 6/7 days adherence</div>
+          <div class="goal-bar-wrap"><div class="goal-bar-track"><div class="goal-bar-fill" style="width:70%;background:var(--gold)"></div></div></div>
+          <div class="goal-pct">70%</div>
+        </div>
+
+        <div class="goal-row">
+          <div class="goal-label"><strong>Training frequency</strong> — 4x/week compound lifts</div>
+          <div class="goal-bar-wrap"><div class="goal-bar-track"><div class="goal-bar-fill" style="width:55%;background:var(--orange)"></div></div></div>
+          <div class="goal-pct">55%</div>
+        </div>
+
+      </div>
+
+      <!-- Enzyme Nutrition Note -->
+      <div class="health-section-title">🧬 Enzyme Nutrition — Protocol Notes</div>
+      <div class="card" style="margin-bottom:24px;">
+        <div style="font-size:13px;color:var(--text-secondary);line-height:1.7;">
+          <p style="margin-bottom:10px;"><strong style="color:var(--text-primary);">Enzyme Nutrition (Dr. Edward Howell's framework)</strong> is a protocol emphasizing the role of food and supplemental enzymes in reducing the body's "enzyme reserve" drain. The core idea: cooking destroys natural food enzymes, forcing the pancreas and body to produce all digestive enzymes — depleting systemic enzyme potential over time.</p>
+          <p style="margin-bottom:10px;"><strong style="color:var(--gold);">Two enzyme types in the protocol:</strong></p>
+          <ul style="list-style:disc;padding-left:18px;display:flex;flex-direction:column;gap:6px;">
+            <li><strong style="color:var(--text-primary);">Digestive Enzymes (with meals)</strong> — taken with food to support digestion of proteins (protease), carbohydrates (amylase), and fats (lipase). Reduces burden on the pancreas.</li>
+            <li><strong style="color:var(--text-primary);">Proteolytic/Systemic Enzymes (away from food)</strong> — taken on an empty stomach so they enter circulation rather than digesting food. Supports anti-inflammatory activity, immune function, and tissue repair.</li>
+          </ul>
+          <p style="margin-top:10px;color:var(--text-muted);font-size:12px;">Stack is based on mother's Enzyme Nutrition line. Update the supplement list above as the exact products and doses are confirmed.</p>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ── LIVE DATA — mirrored from Home Widget ──────────────── -->
+  <script>
+  window.LIVE = {
+    supplements: [
+      { name: "Digestive Enzymes",   dose: "1-2 caps",  timing: "meal", note: "Enzyme Nutrition formula — supports protein/carb/fat breakdown", brand: "Enzyme Nutrition" },
+      { name: "Proteolytic Enzymes", dose: "1 cap",     timing: "am",   note: "Systemic — taken away from food for anti-inflammatory action",   brand: "Enzyme Nutrition" },
+      { name: "Magnesium Glycinate", dose: "400mg",     timing: "pm",   note: "Sleep quality, ADHD focus, muscle recovery"                                               },
+      { name: "Vitamin D3 + K2",     dose: "5,000 IU",  timing: "am",   note: "Immune, mood, bone density — K2 routes calcium correctly"                                 },
+      { name: "Omega-3 Fish Oil",    dose: "2g EPA/DHA",timing: "meal", note: "Inflammation, brain health, cardiovascular"                                               },
+      { name: "Creatine Monohydrate",dose: "5g",        timing: "am",   note: "Strength, cognitive energy — synergizes with ADHD + training"                             },
+      { name: "Ashwagandha (KSM-66)",dose: "600mg",     timing: "pm",   note: "Cortisol regulation, stress buffer, testosterone support"                                 },
+      { name: "Zinc + Copper",       dose: "30mg / 2mg",timing: "pm",   note: "Hormone balance, immune, taste/smell — taken with copper ratio"                           },
+    ]
+  };
+  </script>
+
+  <script src="../_shared/utils.js"></script>
+  <script>
+    const timingLabel = { am: 'Morning (fasted)', pm: 'Evening', meal: 'With meal' };
+
+    function renderSupplements() {
+      const grid = document.getElementById('supp-full-grid');
+      if (!grid || !window.LIVE?.supplements?.length) return;
+      grid.innerHTML = window.LIVE.supplements.map(s => `
+        <div class="supp-card">
+          <div class="supp-card-top">
+            <div class="supp-name">${s.name}</div>
+            <span class="timing-pill ${s.timing}">${timingLabel[s.timing] || s.timing}</span>
+          </div>
+          ${s.brand ? `<div class="supp-brand">${s.brand}</div>` : ''}
+          <div class="supp-dose">${s.dose}</div>
+          <div class="supp-note">${s.note}</div>
+        </div>`).join('');
+    }
+
+    function handlePhoto(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        const src = ev.target.result;
+        localStorage.setItem('health-supp-photo', src);
+        showPhoto(src);
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function showPhoto(src) {
+      document.getElementById('photo-img').src = src;
+      document.getElementById('photo-display').style.display = 'block';
+      document.getElementById('photo-drop').style.display = 'none';
+    }
+
+    function clearPhoto() {
+      localStorage.removeItem('health-supp-photo');
+      document.getElementById('photo-display').style.display = 'none';
+      document.getElementById('photo-drop').style.display = 'block';
+    }
+
+    // Photo drag-drop support
+    const dropEl = document.getElementById('photo-drop');
+    dropEl.addEventListener('dragover', e => { e.preventDefault(); dropEl.style.borderColor = 'var(--gold)'; });
+    dropEl.addEventListener('dragleave', () => { dropEl.style.borderColor = ''; });
+    dropEl.addEventListener('drop', e => {
+      e.preventDefault();
+      dropEl.style.borderColor = '';
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = ev => { localStorage.setItem('health-supp-photo', ev.target.result); showPhoto(ev.target.result); };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      Brain.renderNav('health');
+      renderSupplements();
+      const saved = localStorage.getItem('health-supp-photo');
+      if (saved) showPhoto(saved);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spotify — James</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../_shared/style.css">
+  <style>
+    .now-playing {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 18px 22px;
+      margin-bottom: 20px;
+    }
+    .now-art {
+      width: 56px; height: 56px; border-radius: 8px; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--gold), var(--blue));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+    }
+    .now-track { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+    .now-artist { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+    .now-meta { font-size: 11px; color: var(--text-muted); margin-top: 4px; font-family: var(--font-mono); }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
+
+    .artist-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .artist-row:last-child { border-bottom: none; }
+    .artist-rank { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); width: 18px; }
+    .artist-name { font-size: 13px; color: var(--text-primary); flex: 1; }
+    .artist-plays { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); }
+
+    .genre-bar-row { margin-bottom: 12px; }
+    .genre-bar-row:last-child { margin-bottom: 0; }
+    .genre-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-secondary); margin-bottom: 5px; }
+    .genre-track { height: 6px; background: var(--bg-elevated); border-radius: 99px; overflow: hidden; }
+    .genre-fill { height: 100%; border-radius: 99px; }
+
+    .track-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+    .track-row:last-child { border-bottom: none; }
+    .track-title { color: var(--text-primary); flex: 1; }
+    .track-artist { color: var(--text-muted); font-size: 11px; }
+
+    .mock-banner {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--orange);
+      border-radius: var(--radius-md);
+      padding: 12px 18px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+    }
+    .mock-banner strong { color: var(--orange); }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-muted);
+      text-decoration: none;
+      margin-bottom: 20px;
+    }
+    .back-link:hover { color: var(--gold); }
+  </style>
+</head>
+<body>
+  <div class="app">
+
+    <header class="app-header">
+      <div>
+        <div class="app-title">🎧 Spotify</div>
+        <div class="app-date">Listening snapshot</div>
+      </div>
+    </header>
+
+    <div class="app-body">
+
+      <a class="back-link" href="../index.html">← Home</a>
+
+      <div class="mock-banner">
+        <strong>⚠ Placeholder data.</strong> The Spotify MCP connector's token expired — reconnect it in claude.ai
+        connector settings to pull live currently-playing, top artists, and recent tracks. Everything below is
+        realistic mock data standing in until that live pull lands.
+      </div>
+
+      <!-- Now / last played -->
+      <div class="now-playing">
+        <div class="now-art">🎵</div>
+        <div>
+          <div class="now-track">Blackwater Park</div>
+          <div class="now-artist">Opeth</div>
+          <div class="now-meta">Last played · mock data</div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <!-- Top artists -->
+        <div class="card">
+          <div class="card-title" style="margin-bottom:14px;">Top Artists — This Month</div>
+          <div id="artistRows"></div>
+        </div>
+
+        <!-- Top genres -->
+        <div class="card">
+          <div class="card-title" style="margin-bottom:14px;">Top Genres</div>
+          <div id="genreRows"></div>
+        </div>
+      </div>
+
+      <!-- Recently played -->
+      <div class="card">
+        <div class="card-title" style="margin-bottom:14px;">Recently Played</div>
+        <div id="trackRows"></div>
+      </div>
+
+      <!-- Footer -->
+      <div style="text-align:center;padding:20px 0;font-size:11px;color:var(--text-muted);">
+        Source: Spotify MCP (pending re-authorization) ·
+        <code style="color:var(--gold);">reference_mcp_connectors</code> memory
+      </div>
+
+    </div>
+  </div>
+
+  <script src="../_shared/utils.js"></script>
+  <script>
+    const artists = [
+      { name: "Opeth", plays: 42 },
+      { name: "Gojira", plays: 37 },
+      { name: "Tool", plays: 31 },
+      { name: "Mastodon", plays: 24 },
+      { name: "Bloodbath", plays: 19 },
+    ];
+
+    const genres = [
+      { name: "Progressive Metal", pct: 34, color: "var(--gold)" },
+      { name: "Death Metal", pct: 26, color: "var(--red)" },
+      { name: "Djent", pct: 18, color: "var(--blue)" },
+      { name: "Alternative Metal", pct: 14, color: "var(--purple)" },
+      { name: "Doom Metal", pct: 8, color: "var(--orange)" },
+    ];
+
+    const tracks = [
+      { title: "Sorceress", artist: "Opeth" },
+      { title: "Silvera", artist: "Gojira" },
+      { title: "Fear Inoculum", artist: "Tool" },
+      { title: "Blood and Thunder", artist: "Mastodon" },
+      { title: "Eaten", artist: "Bloodbath" },
+      { title: "The Grand Conjuration", artist: "Opeth" },
+    ];
+
+    function renderArtists() {
+      const el = document.getElementById('artistRows');
+      artists.forEach((a, i) => {
+        const div = document.createElement('div');
+        div.className = 'artist-row';
+        div.innerHTML = `
+          <span class="artist-rank">${i + 1}</span>
+          <span class="artist-name">${a.name}</span>
+          <span class="artist-plays">${a.plays} plays</span>
+        `;
+        el.appendChild(div);
+      });
+    }
+
+    function renderGenres() {
+      const el = document.getElementById('genreRows');
+      genres.forEach(g => {
+        const div = document.createElement('div');
+        div.className = 'genre-bar-row';
+        div.innerHTML = `
+          <div class="genre-label"><span>${g.name}</span><span>${g.pct}%</span></div>
+          <div class="genre-track"><div class="genre-fill" style="width:${g.pct}%;background:${g.color};"></div></div>
+        `;
+        el.appendChild(div);
+      });
+    }
+
+    function renderTracks() {
+      const el = document.getElementById('trackRows');
+      tracks.forEach(t => {
+        const div = document.createElement('div');
+        div.className = 'track-row';
+        div.innerHTML = `<span class="track-title">${t.title}</span><span class="track-artist">${t.artist}</span>`;
+        el.appendChild(div);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      Brain.renderNav('spotify');
+      renderArtists();
+      renderGenres();
+      renderTracks();
+    });
+  </script>
+</body>
+</html>

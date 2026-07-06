@@ -1,0 +1,1579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home — James</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="_shared/style.css">
+  <style>
+    html { scroll-behavior: smooth; }
+    .hidden { display: none !important; }
+
+    /* ── Header ──────────────────────────────────────────────── */
+    .app-greeting {
+      font-size: 12px;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+      margin-bottom: 2px;
+    }
+    .app-header-right { text-align: right; }
+    .app-time {
+      font-family: var(--font-mono);
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+      line-height: 1;
+    }
+    .app-date {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      margin-top: 3px;
+    }
+
+    /* ── Live Connections Bar ────────────────────────────────── */
+    .live-bar {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .live-conn {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: border-color 0.15s;
+    }
+    .live-conn:hover { border-color: var(--border-hover); }
+    .live-conn-icon { font-size: 20px; flex-shrink: 0; }
+    .live-conn-info { flex: 1; min-width: 0; }
+    .live-conn-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .live-conn-value {
+      font-size: 13px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .live-conn-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .live-conn-dot.green  { background: var(--green); animation: dotpulse 2.5s ease-in-out infinite; }
+    .live-conn-dot.red    { background: var(--red); }
+    .live-conn-dot.muted  { background: var(--text-muted); }
+    .live-bar-meta {
+      display: flex;
+      justify-content: flex-end;
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      font-family: var(--font-mono);
+      gap: 4px;
+    }
+    @keyframes dotpulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(76,175,80,0.5); }
+      50%       { box-shadow: 0 0 0 4px rgba(76,175,80,0); }
+    }
+
+    /* ── Advocate ────────────────────────────────────────────── */
+    .advocate-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .advocate-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--gold);
+      border-radius: var(--radius-md);
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      transition: background 0.15s;
+    }
+    .advocate-card:hover { background: var(--bg-elevated); }
+    .advocate-icon { font-size: 20px; }
+    .advocate-headline {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1.3;
+    }
+    .advocate-body {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.55;
+      flex: 1;
+    }
+    .advocate-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 6px;
+      padding: 6px 13px;
+      background: rgba(212,175,106,0.1);
+      border: 1px solid rgba(212,175,106,0.28);
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--gold);
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      font-family: var(--font-display);
+      align-self: flex-start;
+      letter-spacing: 0.01em;
+    }
+    .advocate-btn:hover { background: rgba(212,175,106,0.2); }
+    .advocate-btn.copied {
+      color: var(--green);
+      border-color: rgba(76,175,80,0.3);
+      background: rgba(76,175,80,0.1);
+    }
+    .advocate-section-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .advocate-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+      flex: 1;
+    }
+    .advocate-sublabel {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 400;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    /* ── Summary Bar ─────────────────────────────────────────── */
+    .summary-bar {
+      display: flex;
+      align-items: center;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .summary-stat {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      padding: 16px 12px;
+      border-right: 1px solid var(--border);
+      text-decoration: none;
+      color: inherit;
+      transition: background 0.15s;
+    }
+    .summary-stat:last-child { border-right: none; }
+    .summary-stat:hover { background: var(--bg-elevated); }
+    .summary-value {
+      font-family: var(--font-mono);
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--gold);
+      letter-spacing: -0.02em;
+    }
+    .summary-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    /* ── Section Labels ──────────────────────────────────────── */
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .section-label-action {
+      font-size: 10px;
+      color: var(--text-muted);
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      text-transform: none;
+      font-weight: 400;
+      transition: color 0.1s;
+    }
+    .section-label-action:hover { color: var(--gold); }
+
+    /* ── Project Cards ───────────────────────────────────────── */
+    .project-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .project-card:hover { border-color: var(--gold); background: var(--bg-elevated); }
+    .project-header { display: flex; align-items: center; justify-content: space-between; }
+    .project-name { font-size: 14px; font-weight: 600; }
+    .project-next { font-size: 12px; color: var(--text-secondary); line-height: 1.4; }
+    .project-next strong { color: var(--text-primary); }
+
+    /* ── Queue ───────────────────────────────────────────────── */
+    .queue-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 18px 20px;
+    }
+    .queue-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .queue-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .queue-row:first-child { padding-top: 0; }
+    .queue-check {
+      width: 17px;
+      height: 17px;
+      border-radius: 50%;
+      border: 1.5px solid var(--text-muted);
+      background: none;
+      cursor: pointer;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      margin-top: 1px;
+      transition: border-color 0.15s, background 0.15s;
+      font-size: 9px;
+      color: transparent;
+    }
+    .queue-check:hover { border-color: var(--gold); }
+    .queue-check.done { border-color: var(--green); background: var(--green); color: white; }
+    .queue-link {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.4;
+      text-decoration: none;
+      flex: 1;
+      transition: color 0.1s;
+    }
+    .queue-link:hover { color: var(--text-primary); }
+    .queue-link:hover .queue-num { color: var(--gold); }
+    .queue-row.done .queue-link { opacity: 0.38; }
+    .queue-row.done .queue-link .queue-text { text-decoration: line-through; }
+    .queue-num {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      min-width: 18px;
+      padding-top: 1px;
+      transition: color 0.1s;
+    }
+    .queue-text strong { color: var(--text-primary); }
+    .queue-row.done .queue-text strong { color: inherit; }
+
+    /* ── Domain Cards ────────────────────────────────────────── */
+    .domain-row {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 12px;
+    }
+    .domain-tile {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .domain-tile:hover { border-color: var(--gold); background: var(--bg-elevated); }
+    .domain-top { display: flex; align-items: center; justify-content: space-between; }
+    .domain-emoji { font-size: 18px; }
+    .domain-dot { font-size: 10px; }
+    .domain-dot.green  { color: var(--green); }
+    .domain-dot.orange { color: var(--orange); }
+    .domain-dot.red    { color: var(--red); }
+    .domain-tile-name { font-size: 12px; font-weight: 600; color: var(--text-primary); }
+    .domain-focus-item { font-size: 11px; color: var(--text-muted); line-height: 1.4; }
+
+    /* ── Widget Launcher ─────────────────────────────────────── */
+    .widget-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 10px;
+    }
+    .widget-tile {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .widget-tile.live:hover { border-color: var(--gold); background: var(--bg-elevated); }
+    .widget-tile.pending { opacity: 0.4; pointer-events: none; }
+    .widget-tile-top { display: flex; align-items: center; justify-content: space-between; }
+    .widget-icon { font-size: 20px; }
+    .widget-name { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+    .widget-desc { font-size: 11px; color: var(--text-muted); line-height: 1.4; }
+
+    /* ── Side Cards (Wiki / Drive) ───────────────────────────── */
+    .side-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 18px 20px;
+    }
+    .wiki-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color 0.1s;
+    }
+    .wiki-link:last-child { border-bottom: none; padding-bottom: 0; }
+    .wiki-link:first-child { padding-top: 0; }
+    .wiki-link:hover { color: var(--gold); }
+    .wiki-link-name { display: flex; align-items: center; gap: 8px; }
+    .wiki-arrow { font-size: 10px; color: var(--text-muted); }
+    .drive-file {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color 0.1s;
+    }
+    .drive-file:last-child { border-bottom: none; padding-bottom: 0; }
+    .drive-file:first-child { padding-top: 0; }
+    .drive-file:hover { color: var(--gold); }
+    .drive-file-icon { font-size: 14px; flex-shrink: 0; }
+    .drive-file-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
+    .drive-file-date { font-size: 10px; color: var(--text-muted); flex-shrink: 0; font-family: var(--font-mono); }
+
+    /* ── Keyboard Hints ──────────────────────────────────────── */
+    .kb-hints-bar {
+      margin-top: 28px;
+      padding: 10px 0 4px;
+      text-align: center;
+      font-size: 11px;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    }
+    .kb-hints-bar span { display: flex; align-items: center; gap: 4px; }
+    kbd {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      background: var(--bg-elevated);
+      border: 1px solid #2c4a6e;
+      border-radius: 3px;
+      padding: 1px 5px;
+      color: var(--text-secondary);
+    }
+
+    /* ── Responsive ──────────────────────────────────────────── */
+    @media (max-width: 1200px) {
+      .domain-row     { grid-template-columns: repeat(3, 1fr); }
+      .advocate-grid  { grid-template-columns: repeat(3, 1fr); }
+      .live-bar       { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 900px) {
+      .live-bar      { grid-template-columns: 1fr; }
+      .advocate-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 700px) {
+      .domain-row  { grid-template-columns: repeat(2, 1fr); }
+      .summary-bar { flex-wrap: wrap; }
+      .summary-stat { flex: 0 0 33%; border-bottom: 1px solid var(--border); }
+      .kb-hints-bar { flex-wrap: wrap; gap: 10px; }
+    }
+
+    /* ── Financial Section ──────────────────────────────────────── */
+    .fin-nw-strip {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 10px;
+    }
+    .fin-nw-stat {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .fin-nw-val {
+      font-family: var(--font-mono);
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+    }
+    .fin-nw-val.green { color: var(--green); }
+    .fin-nw-val.red   { color: var(--red); }
+    .fin-nw-val.gold  { color: var(--gold); }
+    .fin-nw-val.blue  { color: #5eb3ff; }
+    .fin-nw-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+    }
+    .fin-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 18px 20px;
+    }
+    .fin-section-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .fin-tab-bar { display: flex; gap: 6px; margin-bottom: 14px; }
+    .fin-tab {
+      padding: 5px 14px;
+      font-size: 11px;
+      font-weight: 600;
+      font-family: var(--font-display);
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s;
+      letter-spacing: 0.02em;
+    }
+    .fin-tab:hover { color: var(--text-primary); border-color: var(--border-hover); }
+    .fin-tab.active { background: rgba(212,175,106,0.12); border-color: rgba(212,175,106,0.35); color: var(--gold); }
+    .fin-budget-income {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0 0 10px; margin-bottom: 4px;
+      border-bottom: 1px solid #2c4a6e;
+      font-size: 12px; font-weight: 600; color: var(--text-muted);
+    }
+    .fin-budget-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 13px;
+    }
+    .fin-budget-row:last-of-type { border-bottom: none; }
+    .fin-budget-cat { color: var(--text-secondary); display: flex; align-items: center; gap: 8px; }
+    .fin-budget-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .fin-budget-amt { font-family: var(--font-mono); font-size: 13px; color: var(--text-primary); }
+    .fin-budget-total {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 0 0; margin-top: 4px;
+      border-top: 1px solid #2c4a6e;
+      font-size: 12px; font-weight: 600;
+    }
+    .spend-row {
+      display: grid;
+      grid-template-columns: 120px 1fr 56px;
+      align-items: center;
+      gap: 10px;
+      padding: 5px 0;
+    }
+    .spend-label { font-size: 11px; color: var(--text-secondary); }
+    .spend-bar-bg { height: 6px; background: #1c3a5c; border-radius: 3px; overflow: hidden; }
+    .spend-bar-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+    .spend-amt { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); text-align: right; }
+    .bill-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 0; border-bottom: 1px solid var(--border);
+    }
+    .bill-item:last-child { border-bottom: none; }
+    .bill-date-badge {
+      min-width: 38px; height: 38px; border-radius: 8px;
+      background: var(--bg-elevated); border: 1px solid var(--border);
+      display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .bill-date-badge.warn   { border-color: rgba(255,152,0,0.5);  background: rgba(255,152,0,0.08); }
+    .bill-date-badge.urgent { border-color: rgba(244,67,54,0.5);  background: rgba(244,67,54,0.08); }
+    .bill-date-badge.credit { border-color: rgba(76,175,80,0.4);  background: rgba(76,175,80,0.08); }
+    .bill-date-badge.credit .bill-date-day { color: var(--green); }
+    .bill-date-day { font-size: 14px; font-weight: 700; font-family: var(--font-mono); color: var(--text-primary); line-height: 1; }
+    .bill-date-badge.warn .bill-date-day   { color: #ff9800; }
+    .bill-date-badge.urgent .bill-date-day { color: var(--red); }
+    .bill-date-mon { font-size: 9px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); }
+    .bill-info { flex: 1; min-width: 0; }
+    .bill-name { font-size: 12px; color: var(--text-primary); }
+    .bill-days { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+    .bill-days.warn   { color: #ff9800; }
+    .bill-days.urgent { color: var(--red); }
+    .bill-amt { font-family: var(--font-mono); font-size: 12px; color: var(--text-secondary); flex-shrink: 0; }
+    .payday-badge {
+      display: inline-block;
+      background: rgba(212,175,106,0.12);
+      border: 1px solid rgba(212,175,106,0.3);
+      border-radius: 6px;
+      padding: 2px 8px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--gold);
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <div>
+        <div class="app-greeting" id="app-greeting"></div>
+        <div class="app-title">Home</div>
+      </div>
+      <div class="app-header-right">
+        <div class="app-time" id="app-time"></div>
+        <div class="app-date"  id="app-date"></div>
+      </div>
+    </header>
+
+    <main class="app-body">
+
+      <!-- ═══════════════════════════════════════════════════════════════
+           🆕 LATEST ADDITIONS — STANDING RULE (added 2026-07-05)
+           Whenever ANY new widget, guide/reference page, connector, or
+           notable link is added anywhere in the brain, add a tile for it
+           HERE FIRST — at the very top of <main>, before every existing
+           tile in this block (newest tile on the left). Then also wire it
+           into its normal permanent home (widget grid / Live Connections
+           bar / wiki list) as usual. Do not skip this step and only add
+           it lower on the page.
+           Full rule: Widgets/CLAUDE.md "Newest-First Rule" ·
+           03 Projects/MainBrain/05 Skills/(C) widget-server-upkeep.md
+           id="guides" kept for the `g` keyboard shortcut — do not rename.
+           ═══════════════════════════════════════════════════════════════ -->
+      <div class="section-label" id="guides">🆕 Latest Additions</div>
+      <div class="widget-grid" style="margin-bottom: 20px;">
+
+        <a class="widget-tile live" href="../../MainBrain/03%20Work%20Product/(C)%20Termius%20SSH%20Setup%20Handoff.md">
+          <div class="widget-tile-top"><span class="widget-icon">📱</span><span class="badge gold" style="font-size:10px;padding:2px 7px;">Handoff</span></div>
+          <div class="widget-name">Termius SSH Setup</div>
+          <div class="widget-desc">iPhone to PC remote shell setup</div>
+        </a>
+
+        <a class="widget-tile live" href="guides/(C)%20model-selection.html">
+          <div class="widget-tile-top"><span class="widget-icon">🧭</span><span class="badge gold" style="font-size:10px;padding:2px 7px;">Guide</span></div>
+          <div class="widget-name">Model Selection Guide</div>
+          <div class="widget-desc">Which Claude model for which task</div>
+        </a>
+
+        <a class="widget-tile live" href="guides/(C)%20brain-engine-guide.html">
+          <div class="widget-tile-top"><span class="widget-icon">⚙️</span><span class="badge green" style="font-size:10px;padding:2px 7px;">Live</span></div>
+          <div class="widget-name">Brain Engine Guide</div>
+          <div class="widget-desc">Skills · Agents · Crons · Setup</div>
+        </a>
+
+      </div>
+
+      <!-- Live Connections -->
+      <div class="live-bar">
+        <div class="live-conn">
+          <span class="live-conn-icon">📅</span>
+          <div class="live-conn-info">
+            <div class="live-conn-label">Google Calendar</div>
+            <div class="live-conn-value" id="conn-calendar-val">Loading…</div>
+          </div>
+          <span class="live-conn-dot" id="conn-calendar-dot"></span>
+        </div>
+        <div class="live-conn">
+          <span class="live-conn-icon">🎵</span>
+          <div class="live-conn-info">
+            <div class="live-conn-label">Spotify</div>
+            <div class="live-conn-value" id="conn-spotify-val">Loading…</div>
+          </div>
+          <span class="live-conn-dot" id="conn-spotify-dot"></span>
+        </div>
+        <div class="live-conn">
+          <span class="live-conn-icon">📁</span>
+          <div class="live-conn-info">
+            <div class="live-conn-label">Google Drive</div>
+            <div class="live-conn-value" id="conn-drive-val">Loading…</div>
+          </div>
+          <span class="live-conn-dot" id="conn-drive-dot"></span>
+        </div>
+      </div>
+      <div class="live-bar-meta">
+        <span id="live-refreshed">—</span><span>· Ask Claude to refresh</span>
+      </div>
+
+      <!-- Advocate -->
+      <div style="margin-bottom: 8px;" class="advocate-section-header">
+        <div class="advocate-label">
+          🤝 Advocate &nbsp;<span class="advocate-sublabel">— Claude sees this across your brain</span>
+        </div>
+      </div>
+      <div class="advocate-grid" id="advocate-grid">
+        <!-- Rendered from window.LIVE.advocate -->
+      </div>
+
+      <!-- Summary Bar -->
+      <div class="summary-bar">
+        <a class="summary-stat" href="#projects">
+          <div class="summary-value">4</div>
+          <div class="summary-label">Active Projects</div>
+        </a>
+        <a class="summary-stat" href="#wiki">
+          <div class="summary-value">16</div>
+          <div class="summary-label">Wiki Pages</div>
+        </a>
+        <a class="summary-stat" href="#widgets">
+          <div class="summary-value">9</div>
+          <div class="summary-label">In Suite</div>
+        </a>
+        <a class="summary-stat" href="social/index.html">
+          <div class="summary-value">5,605</div>
+          <div class="summary-label">Social Followers</div>
+        </a>
+        <a class="summary-stat" href="#queue">
+          <div class="summary-value" id="queue-count">6</div>
+          <div class="summary-label">Queue Items</div>
+        </a>
+        <a class="summary-stat" href="obsidian://open?vault=MainBrain&file=GOALS">
+          <div class="summary-value">6</div>
+          <div class="summary-label">Goals Domains</div>
+        </a>
+      </div>
+
+      <!-- Projects + Queue -->
+      <div class="grid" style="margin-bottom: 20px;">
+
+        <div class="col-8">
+          <div class="section-label" id="projects"><span>🗂 Active Projects</span></div>
+          <div class="grid" style="margin-bottom: 0;">
+
+            <a class="project-card col-4" href="obsidian://open?vault=MainBrain&file=02%20Active%20Tasks%2F(C)%20QUEUE">
+              <div class="project-header">
+                <div class="project-name">📚 MainBrain</div>
+                <span class="badge green">Operational</span>
+              </div>
+              <div class="project-next"><strong>Next:</strong> Pull Robinhood data → <code style="font-size:11px;color:var(--text-muted);">00 Raw Inputs/</code></div>
+            </a>
+
+            <a class="project-card col-4" href="#widgets">
+              <div class="project-header">
+                <div class="project-name">🖥️ Widgets</div>
+                <span class="badge gold">Building</span>
+              </div>
+              <div class="project-next"><strong>Next:</strong> Life Dashboard widget (6-domain overview)</div>
+            </a>
+
+            <a class="project-card col-4" href="obsidian://open?vault=MainBrain&file=02%20Active%20Tasks%2F(C)%20QUEUE">
+              <div class="project-header">
+                <div class="project-name">🧠 Metacognition</div>
+                <span class="badge gold">Active</span>
+              </div>
+              <div class="project-next"><strong>Next:</strong> Brain dump session — open threads to Claude</div>
+            </a>
+
+            <a class="project-card col-4" href="ironframe/index.html">
+              <div class="project-header">
+                <div class="project-name">🏗️ Ironframe</div>
+                <span class="badge gold">Site built</span>
+              </div>
+              <div class="project-next"><strong>Next:</strong> Buy ironframe.ai → wire Calendly/Formspree → deploy</div>
+            </a>
+
+          </div>
+        </div>
+
+        <div class="col-4">
+          <div class="section-label" id="queue">
+            <span>🔴 Top Queue</span>
+            <span class="section-label-action" onclick="resetQueue()">reset ↺</span>
+          </div>
+          <div class="queue-card">
+
+            <div class="queue-row" id="qi-0">
+              <button class="queue-check" onclick="toggleQueue('qi-0',event)" type="button">✓</button>
+              <a class="queue-link" href="obsidian://open?vault=MainBrain&file=02%20Active%20Tasks%2F(C)%20QUEUE">
+                <span class="queue-num" style="color:var(--red);">01</span>
+                <span class="queue-text"><strong>Reconnect Spotify</strong> — token expired, blocks widget</span>
+              </a>
+            </div>
+
+            <div class="queue-row" id="qi-1">
+              <button class="queue-check" onclick="toggleQueue('qi-1',event)" type="button">✓</button>
+              <a class="queue-link" href="obsidian://open?vault=MainBrain&file=02%20Active%20Tasks%2F(C)%20QUEUE">
+                <span class="queue-num">02</span>
+                <span class="queue-text"><strong>Pull Robinhood data</strong> — portfolio, P&L, deposit history</span>
+              </a>
+            </div>
+
+            <div class="queue-row" id="qi-2">
+              <button class="queue-check" onclick="toggleQueue('qi-2',event)" type="button">✓</button>
+              <a class="queue-link" href="obsidian://open?vault=MainBrain&file=02%20Active%20Tasks%2F(C)%20QUEUE">
+                <span class="queue-num">03</span>
+                <span class="queue-text"><strong>Populate GOALS.md</strong> — currently empty</span>
+              </a>
+            </div>
+
+            <div class="queue-row" id="qi-3">
+              <button class="queue-check" onclick="toggleQueue('qi-3',event)" type="button">✓</button>
+              <a class="queue-link" href="obsidian://open?vault=MainBrain&file=02%20Active%20Tasks%2F(C)%20QUEUE">
+                <span class="queue-num">04</span>
+                <span class="queue-text"><strong>Export ChatGPT history</strong> → process into SOUL.md</span>
+              </a>
+            </div>
+
+            <div class="queue-row" id="qi-4">
+              <button class="queue-check" onclick="toggleQueue('qi-4',event)" type="button">✓</button>
+              <a class="queue-link" href="obsidian://open?vault=MainBrain&file=02%20Active%20Tasks%2F(C)%20QUEUE">
+                <span class="queue-num">05</span>
+                <span class="queue-text"><strong>Apple Health export</strong> — steps, sleep, HRV, workouts</span>
+              </a>
+            </div>
+
+            <div class="queue-row" id="qi-5">
+              <button class="queue-check" onclick="toggleQueue('qi-5',event)" type="button">✓</button>
+              <a class="queue-link" href="obsidian://open?vault=MainBrain&file=02%20Active%20Tasks%2F(C)%20QUEUE">
+                <span class="queue-num">06</span>
+                <span class="queue-text"><strong>Google Drive scan</strong> — seed existing docs into wiki</span>
+              </a>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 6 Domains -->
+      <div class="section-label" id="domains">🧬 Life Domains</div>
+      <div class="domain-row" style="margin-bottom: 20px;">
+
+        <a class="domain-tile" href="spiritual/index.html">
+          <div class="domain-top"><span class="domain-emoji">✝️</span><span class="domain-dot green">●</span></div>
+          <div class="domain-tile-name">Spiritual</div>
+          <div class="domain-focus-item">Prayer rule · Jesus Prayer</div>
+          <div class="domain-focus-item">Fasting · Patristic study</div>
+          <div class="domain-goal-bar"><div class="domain-goal-fill" style="width:72%;background:var(--purple)"></div></div>
+          <div class="domain-goal-label">72% — Consistency goal</div>
+        </a>
+
+        <a class="domain-tile" href="health/index.html">
+          <div class="domain-top"><span class="domain-emoji">💪</span><span class="domain-dot orange">●</span></div>
+          <div class="domain-tile-name">Physical</div>
+          <div class="domain-focus-item">Visible abs · Enzyme protocol</div>
+          <div class="domain-focus-item">ADHD, BP, sleep management</div>
+          <div class="domain-goal-bar"><div class="domain-goal-fill" style="width:45%;background:var(--green)"></div></div>
+          <div class="domain-goal-label">45% — Body composition</div>
+        </a>
+
+        <a class="domain-tile" href="obsidian://open?vault=MainBrain&file=01%20Wiki%2F(C)%20Mental%20Models">
+          <div class="domain-top"><span class="domain-emoji">🧠</span><span class="domain-dot orange">●</span></div>
+          <div class="domain-tile-name">Mental</div>
+          <div class="domain-focus-item">Focus Reset · Anti-Patterns</div>
+          <div class="domain-focus-item">20+ mental models active</div>
+          <div class="domain-goal-bar"><div class="domain-goal-fill" style="width:60%;background:var(--blue)"></div></div>
+          <div class="domain-goal-label">60% — ADHD system build</div>
+        </a>
+
+        <a class="domain-tile" href="obsidian://open?vault=MainBrain&file=01%20Wiki%2F(C)%20Trading%20%26%20Finance">
+          <div class="domain-top"><span class="domain-emoji">📈</span><span class="domain-dot orange">●</span></div>
+          <div class="domain-tile-name">Financial</div>
+          <div class="domain-focus-item">Net worth $12,932 → $100K by 2027</div>
+          <div class="domain-focus-item">Debt payoff Q3 · RH data needed</div>
+          <div class="domain-goal-bar"><div class="domain-goal-fill" style="width:13%;background:var(--gold)"></div></div>
+          <div class="domain-goal-label">13% — Net worth to $100K</div>
+        </a>
+
+        <a class="domain-tile" href="obsidian://open?vault=MainBrain&file=01%20Wiki%2F(C)%20Relationships">
+          <div class="domain-top"><span class="domain-emoji">🤝</span><span class="domain-dot orange">●</span></div>
+          <div class="domain-tile-name">Relationships</div>
+          <div class="domain-focus-item">Secure attachment work</div>
+          <div class="domain-focus-item">Healing from betrayal</div>
+          <div class="domain-goal-bar"><div class="domain-goal-fill" style="width:30%;background:var(--orange)"></div></div>
+          <div class="domain-goal-label">30% — Attachment security</div>
+        </a>
+
+        <a class="domain-tile" href="obsidian://open?vault=MainBrain&file=01%20Wiki%2F(C)%20Sales%20%26%20Career">
+          <div class="domain-top"><span class="domain-emoji">💼</span><span class="domain-dot green">●</span></div>
+          <div class="domain-tile-name">Professional</div>
+          <div class="domain-focus-item">Filevine Govt AE — top performer</div>
+          <div class="domain-focus-item">LOIS, DA + GC territory</div>
+          <div class="domain-goal-bar"><div class="domain-goal-fill" style="width:65%;background:var(--green)"></div></div>
+          <div class="domain-goal-label">65% — $150K OTE path</div>
+        </a>
+
+      </div>
+
+      <!-- Health & Supplements -->
+      <div class="section-label" id="health-section">💪 Health &amp; Supplements
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="section-label-action" onclick="document.getElementById('supp-photo-wrap').classList.toggle('hidden')">📷 photo</span>
+          <a class="section-label-action" href="obsidian://open?vault=MainBrain&file=01%20Wiki%2F(C)%20Health%20%26%20Physical">Health Wiki ↗</a>
+          <a class="section-label-action" href="health/index.html">Full Widget ↗</a>
+        </div>
+      </div>
+
+      <div id="supp-photo-wrap" class="hidden" style="margin-bottom:12px;">
+        <div class="supp-photo-placeholder" onclick="document.getElementById('supp-photo-input').click()">
+          <div class="supp-photo-icon">📸</div>
+          <div style="font-weight:600;margin-bottom:4px;">Add supplement photo</div>
+          <div>Drop or click to upload a photo of your supplement stack</div>
+          <input type="file" id="supp-photo-input" accept="image/*" style="display:none" onchange="handleSuppPhoto(event)">
+        </div>
+        <div id="supp-photo-display" style="display:none;position:relative;">
+          <img id="supp-photo-img" style="width:100%;border-radius:var(--radius-md);border:1px solid var(--border);max-height:300px;object-fit:cover;" alt="Supplement stack">
+          <button onclick="clearSuppPhoto()" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.6);border:none;color:white;border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer;">✕ Remove</button>
+        </div>
+      </div>
+
+      <div class="supp-grid" style="margin-bottom:20px;" id="supp-grid">
+        <!-- Rendered from LIVE.supplements -->
+      </div>
+
+      <!-- Financial -->
+      <div class="section-label" id="financial">📈 Financial
+        <a class="section-label-action" href="obsidian://open?vault=MainBrain&file=01%20Wiki%2F(C)%20Finance">Finance Wiki ↗</a>
+      </div>
+
+      <!-- Net Worth Strip -->
+      <div class="fin-nw-strip" style="margin-bottom:12px;">
+        <div class="fin-nw-stat">
+          <div class="fin-nw-val green">$17,045</div>
+          <div class="fin-nw-label">Total Assets</div>
+        </div>
+        <div class="fin-nw-stat">
+          <div class="fin-nw-val red">$4,113</div>
+          <div class="fin-nw-label">Total Debt</div>
+        </div>
+        <div class="fin-nw-stat">
+          <div class="fin-nw-val gold">$12,932</div>
+          <div class="fin-nw-label">Net Worth</div>
+        </div>
+        <div class="fin-nw-stat">
+          <div class="fin-nw-val" id="fin-days-pay">—</div>
+          <div class="fin-nw-label">Days to Payday</div>
+        </div>
+        <div class="fin-nw-stat">
+          <div class="fin-nw-val blue" id="fin-next-pay-date">—</div>
+          <div class="fin-nw-label">Next Payday</div>
+        </div>
+        <div class="fin-nw-stat">
+          <div class="fin-nw-val">$3,048</div>
+          <div class="fin-nw-label">Paycheck (Gross)</div>
+        </div>
+      </div>
+
+      <div class="grid" style="margin-bottom:24px;">
+
+        <!-- Budget + Spend Analysis -->
+        <div class="col-8">
+          <div class="fin-card" style="margin-bottom:12px;">
+            <div class="fin-tab-bar">
+              <button class="fin-tab active" data-tab="monthly"   onclick="switchFinTab('monthly')">Monthly</button>
+              <button class="fin-tab"        data-tab="paycheck"  onclick="switchFinTab('paycheck')">Per Paycheck</button>
+            </div>
+            <div class="fin-budget-pane" id="fin-budget-monthly"></div>
+            <div class="fin-budget-pane" id="fin-budget-paycheck" style="display:none;"></div>
+          </div>
+          <div class="fin-card">
+            <div class="fin-section-title">Spend Analysis <span style="font-size:10px;color:var(--text-muted);font-weight:400;">avg from SoFi statements</span></div>
+            <div id="fin-spend-bars"></div>
+          </div>
+        </div>
+
+        <!-- Upcoming Bills -->
+        <div class="col-4">
+          <div class="fin-card">
+            <div class="fin-section-title">📅 Upcoming Bills</div>
+            <div id="fin-payday-note" style="margin-bottom:10px;"></div>
+            <div id="fin-bill-list"></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Markets -->
+      <div class="section-label" id="markets">📊 Markets
+        <a class="section-label-action" href="https://www.tradingview.com/chart/" target="_blank">TradingView ↗</a>
+      </div>
+      <div id="markets-strip" style="display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:20px;"></div>
+
+      <!-- Widgets + Wiki + Drive -->
+      <div class="grid">
+
+        <div class="col-6">
+          <div class="section-label" id="widgets">🖥️ Widgets</div>
+          <div class="widget-grid">
+
+            <a class="widget-tile live" href="ironframe/index.html">
+              <div class="widget-tile-top"><span class="widget-icon">🏗️</span><span class="badge gold" style="font-size:10px;padding:2px 7px;">Launch</span></div>
+              <div class="widget-name">Ironframe Tracker</div>
+              <div class="widget-desc">Site preview · stubs · go-live checklist</div>
+            </a>
+
+            <a class="widget-tile live" href="social/index.html">
+              <div class="widget-tile-top"><span class="widget-icon">📱</span><span class="badge green" style="font-size:10px;padding:2px 7px;">Live</span></div>
+              <div class="widget-name">Social Stats</div>
+              <div class="widget-desc">IG · X · LinkedIn metrics</div>
+            </a>
+
+            <a class="widget-tile live" href="graph/index.html">
+              <div class="widget-tile-top"><span class="widget-icon">🕸️</span><span class="badge green" style="font-size:10px;padding:2px 7px;">Live</span></div>
+              <div class="widget-name">Brain Graph</div>
+              <div class="widget-desc">Obsidian-style vault map</div>
+            </a>
+
+            <a class="widget-tile" href="trading/index.html">
+              <div class="widget-tile-top"><span class="widget-icon">📈</span><span class="badge green" style="font-size:10px;padding:2px 7px;">Live</span></div>
+              <div class="widget-name">Trading</div>
+              <div class="widget-desc">Win rate, P&L, equity curve</div>
+            </a>
+
+            <a class="widget-tile" href="life-dashboard/index.html">
+              <div class="widget-tile-top"><span class="widget-icon">🧬</span><span class="badge green" style="font-size:10px;padding:2px 7px;">Live</span></div>
+              <div class="widget-name">Life Dashboard</div>
+              <div class="widget-desc">6 domain status cards</div>
+            </a>
+
+            <a class="widget-tile" href="daily-briefing/index.html">
+              <div class="widget-tile-top"><span class="widget-icon">🌅</span><span class="badge green" style="font-size:10px;padding:2px 7px;">Live</span></div>
+              <div class="widget-name">Daily Briefing</div>
+              <div class="widget-desc">Priorities, signals, feast day</div>
+            </a>
+
+            <a class="widget-tile live" href="health/index.html">
+              <div class="widget-tile-top"><span class="widget-icon">💪</span><span class="badge green" style="font-size:10px;padding:2px 7px;">Live</span></div>
+              <div class="widget-name">Health</div>
+              <div class="widget-desc">Supplements · protocol · goals</div>
+            </a>
+
+            <a class="widget-tile live" href="spiritual/index.html">
+              <div class="widget-tile-top"><span class="widget-icon">✝️</span><span class="badge green" style="font-size:10px;padding:2px 7px;">Live</span></div>
+              <div class="widget-name">Spiritual</div>
+              <div class="widget-desc">Prayer · fasting · feasts</div>
+            </a>
+
+            <div class="widget-tile pending">
+              <div class="widget-tile-top"><span class="widget-icon">🎵</span><span class="badge red" style="font-size:10px;padding:2px 7px;">Re-auth</span></div>
+              <div class="widget-name">Spotify</div>
+              <div class="widget-desc">Now playing, top artists</div>
+            </div>
+
+            <div class="widget-tile pending">
+              <div class="widget-tile-top"><span class="widget-icon">💰</span><span class="badge muted" style="font-size:10px;padding:2px 7px;">Data needed</span></div>
+              <div class="widget-name">Robinhood</div>
+              <div class="widget-desc">Portfolio, holdings, P&L</div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="col-3">
+          <div class="section-label" id="wiki">📖 Wiki <span style="font-size:10px;font-weight:400;color:var(--text-muted);letter-spacing:0;">16 pages</span></div>
+          <div class="side-card">
+            <a class="wiki-link" href="obsidian://open?vault=MainBrain&file=01%20Wiki%2F(C)%20Health%20%26%20Physical"><div class="wiki-link-name"><span>💪</span> Health & Physical</div><span class="wiki-arrow">↗</span></a>
+            <a class="wiki-link" href="obsidian://open?vault=MainBrain&file=01%20Wiki%2F(C)%20Sales%20%26%20Career"><div class="wiki-link-name"><span>💼</span> Sales & Career</div><span class="wiki-arrow">↗</span></a>
+            <a class="wiki-link" href="obsidian://open?vault=MainBrain&file=01%20Wiki%2F(C)%20Mental%20Models"><div class="wiki-link-name"><span>🧠</span> Mental Models</div><span class="wiki-arrow">↗</span></a>
+            <a class="wiki-link" href="obsidian://open?vault=MainBrain&file=01%20Wiki%2F(C)%20Relationships"><div class="wiki-link-name"><span>🤝</span> Relationships</div><span class="wiki-arrow">↗</span></a>
+            <a class="wiki-link" href="obsidian://open?vault=MainBrain&file=01%20Wiki%2F(C)%20Finance"><div class="wiki-link-name"><span>💰</span> Finance</div><span class="wiki-arrow">↗</span></a>
+            <a class="wiki-link" href="obsidian://open?vault=MainBrain&file=01%20Wiki%2F(C)%20Trading%20%26%20Finance"><div class="wiki-link-name"><span>📈</span> Trading & Finance</div><span class="wiki-arrow">↗</span></a>
+            <a class="wiki-link" href="obsidian://open?vault=MainBrain&file=01%20Wiki%2F(C)%20Faith%20%26%20Theology"><div class="wiki-link-name"><span>✝️</span> Faith & Theology</div><span class="wiki-arrow">↗</span></a>
+            <a class="wiki-link" href="obsidian://open?vault=MainBrain&file=01%20Wiki%2F(C)%20AI%20%26%20Automation"><div class="wiki-link-name"><span>🤖</span> AI & Automation</div><span class="wiki-arrow">↗</span></a>
+            <a class="wiki-link" href="obsidian://open?vault=MainBrain&file=01%20Wiki%2F(C)%20Music%20%E2%80%94%20Metal%20%26%20Drums"><div class="wiki-link-name"><span>🎸</span> Music — Metal & Drums</div><span class="wiki-arrow">↗</span></a>
+            <a class="wiki-link" href="obsidian://open?vault=MainBrain&file=01%20Wiki%2F(C)%20Gaming"><div class="wiki-link-name"><span>🎮</span> Gaming</div><span class="wiki-arrow">↗</span></a>
+            <a class="wiki-link" href="obsidian://open?vault=MainBrain&file=01%20Wiki%2F(C)%20Snowboarding%20%26%20Hobbies"><div class="wiki-link-name"><span>🏂</span> Snowboarding & Hobbies</div><span class="wiki-arrow">↗</span></a>
+            <a class="wiki-link" href="obsidian://open?vault=MainBrain&file=01%20Wiki%2F(C)%20Comedy%20%26%20Entertainment"><div class="wiki-link-name"><span>😂</span> Comedy & Entertainment</div><span class="wiki-arrow">↗</span></a>
+            <a class="wiki-link" href="obsidian://open?vault=MainBrain&file=01%20Wiki%2F(C)%20Alternative%20History%20%26%20Mysteries"><div class="wiki-link-name"><span>🗺️</span> Alt History & Mysteries</div><span class="wiki-arrow">↗</span></a>
+            <a class="wiki-link" href="obsidian://open?vault=MainBrain&file=01%20Wiki%2F(C)%20Politics%20%26%20Commentary"><div class="wiki-link-name"><span>🏛️</span> Politics & Commentary</div><span class="wiki-arrow">↗</span></a>
+            <a class="wiki-link" href="obsidian://open?vault=MainBrain&file=01%20Wiki%2F(C)%20Military%20%26%20War%20History"><div class="wiki-link-name"><span>⚔️</span> Military & War History</div><span class="wiki-arrow">↗</span></a>
+            <a class="wiki-link" href="obsidian://open?vault=MainBrain&file=01%20Wiki%2F(C)%20Sports%20%26%20MMA"><div class="wiki-link-name"><span>🥊</span> Sports & MMA</div><span class="wiki-arrow">↗</span></a>
+          </div>
+        </div>
+
+        <div class="col-3">
+          <div class="section-label" id="drive">📁 Drive — Recent</div>
+          <div class="side-card">
+            <div id="drive-files-list"><div style="font-size:12px;color:var(--text-muted);padding:8px 0;">Loading…</div></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Keyboard Hints -->
+      <div class="kb-hints-bar">
+        <span><kbd>⌘K</kbd> search</span>
+        <span><kbd>a</kbd> advocate</span>
+        <span><kbd>p</kbd> projects</span>
+        <span><kbd>q</kbd> queue</span>
+        <span><kbd>d</kbd> domains</span>
+        <span><kbd>h</kbd> health</span>
+        <span><kbd>f</kbd> financial</span>
+        <span><kbd>m</kbd> markets</span>
+        <span><kbd>w</kbd> widgets</span>
+        <span><kbd>k</kbd> wiki</span>
+        <span><kbd>r</kbd> drive</span>
+        <span><kbd>g</kbd> guides</span>
+        <span><a href="guides/(C)%20brain-engine-guide.html" style="color:var(--text-muted);text-decoration:none;display:flex;align-items:center;gap:4px;"><kbd>e</kbd> engine guide</a></span>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ── LIVE DATA — Claude updates this block during ss ──────── -->
+  <script>
+  window.LIVE = {
+    refreshed: "2026-06-30T00:00",
+
+    calendar: {
+      status: "connected",
+      today_count: 0,
+      events: [],
+      next_event: null
+    },
+
+    spotify: {
+      status: "expired",
+      track: null,
+      artist: null
+    },
+
+    drive: {
+      status: "connected",
+      recent: [
+        { title: "Untitled document",           type: "doc",   viewed: "Today",  url: "https://docs.google.com/document/d/1XigtmNoeP4MrOILwb0GhDECR7FJ-mKbJty-_8U6Zfjk/edit" },
+        { title: "Finances",                    type: "sheet", viewed: "Apr 29", url: "https://docs.google.com/spreadsheets/d/1-LxC5zoPTmPQllZpj5HJ8zP2PU4c0AgnnTgOpXvQ6Ew/edit" },
+        { title: "TERMINATE Audio Only.m4a",    type: "audio", viewed: "May 14", url: "https://drive.google.com/file/d/1HSLWsQl268qSEoHk7zGxA_ZFpxxzChRd/view" },
+        { title: "Offer Letter - 24",           type: "doc",   viewed: "Apr 3",  url: "https://docs.google.com/document/d/1yA5RX9pN9LjYjFIIsJ20846TrihzLbE8br_-OFxQZco/edit" },
+        { title: "Gabrielle Davies Resume.pdf", type: "pdf",   viewed: "Mar 25", url: "https://drive.google.com/file/d/1gcCgflGd6g2BjXxgej8z2V_1p__3fK38/view" }
+      ]
+    },
+
+    markets: {
+      asOf: "Jun 30 close",
+      indices: [
+        { symbol: "SPX",  label: "S&P 500",   value: "7,499",    change: "+0.79%", dir: "up"    },
+        { symbol: "NDQ",  label: "NASDAQ",    value: "26,214",   change: "+1.52%", dir: "up"    },
+        { symbol: "VIX",  label: "VIX",       value: "16.45",    change: "-6.80%", dir: "down"  },
+        { symbol: "DXY",  label: "DXY",       value: "101.34",   change: "+0.15%", dir: "up"    },
+        { symbol: "GOLD", label: "Gold",      value: "$3,990",   change: "-1.20%", dir: "down"  },
+        { symbol: "OIL",  label: "WTI Oil",   value: "$69.79",   change: "+0.42%", dir: "up"    }
+      ],
+      watchlist: [
+        { symbol: "AAPL", value: "286.10", change: "+0.82%", dir: "up"   },
+        { symbol: "TSLA", value: "382.50", change: "+0.74%", dir: "up"   },
+        { symbol: "NFLX", value: "76.20",  change: "+3.24%", dir: "up"   }
+      ]
+    },
+
+    supplements: [
+      { name: "Digestive Enzymes",  dose: "1-2 caps",  timing: "meal",  note: "Enzyme Nutrition formula — supports protein/carb/fat breakdown", brand: "Enzyme Nutrition" },
+      { name: "Proteolytic Enzymes",dose: "1 cap",     timing: "am",    note: "Systemic — taken away from food for anti-inflammatory action",   brand: "Enzyme Nutrition" },
+      { name: "Magnesium Glycinate",dose: "400mg",     timing: "pm",    note: "Sleep quality, ADHD focus, muscle recovery"                                                },
+      { name: "Vitamin D3 + K2",    dose: "5,000 IU",  timing: "am",    note: "Immune, mood, bone — K2 routes calcium correctly"                                          },
+      { name: "Omega-3 Fish Oil",   dose: "2g EPA/DHA",timing: "meal",  note: "Inflammation, brain health, cardiovascular"                                                },
+      { name: "Creatine Monohydrate",dose:"5g",        timing: "am",    note: "Strength, cognitive energy, ADHD + training synergy"                                       },
+      { name: "Ashwagandha (KSM-66)",dose:"600mg",     timing: "pm",    note: "Cortisol regulation, stress buffer, testosterone support"                                  },
+      { name: "Zinc + Copper",      dose: "30mg / 2mg",timing: "pm",    note: "Hormone balance, immune, taste/smell — take with copper ratio"                             },
+    ],
+
+    financial: {
+      lastPayday: "2026-06-30",
+      payFrequency: 14,
+      paycheck: 3050,
+      monthlyIncome: 7500,
+
+      budget: [
+        { label: "Housing (Flex split)", amount: 2025, cat: "housing",   color: "#5eb3ff" },
+        { label: "Car (AFCU)",          amount: 1050, cat: "transport", color: "#d4af6a" },
+        { label: "Gas",          amount: 150,  cat: "transport",     color: "#ff9800" },
+        { label: "Groceries",    amount: 200,  cat: "food",          color: "#4caf50" },
+        { label: "Subscriptions",amount: 45,   cat: "entertainment", color: "#9c27b0" },
+        { label: "Utah First FCU",amount: 104,  cat: "debt",          color: "#f44336" },
+        { label: "Personal Care",amount: 80,   cat: "personal",      color: "#00bcd4" },
+        { label: "Investing (RH)",amount: 500, cat: "investing",     color: "#f44336" },
+        { label: "Buffer / Misc",amount: 475,  cat: "misc",          color: "#607d8b" }
+      ],
+
+      bills: [
+        { name: "Rent (vault)",   amount: 1300, day: 28, cat: "housing"       },
+        { name: "Flex Finance",   amount: 725,  day: 28, cat: "housing"       },
+        { name: "Petco",          amount: 35,   day: 10, cat: "pet"           },
+        { name: "Spotify",        amount: 13,   day: 15, cat: "entertainment" },
+        { name: "Robinhood Gold", amount: 5,    day: 15, cat: "investing"     },
+        { name: "Utah First FCU", amount: 104,  day: 28, cat: "debt"          },
+        { name: "Car Payment",    amount: 1050, day: 22, cat: "transport"     },
+        { name: "Prime Video",    amount: 12,   day: 30, cat: "entertainment" },
+        { name: "Tinder",         amount: 19,   day: 9,  cat: "entertainment" },
+        { name: "Social (misc)",  amount: 25,   day: 12, cat: "entertainment" },
+        { name: "💰 Roommate",    amount: 1000, day: 30, cat: "income", credit: true }
+      ],
+
+      spend: [
+        { cat: "Housing",       amount: 2025, color: "#5eb3ff" },
+        { cat: "Transport",     amount: 1200, color: "#d4af6a" },
+        { cat: "Food & Dining", amount: 300,  color: "#4caf50" },
+        { cat: "Investing / RH",amount: 505,  color: "#f44336" },
+        { cat: "Shopping",      amount: 150,  color: "#ff9800" },
+        { cat: "Health & Care", amount: 80,   color: "#00bcd4" },
+        { cat: "Entertainment", amount: 70,   color: "#9c27b0" },
+        { cat: "Other",         amount: 145,  color: "#607d8b" }
+      ]
+    },
+
+    advocate: [
+      {
+        icon: "💰",
+        headline: "Payday Jun 30 — next check Jul 14. Debt payoff window open.",
+        body: "With $2,871 free monthly and the Jul 14 check incoming, routing $500–$700 extra at Utah First FCU this cycle keeps the Q3 payoff target on track. AFCU car loan is the other lever. Want a month-by-month map?",
+        action: "Build payoff plan →",
+        prompt: "Build a debt payoff plan targeting Utah First FCU Q3 2026 close. I have ~$2,871 free monthly after fixed costs. Payday is every 14 days — next Jul 14. Map month-by-month paydown amounts and add it to my Finance wiki with a progress table."
+      },
+      {
+        icon: "📈",
+        headline: "Robinhood data unlocks the Trading widget fully",
+        body: "The Trading widget runs on TradeZella. Adding Robinhood fills in current holdings, equity value, and deposit history. Go to robinhood.com → Account → Statements & History → Export CSV → drop in 00 Raw Inputs/.",
+        action: "Get Robinhood data →",
+        prompt: "Walk me through exporting my Robinhood transaction history CSV step by step. Then tell me what I should expect in the file and how it flows into my Trading widget."
+      },
+      {
+        icon: "💪",
+        headline: "Supplement stack is set — add your photo to Health section",
+        body: "Your Enzyme Nutrition stack is now in the Health section below. Hit the 📷 button to upload a photo of your supplements — it'll pin to the card as a visual reference. Then tell me what else you actually take so I can update the list.",
+        action: "Update my supplement stack →",
+        prompt: "I want to update my supplement stack in the Health section of my hub. Here's what I actually take: [list your supplements]. Please update LIVE.supplements in the home widget with accurate names, doses, timing, and notes."
+      },
+      {
+        icon: "🖥️",
+        headline: "Task: Make the brain remote-enabled — VS Code SSH (Mac) + always-on widget server (Mac/iPhone)",
+        body: "Phase 1 — Tailscale: install on this PC (sign in), then on Mac + iPhone with the same account — creates a private network between all three. Phase 2 — VS Code Remote-SSH (Mac): enable OpenSSH Server on Windows (Settings → Apps → Optional Features → OpenSSH Server → Install, then admin PowerShell: Start-Service sshd + Set-Service sshd Automatic), install the Remote-SSH extension in VS Code on Mac, connect via the Tailscale IP. Phase 3 — persistent brain server (Mac/iPhone widget access, no terminal needed): run setup-auto-start.ps1 as Administrator (or upgrade to PM2 per the Persistent Brain Server idea doc) so brain-server.js survives reboots — widget stack then stays reachable at http://[tailscale-ip]:8080 from any device on the tailnet. All three phases touch system/security settings (services, firewall, network config) — James runs these himself; Claude walks through each command.",
+        action: "Walk me through it →",
+        prompt: "Walk me through making my brain remote-enabled end to end: Tailscale on Windows + Mac + iPhone, VS Code Remote-SSH from Mac into this Windows MainBrain (OpenSSH Server setup), and making brain-server.js persistent (survives reboot) so the widget stack is reachable from Mac and iPhone without a terminal open. Give me exact commands to run myself at each step."
+      },
+      {
+        icon: "🗡️",
+        headline: "Bannerlord debug thread is live — paste mod errors here",
+        body: "AI Influence Mod v5.0.5 is installed on Bannerlord v1.4.6. When a mod breaks — paste the error, crash log, or describe the symptom. Claude will diagnose, log the session to the debug log, and update your Gaming wiki with the fix.",
+        action: "Start debug session →",
+        prompt: "Bannerlord mod debug session. Here's what happened: [describe the error, symptom, or crash — paste log if available]. Game version: 1.4.6. Active mod: AI Influence v5.0.5. Run through the debug protocol and log the session."
+      }
+    ]
+  };
+  </script>
+
+  <script src="_shared/utils.js"></script>
+  <script>
+    /* ── Clock & Greeting ── */
+    function updateClock() {
+      const now = new Date();
+      const h = now.getHours(), m = now.getMinutes().toString().padStart(2,'0'), s = now.getSeconds().toString().padStart(2,'0');
+      const el = document.getElementById('app-time');
+      if (el) el.textContent = `${h}:${m}:${s}`;
+    }
+    function setGreeting() {
+      const h = new Date().getHours();
+      const g = h < 5 ? 'Working late,' : h < 12 ? 'Good morning,' : h < 17 ? 'Good afternoon,' : 'Good evening,';
+      const el = document.getElementById('app-greeting');
+      if (el) el.textContent = `${g} James`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock(); setGreeting();
+
+    /* ── Queue ── */
+    const QUEUE_KEY = 'brain-queue-done';
+    function getDone() { try { return JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]'); } catch { return []; } }
+    function saveDone(arr) { localStorage.setItem(QUEUE_KEY, JSON.stringify(arr)); }
+
+    function toggleQueue(id, e) {
+      e.stopPropagation();
+      const row = document.getElementById(id);
+      const btn = row.querySelector('.queue-check');
+      const done = getDone();
+      const idx = done.indexOf(id);
+      if (idx > -1) { done.splice(idx, 1); row.classList.remove('done'); btn.classList.remove('done'); }
+      else          { done.push(id);        row.classList.add('done');    btn.classList.add('done'); }
+      saveDone(done);
+      updateQueueCount();
+    }
+    function resetQueue() {
+      saveDone([]);
+      document.querySelectorAll('.queue-row').forEach(r => r.classList.remove('done'));
+      document.querySelectorAll('.queue-check').forEach(b => b.classList.remove('done'));
+      updateQueueCount();
+    }
+    function initQueue() {
+      const SEED = 'brain-queue-seed-v1';
+      if (!localStorage.getItem(SEED)) {
+        const done = getDone();
+        if (!done.includes('qi-5')) done.push('qi-5');
+        saveDone(done);
+        localStorage.setItem(SEED, '1');
+      }
+      const done = getDone();
+      done.forEach(id => {
+        const row = document.getElementById(id);
+        if (!row) return;
+        row.classList.add('done');
+        row.querySelector('.queue-check').classList.add('done');
+      });
+      updateQueueCount();
+    }
+    function updateQueueCount() {
+      const total = document.querySelectorAll('.queue-row').length;
+      const done  = getDone().filter(id => document.getElementById(id)).length;
+      const el = document.getElementById('queue-count');
+      if (el) el.textContent = total - done;
+    }
+
+    /* ── Connections ── */
+    function renderConnections() {
+      const L = window.LIVE;
+      if (!L) return;
+
+      const calVal = document.getElementById('conn-calendar-val');
+      const calDot = document.getElementById('conn-calendar-dot');
+      if (L.calendar.status === 'connected') {
+        calDot.className = 'live-conn-dot green';
+        calVal.textContent = L.calendar.today_count === 0
+          ? 'No events today'
+          : L.calendar.next_event
+            ? `Next: ${L.calendar.next_event.time} ${L.calendar.next_event.title}`
+            : `${L.calendar.today_count} event${L.calendar.today_count > 1 ? 's' : ''} today`;
+      } else {
+        calDot.className = 'live-conn-dot red';
+        calVal.textContent = 'Connection error';
+      }
+
+      const spoVal = document.getElementById('conn-spotify-val');
+      const spoDot = document.getElementById('conn-spotify-dot');
+      if (L.spotify.status === 'expired') {
+        spoDot.className = 'live-conn-dot red';
+        spoVal.textContent = 'Token expired — reconnect';
+      } else if (!L.spotify.track) {
+        spoDot.className = 'live-conn-dot muted';
+        spoVal.textContent = 'Nothing playing';
+      } else {
+        spoDot.className = 'live-conn-dot green';
+        spoVal.textContent = `${L.spotify.track} — ${L.spotify.artist}`;
+      }
+
+      const drvVal = document.getElementById('conn-drive-val');
+      const drvDot = document.getElementById('conn-drive-dot');
+      if (L.drive.status === 'connected' && L.drive.recent?.length) {
+        drvDot.className = 'live-conn-dot green';
+        drvVal.textContent = `${L.drive.recent[0].title} · ${L.drive.recent[0].viewed}`;
+      } else {
+        drvDot.className = 'live-conn-dot red';
+        drvVal.textContent = 'Not connected';
+      }
+
+      const ref = document.getElementById('live-refreshed');
+      if (ref && L.refreshed) {
+        const d = new Date(L.refreshed);
+        ref.textContent = `Updated ${d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`;
+      }
+
+      const driveList = document.getElementById('drive-files-list');
+      if (driveList && L.drive.recent?.length) {
+        const icons = { doc:'📄', sheet:'📊', audio:'🎵', pdf:'📋' };
+        driveList.innerHTML = L.drive.recent.map(f => `
+          <a class="drive-file" href="${f.url}" target="_blank">
+            <span class="drive-file-icon">${icons[f.type] || '📁'}</span>
+            <span class="drive-file-name">${f.title}</span>
+            <span class="drive-file-date">${f.viewed}</span>
+          </a>`).join('');
+      }
+    }
+
+    /* ── Advocate ── */
+    function renderAdvocate() {
+      const grid = document.getElementById('advocate-grid');
+      if (!grid || !window.LIVE?.advocate?.length) return;
+
+      grid.innerHTML = window.LIVE.advocate.map((item, i) => `
+        <div class="advocate-card">
+          <div class="advocate-icon">${item.icon}</div>
+          <div class="advocate-headline">${item.headline}</div>
+          <div class="advocate-body">${item.body}</div>
+          <button class="advocate-btn" onclick="advocateCopy(this, ${i})" type="button">${item.action}</button>
+        </div>`).join('');
+    }
+
+    function advocateCopy(btn, i) {
+      const item = window.LIVE.advocate[i];
+      const original = item.action;
+      const copy = text => {
+        btn.textContent = '✓ Copied — paste into Claude';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = original; btn.classList.remove('copied'); }, 2800);
+      };
+      if (navigator.clipboard?.writeText) {
+        navigator.clipboard.writeText(item.prompt).then(copy).catch(() => fallbackCopy(item.prompt, copy));
+      } else {
+        fallbackCopy(item.prompt, copy);
+      }
+    }
+    function fallbackCopy(text, cb) {
+      const ta = document.createElement('textarea');
+      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); cb(); } catch {}
+      document.body.removeChild(ta);
+    }
+
+    /* ── Financial ── */
+    function renderFinancial() {
+      const F = window.LIVE?.financial;
+      if (!F) return;
+
+      // Payday countdown
+      const lastPay = new Date(F.lastPayday);
+      const today = new Date(); today.setHours(0,0,0,0);
+      const daysSince = Math.floor((today - lastPay) / 86400000);
+      const cyclePos  = daysSince % F.payFrequency;
+      const daysUntil = cyclePos === 0 ? 0 : F.payFrequency - cyclePos;
+      const nextPay   = new Date(today); nextPay.setDate(nextPay.getDate() + daysUntil);
+      const months    = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+      const daysEl = document.getElementById('fin-days-pay');
+      const dateEl = document.getElementById('fin-next-pay-date');
+      if (daysEl) {
+        daysEl.textContent  = daysUntil === 0 ? 'TODAY' : `${daysUntil}d`;
+        daysEl.className    = 'fin-nw-val' + (daysUntil <= 1 ? ' green' : daysUntil <= 4 ? ' gold' : '');
+      }
+      if (dateEl) dateEl.textContent = `${months[nextPay.getMonth()]} ${nextPay.getDate()}`;
+
+      const noteEl = document.getElementById('fin-payday-note');
+      if (noteEl) {
+        noteEl.innerHTML = `<span class="payday-badge">💰 Payday ${daysUntil === 0 ? 'TODAY' : daysUntil === 1 ? 'tomorrow' : `in ${daysUntil}d`} · $${F.paycheck.toLocaleString()}</span>`;
+      }
+
+      // Budget tabs
+      ['monthly','paycheck'].forEach(tab => {
+        const el = document.getElementById(`fin-budget-${tab}`);
+        if (!el) return;
+        const isPay = tab === 'paycheck';
+        const income = isPay ? F.paycheck : F.monthlyIncome;
+        const div    = isPay ? 2 : 1;
+        const total  = F.budget.reduce((s, r) => s + r.amount, 0);
+        const remain = income - Math.round(total / div);
+        el.innerHTML = `
+          <div class="fin-budget-income">
+            <span>${isPay ? 'Paycheck (gross)' : 'Monthly Income'}</span>
+            <span class="fin-budget-amt">$${income.toLocaleString()}</span>
+          </div>
+          ${F.budget.map(r => `
+            <div class="fin-budget-row">
+              <span class="fin-budget-cat">
+                <span class="fin-budget-dot" style="background:${r.color}"></span>${r.label}
+              </span>
+              <span class="fin-budget-amt">$${Math.round(r.amount / div).toLocaleString()}</span>
+            </div>`).join('')}
+          <div class="fin-budget-total">
+            <span>Free after fixed</span>
+            <span class="fin-budget-amt" style="color:${remain >= 0 ? 'var(--green)' : 'var(--red)'}">$${remain.toLocaleString()}</span>
+          </div>`;
+      });
+
+      // Spend bars
+      const sbEl = document.getElementById('fin-spend-bars');
+      if (sbEl) {
+        const max = Math.max(...F.spend.map(s => s.amount));
+        sbEl.innerHTML = F.spend.map(s => `
+          <div class="spend-row">
+            <div class="spend-label">${s.cat}</div>
+            <div class="spend-bar-bg"><div class="spend-bar-fill" style="width:${(s.amount/max*100).toFixed(1)}%;background:${s.color}"></div></div>
+            <div class="spend-amt">$${s.amount}</div>
+          </div>`).join('');
+      }
+
+      // Bill list
+      const billEl = document.getElementById('fin-bill-list');
+      if (billEl) {
+        const upcoming = F.bills.map(b => {
+          const d = new Date(today.getFullYear(), today.getMonth(), b.day);
+          if (d < today) d.setMonth(d.getMonth() + 1);
+          return { ...b, date: d, days: Math.floor((d - today) / 86400000) };
+        }).sort((a, b) => a.days - b.days);
+
+        billEl.innerHTML = upcoming.map(b => {
+          const isCredit = !!b.credit;
+          const cls = isCredit ? 'credit' : b.days <= 2 ? 'urgent' : b.days <= 6 ? 'warn' : '';
+          const dayLabel = isCredit
+            ? (b.days === 0 ? '✅ TODAY' : `in ${b.days}d`)
+            : b.days === 0 ? '⚠️ DUE TODAY' : b.days === 1 ? '⚠️ Tomorrow' : `in ${b.days}d`;
+          return `
+            <div class="bill-item">
+              <div class="bill-date-badge ${cls}">
+                <div class="bill-date-day">${b.date.getDate()}</div>
+                <div class="bill-date-mon">${months[b.date.getMonth()]}</div>
+              </div>
+              <div class="bill-info">
+                <div class="bill-name">${b.name}</div>
+                <div class="bill-days ${cls}">${dayLabel}</div>
+              </div>
+              <div class="bill-amt" style="${isCredit ? 'color:var(--green)' : ''}">${isCredit ? '+' : '-'}$${b.amount.toLocaleString()}</div>
+            </div>`;
+        }).join('');
+      }
+    }
+
+    /* ── Supplements ── */
+    function renderSupplements() {
+      const grid = document.getElementById('supp-grid');
+      if (!grid || !window.LIVE?.supplements?.length) return;
+      const timingLabel = { am: 'Morning', pm: 'Evening', meal: 'With meal' };
+      grid.innerHTML = window.LIVE.supplements.map(s => `
+        <div class="supp-item">
+          <div class="supp-item-name">${s.name}</div>
+          <div class="supp-item-dose">${s.dose}</div>
+          ${s.brand ? `<div style="font-size:10px;color:var(--text-muted);margin-top:1px;">${s.brand}</div>` : ''}
+          <div class="supp-item-note">${s.note}</div>
+          <span class="supp-timing-badge ${s.timing}">${timingLabel[s.timing] || s.timing}</span>
+        </div>`).join('');
+
+      // Restore saved photo
+      const saved = localStorage.getItem('supp-photo');
+      if (saved) {
+        document.getElementById('supp-photo-img').src = saved;
+        document.getElementById('supp-photo-display').style.display = 'block';
+        document.getElementById('supp-photo-wrap').classList.remove('hidden');
+        document.querySelector('.supp-photo-placeholder').style.display = 'none';
+      }
+    }
+
+    function handleSuppPhoto(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const src = ev.target.result;
+        localStorage.setItem('supp-photo', src);
+        document.getElementById('supp-photo-img').src = src;
+        document.getElementById('supp-photo-display').style.display = 'block';
+        document.querySelector('.supp-photo-placeholder').style.display = 'none';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function clearSuppPhoto() {
+      localStorage.removeItem('supp-photo');
+      document.getElementById('supp-photo-display').style.display = 'none';
+      document.querySelector('.supp-photo-placeholder').style.display = 'block';
+      document.getElementById('supp-photo-img').src = '';
+    }
+
+    function switchFinTab(tab) {
+      document.querySelectorAll('.fin-tab').forEach(btn =>
+        btn.classList.toggle('active', btn.dataset.tab === tab));
+      document.querySelectorAll('.fin-budget-pane').forEach(pane =>
+        pane.style.display = pane.id === `fin-budget-${tab}` ? 'block' : 'none');
+    }
+
+    /* ── Markets ── */
+    function renderMarkets() {
+      const M = window.LIVE?.markets;
+      const el = document.getElementById('markets-strip');
+      if (!M || !el) return;
+      el.innerHTML = M.indices.map(m => `
+        <div class="fin-nw-stat" style="cursor:default;">
+          <div class="fin-nw-val ${m.dir === 'up' ? 'green' : 'red'}" style="font-size:16px;">${m.value}</div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:1px;">${m.label} <span style="color:${m.dir==='up'?'var(--green)':'var(--red)'}">${m.change}</span></div>
+          <div class="fin-nw-label" style="font-size:9px;letter-spacing:0.12em;">${m.symbol} · ${M.asOf}</div>
+        </div>`).join('');
+    }
+
+    /* ── Keyboard Nav ── */
+    document.addEventListener('keydown', e => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      // Cmd+K or Ctrl+K → command palette
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); Brain.openPalette(); return; }
+      // / key → command palette
+      if (e.key === '/') { e.preventDefault(); Brain.openPalette(); return; }
+      const map = {
+        a: '#advocate-grid', p: '#projects', q: '#queue',
+        d: '#domains',       f: '#financial', m: '#markets',
+        w: '#widgets',       k: '#wiki',      r: '#drive',
+        h: '#health-section', g: '#guides'
+      };
+      if (map[e.key]) {
+        e.preventDefault();
+        document.querySelector(map[e.key])?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+
+    /* ── Init ── */
+    document.addEventListener('DOMContentLoaded', () => {
+      Brain.setDate();
+      Brain.renderNav('home');
+      Brain.initPalette();
+      initQueue();
+      renderConnections();
+      renderAdvocate();
+      renderSupplements();
+      renderFinancial();
+      renderMarkets();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Model Selection Guide — James</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../_shared/style.css">
+  <style>
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-muted);
+      text-decoration: none;
+      margin-bottom: 4px;
+      transition: color 0.1s;
+    }
+    .back-link:hover { color: var(--gold); }
+
+    .guide-intro {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      max-width: 760px;
+      margin-bottom: 24px;
+    }
+
+    .model-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 900px) { .model-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 560px) { .model-grid { grid-template-columns: 1fr; } }
+
+    .model-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .model-name { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+    .model-tag {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .model-use { font-size: 12px; color: var(--text-secondary); line-height: 1.45; }
+    .model-cost { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+    .model-card.opus  { border-left: 3px solid var(--gold); }
+    .model-card.sonnet{ border-left: 3px solid var(--blue); }
+    .model-card.haiku { border-left: 3px solid var(--green); }
+    .model-card.fable { border-left: 3px solid var(--purple); }
+
+    .task-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+    .task-table th {
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-secondary);
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .task-table td {
+      padding: 12px 14px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border);
+      line-height: 1.45;
+    }
+    .task-table tr:last-child td { border-bottom: none; }
+    .task-table tr:hover td { background: var(--bg-elevated); }
+    .task-table td.task-name { color: var(--text-primary); font-weight: 500; }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 600;
+      font-family: var(--font-mono);
+      white-space: nowrap;
+    }
+    .pill.opus   { background: rgba(212,175,106,0.15); color: var(--gold); border: 1px solid rgba(212,175,106,0.3); }
+    .pill.sonnet { background: rgba(94,179,255,0.15);  color: var(--blue); border: 1px solid rgba(94,179,255,0.3); }
+    .pill.haiku  { background: rgba(76,175,80,0.15);   color: var(--green); border: 1px solid rgba(76,175,80,0.3); }
+    .pill.fable  { background: rgba(156,111,228,0.15); color: var(--purple); border: 1px solid rgba(156,111,228,0.3); }
+
+    .heuristic-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 18px 20px;
+      margin-bottom: 24px;
+    }
+    .heuristic-row {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    .heuristic-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .heuristic-row:first-child { padding-top: 0; }
+    .heuristic-row strong { color: var(--text-primary); flex-shrink: 0; }
+
+    .next-action {
+      background: rgba(212,175,106,0.08);
+      border: 1px solid rgba(212,175,106,0.28);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.55;
+    }
+    .next-action strong { color: var(--gold); }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <div>
+        <a class="back-link" href="../Home%20Widget.html">← Home</a>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:2px;">Guides &amp; Exports</div>
+        <div class="app-title">🧭 Model Selection Guide</div>
+      </div>
+      <div style="text-align:right;">
+        <div class="app-date" id="app-date"></div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:3px;">Claude 5 family — captured 2026-07-03</div>
+      </div>
+    </header>
+
+    <main class="app-body">
+
+      <p class="guide-intro">
+        Which Claude model to run for MainBrain work — matched to task type, not a blanket default.
+        Switch anytime mid-session with <code style="font-family:var(--font-mono);font-size:12px;color:var(--gold);">/model</code>.
+      </p>
+
+      <div class="section-label" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border);">
+        The Lineup
+      </div>
+      <div class="model-grid">
+        <div class="model-card opus">
+          <div class="model-tag">HIGHEST REASONING</div>
+          <div class="model-name">Opus 4.8</div>
+          <div class="model-use">Complex multi-step judgment, ambiguity, cross-domain synthesis.</div>
+          <div class="model-cost">Slowest · most expensive</div>
+        </div>
+        <div class="model-card sonnet">
+          <div class="model-tag">DEFAULT</div>
+          <div class="model-name">Sonnet 5</div>
+          <div class="model-use">Best agentic/coding all-rounder. Stay here unless a task earns an upgrade.</div>
+          <div class="model-cost">Balanced</div>
+        </div>
+        <div class="model-card haiku">
+          <div class="model-tag">FAST LANE</div>
+          <div class="model-name">Haiku 4.5</div>
+          <div class="model-use">Simple, well-defined, high-volume tasks. Triage, quick verifies.</div>
+          <div class="model-cost">Fastest · cheapest</div>
+        </div>
+        <div class="model-card fable">
+          <div class="model-tag">UNTESTED FOR YOU</div>
+          <div class="model-name">Fable 5</div>
+          <div class="model-use">Newer Claude 5-family variant, likely more conversational/creative tuning.</div>
+          <div class="model-cost">Worth an A/B before relying on it</div>
+        </div>
+      </div>
+
+      <div class="section-label" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border);">
+        Mapped to Your Work
+      </div>
+      <table class="task-table">
+        <thead>
+          <tr><th>Task Type</th><th>Model</th><th>Why</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="task-name">Widget/dashboard code (brain-server.js, HTML/JS)</td>
+            <td><span class="pill sonnet">Sonnet 5</span></td>
+            <td>Best agentic coding tradeoff — this is what you're already on.</td>
+          </tr>
+          <tr>
+            <td class="task-name">NextGrid legal-framework drafting</td>
+            <td><span class="pill opus">Opus 4.8</span></td>
+            <td>High-stakes, low error tolerance, needs deepest reasoning.</td>
+          </tr>
+          <tr>
+            <td class="task-name">Director-mode cross-domain synthesis (trading vs. Ironframe vs. Filevine vs. NextGrid leverage)</td>
+            <td><span class="pill opus">Opus 4.8</span></td>
+            <td>Exactly the "weigh many domains, find the non-obvious move" reasoning Opus is built for.</td>
+          </tr>
+          <tr>
+            <td class="task-name">Triage/capture, <code style="font-family:var(--font-mono);font-size:11px;">ss</code> state updates, quick file edits, <code style="font-family:var(--font-mono);font-size:11px;">v</code> verify checks</td>
+            <td><span class="pill haiku">Haiku 4.5</span></td>
+            <td>Fast, cheap, low ambiguity — or Sonnet with Fast mode.</td>
+          </tr>
+          <tr>
+            <td class="task-name">Content drafts (LinkedIn, TikTok @brainwifi voice)</td>
+            <td><span class="pill sonnet">Sonnet 5</span></td>
+            <td>Try Fable 5 for a more natural/creative tone — untested, worth an A/B.</td>
+          </tr>
+          <tr>
+            <td class="task-name">Trading review / methodology analysis</td>
+            <td><span class="pill sonnet">Sonnet 5</span></td>
+            <td>Default for routine review — escalate to Opus for anomaly/edge-case reasoning.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-label" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border);">
+        Quick Heuristic
+      </div>
+      <div class="heuristic-card">
+        <div class="heuristic-row"><strong>Routine + well-defined</strong> <span>→ Haiku.</span></div>
+        <div class="heuristic-row"><strong>Everyday build/edit work</strong> <span>→ Sonnet — your default, stay here.</span></div>
+        <div class="heuristic-row"><strong>High-stakes, ambiguous, or "connect 4+ domains"</strong> <span>→ Opus.</span></div>
+      </div>
+
+      <div class="next-action">
+        <strong>Next action:</strong> Keep Sonnet 5 as default. Next time you run a director-mode cross-domain leverage call (e.g. "what's the fastest path to $X"), run it once on Opus 4.8 and compare — that's the task most likely to justify the switch.
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    document.getElementById('app-date').textContent = new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  </script>
+</body>
+</html>
