@@ -45,3 +45,23 @@ abstract question.
 - **Which verticals/geographies should the first real Marketplace Atlas research pass (Phase 3)
   target?** The handoff suggests showing at least one low-friction and one higher-value/
   higher-friction lead-gen category as a starting comparison, but doesn't name specific verticals.
+
+## New, surfaced by the Grand Legion Command Structure adoption (2026-07-15)
+
+- **Who fills the Caesar seat at launch?** Options: James directly; a model (Fable 5 named as the
+  current candidate); or the hybrid where the model prepares comparisons/recommendations and James
+  gives final approval. Recommended default: **hybrid** — it matches Article VI (approvals
+  terminate at James until bounded autonomy is earned) while still exercising the model-Caesar
+  comparison logic from day one.
+- **How do the three legions get their opening directives?** Legions are organizational, not
+  market-specific — so does Caesar seed each with a different engine family for coverage, point
+  two at the same objective to compete, or let each Commander pick from the opportunity slate?
+  Recommended default for the first cycle: diversify (three different engine families) to maximize
+  early learning breadth, per Constitution Article VIII.
+- **How is a Commander implemented?** `COMMAND_STRUCTURE.md` §16 calls it a "persistent
+  orchestration agent" that maintains campaign state — but nothing in the current environment is
+  persistent (see `RISKS_AND_GAPS.md`). Until the control plane exists, a Commander is realistically
+  a role + state files + a session that reloads them, not a continuously running process.
+- **How is legion competition scored before any legion has history?** §8 weighs "historical Legion
+  performance," which is empty at launch. Recommended default: score first-cycle bids on evidence
+  quality and economics alone, and start the historical ledger from cycle one.

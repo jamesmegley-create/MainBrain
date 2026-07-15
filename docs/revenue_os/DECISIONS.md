@@ -35,3 +35,40 @@ as an open question rather than decided unilaterally.
 **Not yet decided (see `OPEN_QUESTIONS.md`):** whether Revenue OS ultimately lives in this repo or
 a separate one; where the control-plane/database actually runs; initial cash/model budgets; which
 verticals/geographies to prioritize for the first Marketplace Atlas research pass.
+
+---
+
+## 2026-07-15 — Grand Legion Command Structure adopted
+
+**Decision:** James handed off a second constitutional document defining the organizational model:
+**Caesar → Legion Commander → Officer Corps → Assigned Agents**, adopted verbatim as
+`COMMAND_STRUCTURE.md`. Key terms, in James's framing:
+
+- **Three Grand Legions**, each a self-contained economic campaign organization fielding a nominal
+  ~100 agents (capacity units, not 100 premium-model sessions).
+- **Officers report to their Legion Commander, never to Caesar** — the Scout reports to the
+  Commander; the Commander is the sole line to Caesar. Caesar retains emergency audit authority.
+- **Commanders bid for resources from Caesar** as part of one integrated campaign proposal per
+  legion; the three legions **compete** on verified profit and capital efficiency ("who will be
+  the most victorious in returning a profit").
+- **Caesar is a pluggable seat** — James can plug in the highest available model (Fable 5 is the
+  current candidate) or others as Caesar, or run a hybrid where the model recommends and James
+  approves. Article VI human-authority gates still terminate at James either way, until bounded
+  autonomy is earned.
+- **Reserve capacity** — an unassigned pool of agents/tokens/compute/cash that only Caesar can
+  deploy or withdraw, keeping allocation fluid rather than fixed.
+
+**Ripple effects applied in the same pass:**
+
+- `AGENT_CATALOG.md` rewritten: the original handoff's twelve flat cohorts are mapped onto the ten
+  officers (Builder + Acquisition + Distribution → Execution Officer; Logistics is a new role;
+  Market Cartography & Liquidity and the ledger become *shared system infrastructure* rather than
+  per-legion officers, so three legions don't fragment the crown-jewel data).
+- `CONSTITUTION.md` gained Article XI (command structure) and Article X now names the Frontier
+  Officer.
+- `PRODUCT_SPEC.md` §4b added: engines describe *what* a campaign monetizes; legions describe
+  *who* runs it. The morning slate becomes three Commander campaign cards presented to Caesar.
+
+**Superseded:** the flat cohort catalog as an organizational model. The system must never degrade
+into a flat swarm, departments reporting directly to Caesar, or a single model doing everything
+(`COMMAND_STRUCTURE.md` §18).

@@ -83,6 +83,18 @@ valid and loss was bounded.
 20. The first executable mission is selected only after comparing several low-cost, fast-feedback
     candidates with clear routes to cash.
 
+## 4b. Organizational model (adopted 2026-07-15)
+
+Revenue OS is organized as the **Grand Legion Command Structure** — see `COMMAND_STRUCTURE.md`
+(canonical) and Constitution Article XI. In brief: **Caesar → 3 Legion Commanders → Officer Corps
+(×10 per legion) → assigned agents (~100 capacity units per legion)**, plus an uncommitted reserve
+only Caesar can deploy. Legions are organizational, not market-specific — any legion can pursue
+any engine, and legions compete for resources on verified profit and capital efficiency. The
+morning-slate portfolio logic in `SCORING.md` now operates *through* this structure: each
+Commander presents one integrated campaign card, Caesar (James, a model such as Fable 5, or a
+hybrid) compares three cards and allocates. Engines (below) describe *what* a campaign monetizes;
+legions describe *who* runs it.
+
 ## 5. The five core engines (v1 scope)
 
 See `docs/revenue_os/` engine notes folded into `SCORING.md` and the handoff original for full

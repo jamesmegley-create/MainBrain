@@ -90,9 +90,37 @@ Claude is not the product; the product must survive model changes.
 
 ## Article X — Continuous Capability Discovery
 
-A dedicated cohort monitors new model abilities, APIs, MCP servers, marketplaces, changed platform
-rules, lower-cost tools, new data sources, and newly automatable tasks. Changes are proposed as
-connector or capability upgrades, not silently adopted.
+A dedicated role (the Frontier Officer, per `COMMAND_STRUCTURE.md`) monitors new model abilities,
+APIs, MCP servers, marketplaces, changed platform rules, lower-cost tools, new data sources, and
+newly automatable tasks. Changes are proposed as connector or capability upgrades, not silently
+adopted.
+
+## Article XI — Command Structure (adopted 2026-07-15)
+
+The organizational form of Revenue OS is the **Grand Legion Command Structure**, defined in full
+in `COMMAND_STRUCTURE.md`, whose defining rule is:
+
+> Three Grand Legions independently compete to identify and execute the strongest internet revenue
+> campaigns. Each Legion is led by a Commander, supported by a complete Officer Corps, and powered
+> by assigned agents, models, tools, and capital. Officers report to their Commander. Commanders
+> report to Caesar. Caesar directs strategic intent and allocates resources to the campaigns most
+> likely to return verified profit, create durable assets, and improve the system's future
+> decision quality.
+
+Binding consequences:
+
+- Caesar is a pluggable seat: James, a high-capability model (Fable 5 is the current candidate),
+  or a hybrid. Regardless of who fills it, Article VI human-authority gates still terminate at
+  James until bounded autonomy is explicitly earned.
+- Officers and agents never report directly to Caesar; the Commander is the sole reporting line
+  (Caesar retains emergency audit / direct inspection authority).
+- Each legion fields a nominal ~100 agents as *capacity units* (see interpretive notes below).
+- An uncommitted **reserve** of agents, tokens, compute, cash, and tool access sits outside all
+  three legions; only Caesar deploys or withdraws it. Resources are continuously re-earned, never
+  entitlements.
+- The system must never degrade into a flat agent swarm, functional departments reporting directly
+  to Caesar, a disconnected opportunity dashboard, a generic task manager, or a single model doing
+  everything (`COMMAND_STRUCTURE.md` §18).
 
 ## Interpretive notes (non-negotiable, from Section 3 of the handoff)
 
