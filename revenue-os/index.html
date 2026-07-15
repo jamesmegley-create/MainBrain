@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Revenue OS — Legion Command — James</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../_shared/style.css">
+  <style>
+    /* Static schematic — no charts, no timers, no per-frame work. */
+    .schematic { max-width: 1060px; margin: 0 auto; }
+
+    .doctrine {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-muted);
+      text-align: center;
+      margin-bottom: 22px;
+      line-height: 1.7;
+    }
+    .doctrine strong { color: var(--gold); font-weight: 500; }
+
+    /* ── Tier label ─────────────────────────────────────────── */
+    .tier-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--text-muted);
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    /* ── Caesar tier ────────────────────────────────────────── */
+    .caesar-row {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 12px;
+      margin-bottom: 0;
+    }
+    @media (max-width: 720px) { .caesar-row { grid-template-columns: 1fr; } }
+
+    .caesar-card {
+      background: var(--bg-surface);
+      border: 1px solid rgba(212,175,106,0.45);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .caesar-icon { font-size: 30px; }
+    .caesar-name { font-size: 16px; font-weight: 700; color: var(--gold); letter-spacing: 0.01em; }
+    .caesar-sub  { font-size: 12px; color: var(--text-secondary); margin-top: 2px; line-height: 1.5; }
+    .caesar-seat {
+      margin-left: auto;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--gold);
+      border: 1px solid rgba(212,175,106,0.35);
+      background: rgba(212,175,106,0.08);
+      border-radius: 99px;
+      padding: 4px 12px;
+      white-space: nowrap;
+    }
+
+    .reserve-card {
+      background: var(--bg-surface);
+      border: 1px dashed var(--border-hover);
+      border-radius: var(--radius-md);
+      padding: 14px 18px;
+    }
+    .reserve-title { font-size: 12px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+    .reserve-note  { font-size: 11px; color: var(--text-muted); line-height: 1.5; }
+    .reserve-val   { font-family: var(--font-mono); font-size: 11px; color: var(--blue); margin-top: 6px; }
+
+    /* ── Connector stems (pure CSS, no SVG) ─────────────────── */
+    .stem {
+      width: 2px;
+      height: 22px;
+      background: var(--border-hover);
+      margin: 0 auto;
+    }
+    .stem-split {
+      max-width: 66.6%;
+      height: 2px;
+      background: var(--border-hover);
+      margin: 0 auto;
+    }
+    .stem-drops {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      max-width: 100%;
+    }
+    .stem-drops .stem { height: 16px; }
+    @media (max-width: 720px) {
+      .stem-split, .stem-drops { display: none; }
+    }
+
+    /* ── Legion tier ────────────────────────────────────────── */
+    .legion-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    @media (max-width: 720px) { .legion-grid { grid-template-columns: 1fr; } }
+
+    .legion-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--blue);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+    }
+    .legion-card.l2 { border-top-color: var(--green); }
+    .legion-card.l3 { border-top-color: var(--purple); }
+
+    .legion-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 2px; }
+    .legion-name { font-size: 14px; font-weight: 700; color: var(--text-primary); }
+    .legion-status {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--orange);
+      border: 1px solid rgba(255,152,0,0.35);
+      background: rgba(255,152,0,0.08);
+      border-radius: 4px;
+      padding: 2px 7px;
+      white-space: nowrap;
+    }
+    .legion-cmd { font-size: 11px; color: var(--text-secondary); margin-bottom: 10px; }
+    .legion-cmd span { color: var(--text-muted); }
+
+    .legion-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      padding: 5px 0;
+      border-top: 1px solid var(--border);
+    }
+    .legion-row dt { color: var(--text-muted); }
+    .legion-row dd { color: var(--text-secondary); font-family: var(--font-mono); text-align: right; }
+
+    /* ── Officer corps strip ────────────────────────────────── */
+    .corps-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px 18px;
+    }
+    .corps-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-secondary); margin-bottom: 10px; }
+    .corps-title em { font-style: normal; color: var(--text-muted); font-weight: 400; text-transform: none; letter-spacing: 0; }
+    .corps-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip {
+      font-size: 11px;
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      padding: 4px 11px;
+      white-space: nowrap;
+    }
+    .chip b { color: var(--text-primary); font-weight: 600; }
+    .corps-foot { font-size: 11px; color: var(--text-muted); margin-top: 10px; line-height: 1.5; }
+
+    /* ── Shared infrastructure tier ─────────────────────────── */
+    .infra-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    @media (max-width: 720px) { .infra-grid { grid-template-columns: 1fr; } }
+    .infra-card {
+      background: var(--bg-base);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+    }
+    .infra-name { font-size: 12px; font-weight: 600; color: var(--text-primary); margin-bottom: 3px; }
+    .infra-desc { font-size: 11px; color: var(--text-muted); line-height: 1.5; }
+
+    /* ── Game plan phases ───────────────────────────────────── */
+    .phases { margin-top: 26px; }
+    .phase-row {
+      display: grid;
+      grid-template-columns: 26px 1fr auto;
+      gap: 12px;
+      align-items: baseline;
+      padding: 9px 4px;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+    .phase-row:last-child { border-bottom: none; }
+    .phase-num { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); }
+    .phase-name { color: var(--text-secondary); }
+    .phase-name b { color: var(--text-primary); font-weight: 600; }
+    .phase-state {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      white-space: nowrap;
+    }
+    .phase-state.done { color: var(--green); }
+    .phase-state.next { color: var(--gold); }
+    .phase-state.wait { color: var(--text-muted); }
+
+    .section-hd {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin: 26px 0 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .foot-note {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 20px;
+      text-align: center;
+      font-family: var(--font-mono);
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:2px;">Revenue OS</div>
+        <div class="app-title">🏛️ Legion Command — Game Plan</div>
+      </div>
+      <div style="text-align:right;">
+        <div class="app-date" id="app-date"></div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:3px;">Docs: <span style="font-family:var(--font-mono);">docs/revenue_os/</span> · updated 2026-07-15</div>
+      </div>
+    </header>
+
+    <main class="app-body">
+      <div class="schematic">
+
+        <div class="doctrine">
+          <strong>Code filters. Databases remember. Models decide. Humans authorize.</strong><br>
+          Never create supply before verifying the route to cash.
+        </div>
+
+        <!-- CAESAR TIER -->
+        <div class="tier-label">Supreme Authority</div>
+        <div class="caesar-row">
+          <div class="caesar-card">
+            <div class="caesar-icon">👑</div>
+            <div>
+              <div class="caesar-name">Caesar</div>
+              <div class="caesar-sub">Strategic intent · capital allocation · approves, reinforces, withdraws.<br>Directs the three Commanders — never officers or agents directly.</div>
+            </div>
+            <div class="caesar-seat">SEAT: HYBRID — FABLE 5 + JAMES</div>
+          </div>
+          <div class="reserve-card">
+            <div class="reserve-title">🛡️ Reserve</div>
+            <div class="reserve-note">Uncommitted agents, tokens, compute, cash. Deployed or withdrawn only by Caesar.</div>
+            <div class="reserve-val">STATUS: UNALLOCATED</div>
+          </div>
+        </div>
+
+        <div class="stem"></div>
+        <div class="stem-split"></div>
+        <div class="stem-drops"><div class="stem"></div><div class="stem"></div><div class="stem"></div></div>
+
+        <!-- LEGION TIER -->
+        <div class="tier-label">Three Grand Legions — compete for resources on verified profit</div>
+        <div class="legion-grid">
+
+          <div class="legion-card">
+            <div class="legion-head">
+              <div class="legion-name">⚔️ Legion I</div>
+              <div class="legion-status">Awaiting Directive</div>
+            </div>
+            <div class="legion-cmd"><span>Commander:</span> unassigned</div>
+            <dl>
+              <div class="legion-row"><dt>Objective</dt><dd>—</dd></div>
+              <div class="legion-row"><dt>Capacity</dt><dd>100 units</dd></div>
+              <div class="legion-row"><dt>Resource bid</dt><dd>none</dd></div>
+              <div class="legion-row"><dt>Net contribution</dt><dd>$0.00</dd></div>
+            </dl>
+          </div>
+
+          <div class="legion-card l2">
+            <div class="legion-head">
+              <div class="legion-name">⚔️ Legion II</div>
+              <div class="legion-status">Awaiting Directive</div>
+            </div>
+            <div class="legion-cmd"><span>Commander:</span> unassigned</div>
+            <dl>
+              <div class="legion-row"><dt>Objective</dt><dd>—</dd></div>
+              <div class="legion-row"><dt>Capacity</dt><dd>100 units</dd></div>
+              <div class="legion-row"><dt>Resource bid</dt><dd>none</dd></div>
+              <div class="legion-row"><dt>Net contribution</dt><dd>$0.00</dd></div>
+            </dl>
+          </div>
+
+          <div class="legion-card l3">
+            <div class="legion-head">
+              <div class="legion-name">⚔️ Legion III</div>
+              <div class="legion-status">Awaiting Directive</div>
+            </div>
+            <div class="legion-cmd"><span>Commander:</span> unassigned</div>
+            <dl>
+              <div class="legion-row"><dt>Objective</dt><dd>—</dd></div>
+              <div class="legion-row"><dt>Capacity</dt><dd>100 units</dd></div>
+              <div class="legion-row"><dt>Resource bid</dt><dd>none</dd></div>
+              <div class="legion-row"><dt>Net contribution</dt><dd>$0.00</dd></div>
+            </dl>
+          </div>
+
+        </div>
+
+        <div class="stem"></div>
+
+        <!-- OFFICER CORPS -->
+        <div class="corps-card">
+          <div class="corps-title">Officer Corps <em>— full set inside every legion · officers report to their Commander, never to Caesar</em></div>
+          <div class="corps-chips">
+            <span class="chip">🔭 <b>Scout</b> — signals</span>
+            <span class="chip">🧠 <b>Intelligence</b> — verify</span>
+            <span class="chip">♟️ <b>Strategy</b> — routes</span>
+            <span class="chip">📦 <b>Logistics</b> — feasibility</span>
+            <span class="chip">🧮 <b>Economics</b> — EV &amp; downside</span>
+            <span class="chip">🧪 <b>Validation</b> — smallest test</span>
+            <span class="chip">🔨 <b>Execution</b> — build &amp; launch</span>
+            <span class="chip">🔍 <b>Audit</b> — independent truth</span>
+            <span class="chip">📚 <b>Knowledge</b> — memory</span>
+            <span class="chip">🛰️ <b>Frontier</b> — new capability</span>
+          </div>
+          <div class="corps-foot">~100 assigned agents per legion beneath the officers — capacity units (jobs, queries, classifiers, API workers, reasoning turns), not 100 premium-model sessions.</div>
+        </div>
+
+        <div class="stem"></div>
+
+        <!-- SHARED INFRASTRUCTURE -->
+        <div class="tier-label">Shared System Infrastructure — owned by no legion</div>
+        <div class="infra-grid">
+          <div class="infra-card">
+            <div class="infra-name">🗺️ Marketplace Atlas</div>
+            <div class="infra-desc">One shared map of buyers, payouts, acceptance rules, liquidity. Legions query and contribute; none owns it.</div>
+          </div>
+          <div class="infra-card">
+            <div class="infra-name">📒 Capital Ledger</div>
+            <div class="infra-desc">Integer cents, one system of record. Authorized → committed → spent → reconciled. No spend without approval.</div>
+          </div>
+          <div class="infra-card">
+            <div class="infra-name">🏛️ Economic Graph</div>
+            <div class="infra-desc">Signals → opportunities → missions → outcomes → lessons. The crown-jewel proprietary data.</div>
+          </div>
+        </div>
+
+        <!-- GAME PLAN -->
+        <div class="section-hd">Game Plan — build phases</div>
+        <div class="phases">
+          <div class="phase-row"><div class="phase-num">P0</div><div class="phase-name"><b>Inventory</b> — audit repo, environment, real capabilities</div><div class="phase-state done">✓ DONE</div></div>
+          <div class="phase-row"><div class="phase-num">P1</div><div class="phase-name"><b>Foundations</b> — constitution, command structure, ontology, schemas</div><div class="phase-state done">✓ DONE</div></div>
+          <div class="phase-row"><div class="phase-num">P2</div><div class="phase-name"><b>Read-only intelligence</b> — signals in, five champion cards out, no spend</div><div class="phase-state next">▶ NEXT</div></div>
+          <div class="phase-row"><div class="phase-num">P3</div><div class="phase-name"><b>Marketplace Atlas v1</b> — verified buyers, payouts, cash exits</div><div class="phase-state next">▶ NEXT</div></div>
+          <div class="phase-row"><div class="phase-num">P4</div><div class="phase-name"><b>Orchestration</b> — mission state machine, budgets, approval gates</div><div class="phase-state wait">PENDING</div></div>
+          <div class="phase-row"><div class="phase-num">P5</div><div class="phase-name"><b>First mission</b> — three Commander bids, Caesar allocates, dry run</div><div class="phase-state wait">PENDING</div></div>
+          <div class="phase-row"><div class="phase-num">P6</div><div class="phase-name"><b>Calibration</b> — forecast vs. actual, playbooks, reallocation</div><div class="phase-state wait">PENDING</div></div>
+          <div class="phase-row"><div class="phase-num">P7</div><div class="phase-name"><b>Bounded autonomy</b> — pre-authorized classes, caps, auto-pause</div><div class="phase-state wait">PENDING</div></div>
+        </div>
+
+        <div class="foot-note">Hand-maintained schematic · edit values in this file · source of truth: docs/revenue_os/</div>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="../_shared/utils.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      Brain.renderNav('revenueos');
+    });
+  </script>
+</body>
+</html>

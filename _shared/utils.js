@@ -106,6 +106,7 @@ const Brain = {
     { key: 'robinhood',  label: 'Robinhood',icon: '💰', href: 'robinhood/index.html',         hrefSub: '../robinhood/index.html' },
     { key: 'spotify',    label: 'Spotify',  icon: '🎧', href: 'spotify/index.html',           hrefSub: '../spotify/index.html' },
     { key: 'gaming',     label: 'Gaming',   icon: '🎮', href: 'gaming/index.html',            hrefSub: '../gaming/index.html' },
+    { key: 'revenueos',  label: 'Legion',   icon: '🏛️', href: 'revenue-os/index.html',        hrefSub: '../revenue-os/index.html' },
   ],
 
   renderNav(current) {
@@ -159,6 +160,7 @@ const Brain = {
     { label: '💰 Robinhood',         type: 'widget', href: 'robinhood/index.html'          },
     { label: '🎧 Spotify',           type: 'widget', href: 'spotify/index.html'            },
     { label: '🎮 Gaming & Strategy', type: 'widget', href: 'gaming/index.html'             },
+    { label: '🏛️ Revenue OS — Legion Command', type: 'widget', href: 'revenue-os/index.html' },
     { label: '🧭 Model Selection Guide', type: 'widget', href: 'guides/(C)%20model-selection.html' },
     { label: '💰 Finance Wiki',      type: 'wiki', href: 'obsidian://open?vault=MainBrain&file=01%20Wiki%2F(C)%20Finance' },
     { label: '📈 Trading Wiki',      type: 'wiki', href: 'obsidian://open?vault=MainBrain&file=01%20Wiki%2F(C)%20Trading%20%26%20Finance' },
