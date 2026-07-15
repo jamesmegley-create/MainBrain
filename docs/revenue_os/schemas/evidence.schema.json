@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://revenue-os.local/schemas/evidence.schema.json",
+  "title": "Evidence",
+  "description": "A sourced, timestamped, provenance-carrying claim. Per Constitution Article III, every externally grounded claim must carry these fields. Never fabricated.",
+  "type": "object",
+  "required": ["evidence_id", "claim", "source", "retrieved_at", "claim_class", "confidence"],
+  "properties": {
+    "evidence_id": { "type": "string", "pattern": "^EVD-[0-9A-Z]+$" },
+    "claim": { "type": "string", "description": "The specific factual statement this evidence supports" },
+    "source": {
+      "type": "object",
+      "required": ["identifier", "publisher", "source_type"],
+      "properties": {
+        "identifier": { "type": "string", "description": "URL or other stable source identifier" },
+        "publisher": { "type": "string" },
+        "source_type": {
+          "type": "string",
+          "enum": ["official_documentation", "contract_terms", "first_party_data", "news", "forum_or_community", "third_party_estimate", "internal_experiment_result", "other"]
+        },
+        "trust_level": { "type": "string", "enum": ["high", "medium", "low"] },
+        "content_hash": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "retrieved_at": { "type": "string", "format": "date-time" },
+    "data_period": { "type": "string", "description": "The time period the underlying data actually covers, if different from retrieval time" },
+    "claim_class": {
+      "type": "string",
+      "enum": ["fact", "estimate", "inference"],
+      "description": "Per Article III: the system must label whether a claim is verified fact, a derived estimate, or a model inference"
+    },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+    "limitations": { "type": "string" }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://revenue-os.local/schemas/connector.schema.json",
+  "title": "Connector",
+  "description": "A concrete implementation of a capability for a specific platform, API, browser workflow, or internal service. See docs/revenue_os/CAPABILITY_MATRIX.md for the current live inventory.",
+  "type": "object",
+  "required": ["connector_id", "platform", "capability_id", "status", "last_verified_at"],
+  "properties": {
+    "connector_id": { "type": "string" },
+    "platform": { "type": "string" },
+    "capability_id": { "type": "string" },
+    "authentication_type": { "type": "string", "enum": ["none", "api_key", "oauth", "mcp_session", "manual_credential", "unknown"] },
+    "supports_dry_run": { "type": "boolean" },
+    "version": { "type": "string" },
+    "status": { "type": "string", "enum": ["available_now", "available_with_setup", "draft_only", "human_required", "blocked", "unknown"] },
+    "health": { "type": "string", "enum": ["healthy", "degraded", "down", "untested"] },
+    "last_verified_at": { "type": "string", "format": "date-time" },
+    "rate_limits": { "type": "string" },
+    "cost_notes": { "type": "string" }
+  },
+  "additionalProperties": false
+}

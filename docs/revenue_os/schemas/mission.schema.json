@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://revenue-os.local/schemas/mission.schema.json",
+  "title": "Mission",
+  "description": "The unit James approves and assigns to a cohort. See docs/revenue_os/PRODUCT_SPEC.md Section 6-7 for lifecycle and mandatory card fields.",
+  "type": "object",
+  "required": ["mission_id", "title", "engine", "status", "thesis", "exit_path", "capital", "grade_thresholds", "recommendation"],
+  "properties": {
+    "mission_id": { "type": "string", "pattern": "^MIS-[0-9A-Z]+$" },
+    "title": { "type": "string" },
+    "engine": { "type": "string", "enum": ["PAID_ACQUISITION_AFFILIATE", "LEAD_GENERATION", "MICRO_SOFTWARE", "DATA_INFORMATION", "CONTENT_AUDIENCE", "COMMERCE_POD", "PRODUCTIZED_SERVICES", "MARKETPLACE_ARBITRAGE"] },
+    "status": {
+      "type": "string",
+      "enum": ["SIGNAL_DETECTED", "SIGNAL_ENRICHING", "OPPORTUNITY_DRAFTED", "EXIT_PATH_RESEARCH", "EXIT_PATH_VERIFIED", "ECONOMICS_MODELED", "CAPABILITY_CHECK", "RISK_REVIEW", "MISSION_PROPOSED", "MISSION_APPROVED", "MISSION_QUEUED", "MISSION_RUNNING", "MISSION_MONITORING", "MISSION_PAUSED", "MISSION_SCALING", "MISSION_COMPLETED", "MISSION_KILLED", "POSTMORTEM_PENDING", "POSTMORTEM_COMPLETE", "ARCHIVED"]
+    },
+    "thesis": { "type": "string" },
+    "opportunity_id": { "type": "string" },
+    "signal_ids": { "type": "array", "items": { "type": "string" } },
+    "target": {
+      "type": "object",
+      "properties": {
+        "buyer_segment": { "type": "string" },
+        "geography": { "type": "array", "items": { "type": "string" } },
+        "customer_problem": { "type": "string" }
+      }
+    },
+    "exit_path": {
+      "type": "object",
+      "required": ["type", "verification_status"],
+      "properties": {
+        "type": { "type": "string" },
+        "marketplace_id": { "type": "string" },
+        "verification_status": { "type": "string", "enum": ["VERIFIED_ACTIVE", "VERIFIED_PUBLIC", "PROSPECTIVE_DIRECT", "HYPOTHETICAL", "BLOCKED"] },
+        "payout_cents": { "type": "integer" },
+        "acceptance_rules_verified_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "capital": {
+      "type": "object",
+      "required": ["cash_requested_cents", "maximum_loss_cents"],
+      "properties": {
+        "cash_requested_cents": { "type": "integer", "minimum": 0 },
+        "maximum_loss_cents": { "type": "integer", "minimum": 0 },
+        "model_budget_cents": { "type": "integer", "minimum": 0 },
+        "tool_budget_cents": { "type": "integer", "minimum": 0 },
+        "human_review_minutes": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "time": {
+      "type": "object",
+      "properties": {
+        "setup_hours_estimate": { "type": "number" },
+        "first_feedback_hours_estimate": { "type": "number" },
+        "mission_expiration": { "type": "string", "format": "date-time" }
+      }
+    },
+    "resources": {
+      "type": "object",
+      "properties": {
+        "legionary_units": { "type": "integer", "minimum": 0 },
+        "cohorts": { "type": "array", "items": { "type": "string" } },
+        "capabilities": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "economics": {
+      "type": "object",
+      "properties": {
+        "conservative_expected_value_cents": { "type": "integer" },
+        "base_expected_value_cents": { "type": "integer" },
+        "upside_expected_value_cents": { "type": "integer" },
+        "break_even_cpc_cents": { "type": "integer" },
+        "key_assumptions": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "grade_thresholds": {
+      "type": "object",
+      "properties": {
+        "A": { "type": "string" },
+        "B": { "type": "string" },
+        "C": { "type": "string" },
+        "KILL": { "type": "string" }
+      }
+    },
+    "automation": {
+      "type": "object",
+      "properties": {
+        "coverage_percent": { "type": "number", "minimum": 0, "maximum": 100 },
+        "manual_steps": { "type": "array", "items": { "type": "string" } },
+        "blocked_steps": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "evidence": { "type": "array", "items": { "$ref": "evidence.schema.json" } },
+    "failure_modes": { "type": "array", "items": { "type": "string" } },
+    "knowledge_yield": { "type": "array", "items": { "type": "string" } },
+    "recommendation": { "type": "string", "enum": ["APPROVE", "RESEARCH_MORE", "REJECT", "WATCH"] },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+    "approved_by": { "type": "string" },
+    "approved_at": { "type": "string", "format": "date-time" }
+  },
+  "additionalProperties": false
+}

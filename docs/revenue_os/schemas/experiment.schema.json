@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://revenue-os.local/schemas/experiment.schema.json",
+  "title": "Experiment",
+  "description": "A bounded test inside a mission designed to validate one or more hypotheses. See docs/revenue_os/GLOSSARY.md.",
+  "type": "object",
+  "required": ["experiment_id", "mission_id", "hypothesis", "budget_cents", "stopping_rules"],
+  "properties": {
+    "experiment_id": { "type": "string", "pattern": "^EXP-[0-9A-Z]+$" },
+    "mission_id": { "type": "string" },
+    "hypothesis": { "type": "string" },
+    "variable": { "type": "string" },
+    "control": { "type": "string" },
+    "treatment": { "type": "string" },
+    "budget_cents": { "type": "integer", "minimum": 0 },
+    "stopping_rules": { "type": "string" },
+    "results": { "type": "string" },
+    "attribution_quality": { "type": "string", "enum": ["strong", "moderate", "weak", "unmeasured"] },
+    "status": { "type": "string", "enum": ["designed", "running", "completed", "aborted"] }
+  },
+  "additionalProperties": false
+}

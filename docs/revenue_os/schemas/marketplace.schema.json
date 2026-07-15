@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://revenue-os.local/schemas/marketplace.schema.json",
+  "title": "Marketplace",
+  "description": "A venue, network, exchange, platform, or relationship through which a monetizable output can be converted to cash. See docs/revenue_os/MARKETPLACE_ATLAS.md.",
+  "type": "object",
+  "required": ["marketplace_id", "name", "category", "status", "last_verified_at", "verification_status"],
+  "properties": {
+    "marketplace_id": { "type": "string", "pattern": "^MKT-[0-9A-Z]+$" },
+    "name": { "type": "string" },
+    "category": {
+      "type": "string",
+      "enum": ["affiliate_cpa_network", "pay_per_call_network", "lead_exchange", "freelance_service_marketplace", "app_marketplace", "ecommerce_marketplace", "direct_buyer_network", "ad_network", "sponsorship_marketplace", "data_marketplace", "software_marketplace", "owned_buyer_roster", "other"]
+    },
+    "official_source": { "type": "string", "description": "URL or contract source for the terms below" },
+    "last_verified_at": { "type": "string", "format": "date-time" },
+    "status": { "type": "string", "enum": ["research_only", "application_pending", "active", "paused", "unavailable"] },
+    "verification_status": {
+      "type": "string",
+      "enum": ["VERIFIED_ACTIVE", "VERIFIED_PUBLIC", "PROSPECTIVE_DIRECT", "HYPOTHETICAL", "BLOCKED"],
+      "description": "Per docs/revenue_os/MARKETPLACE_ATLAS.md Buyer verification gates"
+    },
+    "output_purchased": { "type": "string" },
+    "vertical": { "type": "string" },
+    "geography": { "type": "array", "items": { "type": "string" } },
+    "buyer_audience_type": { "type": "string" },
+    "pricing_model": { "type": "string", "enum": ["cpa", "cpl", "revshare", "flat_fee", "subscription", "per_call", "per_appointment", "auction", "other"] },
+    "typical_payout_cents": { "type": "integer" },
+    "payout_variability": { "type": "string", "enum": ["fixed", "range", "auction", "unknown"] },
+    "payout_delay_days": { "type": "number", "minimum": 0 },
+    "minimum_payout_cents": { "type": "integer" },
+    "caps": { "type": "string" },
+    "acceptance_criteria": { "type": "string" },
+    "required_fields": { "type": "array", "items": { "type": "string" } },
+    "exclusivity": { "type": "string", "enum": ["exclusive", "shared", "unknown"] },
+    "duplicate_rules": { "type": "string" },
+    "rejection_reversal_rules": { "type": "string" },
+    "quality_score_requirements": { "type": "string" },
+    "traffic_source_restrictions": { "type": "array", "items": { "type": "string" } },
+    "consent_disclosure_requirements": { "type": "string" },
+    "api_available": { "type": "boolean" },
+    "webhook_available": { "type": "boolean" },
+    "tracking_method": { "type": "string" },
+    "authentication_requirements": { "type": "string" },
+    "account_business_requirements": { "type": "string" },
+    "manual_onboarding_burden": { "type": "string", "enum": ["none", "low", "medium", "high"] },
+    "public_publishing_requirements": { "type": "string" },
+    "refund_chargeback_risk": { "type": "string" },
+    "integration_status": { "type": "string" },
+    "connector_id": { "type": "string" },
+    "historical_results": { "type": "string", "description": "Actual observed results from James's own use, if any" },
+    "liquidity_score": {
+      "type": "object",
+      "properties": {
+        "buyer_certainty": { "type": "number", "minimum": 0, "maximum": 1 },
+        "price_certainty": { "type": "number", "minimum": 0, "maximum": 1 },
+        "acceptance_certainty": { "type": "number", "minimum": 0, "maximum": 1 },
+        "volume_capacity": { "type": "number", "minimum": 0, "maximum": 1 },
+        "time_to_cash": { "type": "number", "minimum": 0, "maximum": 1 },
+        "integration_automation": { "type": "number", "minimum": 0, "maximum": 1 },
+        "buyer_concentration_risk": { "type": "number", "minimum": 0, "maximum": 1 },
+        "policy_durability": { "type": "number", "minimum": 0, "maximum": 1 },
+        "reversibility": { "type": "number", "minimum": 0, "maximum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+    "notes_and_risks": { "type": "string" }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://revenue-os.local/schemas/decision.schema.json",
+  "title": "Decision",
+  "description": "A recorded human or system decision on a proposal. See docs/revenue_os/DECISIONS.md.",
+  "type": "object",
+  "required": ["decision_id", "proposal_ref", "decision", "decision_maker", "timestamp"],
+  "properties": {
+    "decision_id": { "type": "string" },
+    "proposal_ref": { "type": "string", "description": "opportunity_id or mission_id this decision applies to" },
+    "decision": { "type": "string", "enum": ["APPROVE", "REJECT", "RESEARCH_MORE", "WATCH", "PAUSE", "KILL", "SCALE"] },
+    "decision_maker": { "type": "string" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "rationale": { "type": "string" },
+    "changed_parameters": { "type": "object" }
+  },
+  "additionalProperties": false
+}

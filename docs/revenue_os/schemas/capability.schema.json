@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://revenue-os.local/schemas/capability.schema.json",
+  "title": "Capability",
+  "description": "An abstract action the system can perform, independent of which connector implements it. See docs/revenue_os/GLOSSARY.md.",
+  "type": "object",
+  "required": ["capability_id", "name", "risk_class", "required_approval"],
+  "properties": {
+    "capability_id": { "type": "string", "description": "e.g. buy_traffic, publish_product, route_lead, create_landing_page, measure_conversion" },
+    "name": { "type": "string" },
+    "description": { "type": "string" },
+    "input_schema_ref": { "type": "string" },
+    "output_schema_ref": { "type": "string" },
+    "risk_class": { "type": "string", "enum": ["read_only", "draft_only", "reversible_write", "irreversible_write", "spend", "publish", "legal_commitment"] },
+    "required_approval": { "type": "string", "enum": ["none", "human_review", "human_approval", "blocked_until_calibrated"] },
+    "reliability_notes": { "type": "string" },
+    "cost_notes": { "type": "string" }
+  },
+  "additionalProperties": false
+}

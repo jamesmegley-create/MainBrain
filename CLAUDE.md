@@ -44,6 +44,20 @@ Each widget is a single self-contained `index.html`: shared tokens/layout from `
 
 Widgets vary in exactly which shared scripts they include — some (`spotify`, `daily-briefing`, `spiritual`) only need `utils.js`; others (`gaming`, `robinhood`) also pull in `components.js` for charts. Match what the widget actually uses.
 
+## `docs/revenue_os/`
+
+A separate, much larger initiative living in this repo: **Revenue OS**, an AI-native "internet
+revenue operating system" product spec handed off by James in full (see
+`docs/revenue_os/PRODUCT_SPEC.md` for the vision and `docs/revenue_os/DECISIONS.md` for what's been
+decided so far). As of this writing it is **documentation and JSON schemas only** — foundational
+docs (constitution, ontology, scoring, agent catalog, marketplace-atlas structure) plus
+machine-readable schemas under `docs/revenue_os/schemas/`. No backend, database, or connector code
+exists yet anywhere. This is unrelated to the widget dashboard described above; do not conflate the
+two. Before touching anything under `docs/revenue_os/`, read `docs/revenue_os/CURRENT_STATE.md`,
+`RISKS_AND_GAPS.md`, and `OPEN_QUESTIONS.md` first — they capture what's real versus aspirational
+and what's still an open decision (including whether this product ultimately stays in this repo or
+moves to its own).
+
 ## `ironframe/`
 
 This is a preview mirror of a separate, real product site (an AI consulting business), not part of the second-brain dashboard proper:

@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://revenue-os.local/schemas/outcome.schema.json",
+  "title": "Outcome",
+  "description": "The measured result of a completed or killed mission. Financial outcome and learning outcome are tracked separately so a learning-rich loss is never disguised as profit. See docs/revenue_os/SCORING.md Post-mission outcome grades.",
+  "type": "object",
+  "required": ["outcome_id", "mission_id", "financial_grade", "learning_grade"],
+  "properties": {
+    "outcome_id": { "type": "string" },
+    "mission_id": { "type": "string" },
+    "revenue_cents": { "type": "integer" },
+    "cost_cents": { "type": "integer" },
+    "acceptance_rate": { "type": "number", "minimum": 0, "maximum": 1 },
+    "conversion_rate": { "type": "number", "minimum": 0, "maximum": 1 },
+    "refund_reversal_cents": { "type": "integer" },
+    "net_contribution_cents": { "type": "integer" },
+    "time_to_cash_hours": { "type": "number" },
+    "financial_grade": { "type": "string", "enum": ["A", "B", "C", "D", "F"] },
+    "learning_grade": { "type": "string", "enum": ["A", "B", "C", "D", "F"] },
+    "attribution_quality": { "type": "string", "enum": ["strong", "moderate", "weak", "unmeasured"] },
+    "after_action_review": {
+      "type": "object",
+      "properties": {
+        "thesis": { "type": "string" },
+        "forecast_vs_actual": { "type": "string" },
+        "assumptions_held": { "type": "array", "items": { "type": "string" } },
+        "assumptions_failed": { "type": "array", "items": { "type": "string" } },
+        "reusable_assets": { "type": "array", "items": { "type": "string" } },
+        "next_test": { "type": "string" },
+        "updated_confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "playbook_changes": { "type": "string" }
+      }
+    }
+  },
+  "additionalProperties": false
+}

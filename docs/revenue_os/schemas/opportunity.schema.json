@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://revenue-os.local/schemas/opportunity.schema.json",
+  "title": "Opportunity",
+  "description": "An evidence-backed proposition that a specific action can convert defined resources into expected financial value through a known or testable exit path. See docs/revenue_os/GLOSSARY.md and SCORING.md.",
+  "type": "object",
+  "required": ["opportunity_id", "engine", "hypothesis", "target", "exit_path", "evidence", "status"],
+  "properties": {
+    "opportunity_id": { "type": "string", "pattern": "^OPP-[0-9A-Z]+$" },
+    "engine": { "type": "string", "enum": ["PAID_ACQUISITION_AFFILIATE", "LEAD_GENERATION", "MICRO_SOFTWARE", "DATA_INFORMATION", "CONTENT_AUDIENCE", "COMMERCE_POD", "PRODUCTIZED_SERVICES", "MARKETPLACE_ARBITRAGE"] },
+    "signal_ids": { "type": "array", "items": { "type": "string" } },
+    "hypothesis": { "type": "string", "description": "A falsifiable statement about why this should work" },
+    "target": {
+      "type": "object",
+      "properties": {
+        "buyer_segment": { "type": "string" },
+        "geography": { "type": "array", "items": { "type": "string" } },
+        "customer_problem": { "type": "string" }
+      }
+    },
+    "offer_output": { "type": "string" },
+    "exit_path": {
+      "type": "object",
+      "required": ["type", "verification_status"],
+      "properties": {
+        "type": { "type": "string" },
+        "marketplace_id": { "type": "string" },
+        "buyer_id": { "type": "string" },
+        "verification_status": { "type": "string", "enum": ["VERIFIED_ACTIVE", "VERIFIED_PUBLIC", "PROSPECTIVE_DIRECT", "HYPOTHETICAL", "BLOCKED"] },
+        "verified_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "evidence": { "type": "array", "items": { "$ref": "evidence.schema.json" } },
+    "economics": {
+      "type": "object",
+      "properties": {
+        "conservative_expected_value_cents": { "type": "integer" },
+        "base_expected_value_cents": { "type": "integer" },
+        "upside_expected_value_cents": { "type": "integer" },
+        "key_assumptions": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "required_capabilities": { "type": "array", "items": { "type": "string" } },
+    "time_to_feedback_hours_estimate": { "type": "number" },
+    "maximum_downside_cents": { "type": "integer" },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+    "score": { "type": "number", "description": "Composite First-Dollar score per docs/revenue_os/SCORING.md" },
+    "grade": { "type": "string", "enum": ["A", "B", "C", "D", "F"] },
+    "status": { "type": "string", "enum": ["DRAFTED", "EXIT_PATH_RESEARCH", "EXIT_PATH_VERIFIED", "ECONOMICS_MODELED", "PROPOSED_AS_MISSION", "REJECTED", "WATCHING"] },
+    "proposed_mission_id": { "type": "string" }
+  },
+  "additionalProperties": false
+}

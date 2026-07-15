@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://revenue-os.local/schemas/ledger_entry.schema.json",
+  "title": "LedgerEntry",
+  "description": "A single ledger movement tied to exactly one mission and one authorization. Uses integer minor units for money, never floating point. See docs/revenue_os/SECURITY_AND_APPROVALS.md Capital/ledger invariants.",
+  "type": "object",
+  "required": ["ledger_entry_id", "mission_id", "account", "entry_type", "currency", "amount_cents", "event_time"],
+  "properties": {
+    "ledger_entry_id": { "type": "string" },
+    "mission_id": { "type": "string" },
+    "account": { "type": "string", "enum": ["cash", "pending_cash", "platform_credits", "model_spend", "tool_spend", "human_attention_minutes", "legionary_capacity", "compute_storage", "account_equity_risk"] },
+    "entry_type": { "type": "string", "enum": ["debit", "credit"] },
+    "currency": { "type": "string", "default": "USD" },
+    "amount_cents": { "type": "integer", "description": "Always a non-negative integer in minor units; sign is carried by entry_type" },
+    "event_time": { "type": "string", "format": "date-time" },
+    "settlement_status": { "type": "string", "enum": ["authorized", "committed", "pending", "settled", "reversed"] },
+    "external_reference": { "type": "string" },
+    "reconciliation_status": { "type": "string", "enum": ["unreconciled", "reconciled", "discrepancy"] }
+  },
+  "additionalProperties": false
+}

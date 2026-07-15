@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://revenue-os.local/schemas/buyer.schema.json",
+  "title": "Buyer",
+  "description": "A specific buyer entity (may sit behind a marketplace, or be a direct buyer). See docs/revenue_os/ONTOLOGY.md.",
+  "type": "object",
+  "required": ["buyer_id", "segment", "verification_status"],
+  "properties": {
+    "buyer_id": { "type": "string", "pattern": "^BUY-[0-9A-Z]+$" },
+    "name": { "type": "string" },
+    "marketplace_id": { "type": "string", "description": "If the buyer is reached through a marketplace/network" },
+    "segment": { "type": "string" },
+    "criteria": { "type": "string" },
+    "geographies": { "type": "array", "items": { "type": "string" } },
+    "capacity_notes": { "type": "string" },
+    "commercial_terms": { "type": "string" },
+    "contact_integration_status": { "type": "string", "enum": ["no_contact", "identified", "outreach_sent", "in_discussion", "agreement_in_place", "integrated"] },
+    "consent_legal_basis": { "type": "string" },
+    "historical_acceptance_rate": { "type": "number", "minimum": 0, "maximum": 1 },
+    "historical_payout_cents": { "type": "integer" },
+    "verification_status": {
+      "type": "string",
+      "enum": ["VERIFIED_ACTIVE", "VERIFIED_PUBLIC", "PROSPECTIVE_DIRECT", "HYPOTHETICAL", "BLOCKED"]
+    },
+    "notes": { "type": "string" }
+  },
+  "additionalProperties": false
+}
